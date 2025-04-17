@@ -1,4 +1,6 @@
 
+import 'package:agunsa/core/router/app_router.dart';
+import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
 import 'package:agunsa/features/profile/display/widgets/log_out_widget.dart';
 import 'package:agunsa/home/display/widgets/options_card.dart';
@@ -78,6 +80,10 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 60),
                     OptionsCard(
+                      onTap: () {
+                        final router = ref.read(routerDelegateProvider);
+                        router.push(AppRoute.transactions);
+                      },
                       uiUtils: uiUtils,
                       title: "Nueva Transacción",
                       subtitle: Row(
@@ -98,7 +104,7 @@ class HomeScreen extends ConsumerWidget {
                         Icons.add_circle,
                         color: uiUtils.whiteColor,
                       ),
-                      onTap: () {},
+                     
                     ),
                     const SizedBox(height: 40),
                     OptionsCard(

@@ -3,6 +3,8 @@ import 'package:agunsa/features/auth/display/screens/register_screen.dart';
 import 'package:agunsa/features/profile/display/screens/change_password.dart';
 import 'package:agunsa/features/profile/display/screens/profile_screen.dart';
 import 'package:agunsa/features/profile/display/screens/security_screen.dart';
+import 'package:agunsa/features/transactions/display/screens/take_container_screen.dart';
+import 'package:agunsa/features/transactions/display/screens/transtacions_screen.dart';
 import 'package:agunsa/home/display/screens/home_screen.dart';
 import 'package:agunsa/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +16,9 @@ enum AppRoute {
   home,
   profile,
   security,
-  changePassword
+  changePassword,
+  transactions,
+  takeContainer,
 }
 
 class AppRouterDelegate extends RouterDelegate<AppRoute>
@@ -96,6 +100,10 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         return const SecurityScreen();
       case AppRoute.changePassword:
         return const ChangePassword();
+      case AppRoute.transactions:
+        return const TransactionsScreen();
+      case AppRoute.takeContainer:
+        return const TakeContainerScreen();
       default:
         return const LoginScreen();
     }

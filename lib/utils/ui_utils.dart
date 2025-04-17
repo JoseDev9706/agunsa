@@ -17,6 +17,7 @@ class UiUtils {
   final Color whiteColor = const Color(0xFFFFFFFF);
   final Color modalColor = const Color(0xFFD9D9D9);
   final Color optionsColor = const Color(0xFF929292);
+  final Color black = const Color(0xFF000000);
 
   void getDeviceSize(BuildContext context) {
     screenHeight = MediaQueryData.fromView(View.of(context)).size.height;

@@ -27,6 +27,7 @@ class OptionsCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           color: uiUtils.grayLightColor),
       child: CustomListTile(
+        
         leading: leading,
         title: AnimatedTitle(
           text: title,

@@ -14,10 +14,14 @@ class GeneralBottom extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+
         width: width,
         height: 38,
         decoration:
-            BoxDecoration(color: color, borderRadius: BorderRadius.circular(10)),
+            BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: textColor, width: 1)),
             child: Center(child: Text(text, style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16),),),
       ),
     );

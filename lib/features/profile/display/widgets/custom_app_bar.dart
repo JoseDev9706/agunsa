@@ -1,17 +1,23 @@
+import 'dart:developer';
+
+import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CustomAppBar extends StatelessWidget {
+class CustomAppBar extends ConsumerWidget {
   const CustomAppBar({
     super.key,
     required this.uiUtils, this.title,
+    this.subtitle
   });
 
   final UiUtils uiUtils;
   final String? title;
+  final String? subtitle;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
         padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 15),
         height: uiUtils.screenHeight * 0.15,
@@ -23,7 +29,8 @@ class CustomAppBar extends StatelessWidget {
               children: [
                GestureDetector(
                  onTap: () {
-                   Navigator.pop(context);
+                log('back');
+                ref.read(routerDelegateProvider).popRoute();
                  },
                  child:  Container(
                   height: 25,
@@ -31,14 +38,13 @@ class CustomAppBar extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: uiUtils.whiteColor,),
-                   padding: EdgeInsets.all(2),
+                  padding: const EdgeInsets.all(2),
                    child: Icon(
                       Icons.arrow_back,
                       color: uiUtils.primaryColor,
                       size: 20,
                     )
                  ),
-                 
                )
             ]),
             const Spacer(),
@@ -50,6 +56,16 @@ class CustomAppBar extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              subtitle ?? "",
+              style: TextStyle(
+                color: uiUtils.whiteColor,
+                fontSize: 17,
+              ),
+            ),
+          ]
           ],
         ),
     );

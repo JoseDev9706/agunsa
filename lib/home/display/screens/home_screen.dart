@@ -1,13 +1,9 @@
-import 'dart:math';
 
-import 'package:agunsa/core/router/app_router.dart';
-import 'package:agunsa/core/router/routes_provider.dart';
-import 'package:agunsa/core/widgets/animated_tittle.dart';
-import 'package:agunsa/core/widgets/custom_list_tile.dart';
+import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
+import 'package:agunsa/features/profile/display/widgets/log_out_widget.dart';
+import 'package:agunsa/home/display/widgets/options_card.dart';
 import 'package:agunsa/utils/ui_utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -32,7 +28,10 @@ class HomeScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            uiUtils.showModalDialog(
+                                context, LogoutWidget(uiUtils: uiUtils));
+                          },
                           icon: Icon(
                             Icons.logout,
                             color: uiUtils.whiteColor,
@@ -129,81 +128,10 @@ class HomeScreen extends ConsumerWidget {
             ),
           ],
         ),
-        bottomNavigationBar: Container(
-          height: uiUtils.screenHeight * 0.08,
-          width: uiUtils.screenWidth*0.4,
-          margin:  EdgeInsets.symmetric(horizontal: uiUtils.screenWidth*0.15, vertical: uiUtils.screenHeight*0.02),
-          decoration: BoxDecoration(
-            color: uiUtils.primaryColor,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.home,
-                    color: uiUtils.whiteColor,
-                    size: uiUtils.screenHeight * 0.04,  
-                  )),
-              IconButton(
-                  onPressed: () {
-                    final router = ref.read(routerDelegateProvider);
-                  router.push(AppRoute.profile);
-                  },
-                  icon: Icon(
-                    Icons.person_rounded,
-                    color: uiUtils.whiteColor,
-                    size: uiUtils.screenHeight * 0.04,
-                  ))
-            ]),
-          ),
+        bottomNavigationBar: CustomBottomNavitionBar(uiUtils: uiUtils),
       ),
     );
   }
 }
 
-class OptionsCard extends StatelessWidget {
-  const OptionsCard({
-    super.key,
-    required this.uiUtils,
-    required this.title,
-    required this.onTap,
-    required this.subtitle,
-    required this.leading,
-  });
 
-  final UiUtils uiUtils;
-  final String title;
-  final VoidCallback onTap;
-  final Widget subtitle;
-  final Widget leading;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: uiUtils.grayLightColor),
-      child: CustomListTile(
-        leading: leading,
-        title: AnimatedTitle(
-          text: title,
-          style: TextStyle(
-            color: uiUtils.whiteColor,
-            fontSize: 21,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: subtitle,
-        trailing: Icon(
-          Icons.arrow_forward_ios,
-          color: uiUtils.whiteColor,
-        ),
-        onTap: onTap,
-      ),
-    );
-  }
-}

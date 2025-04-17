@@ -1,7 +1,12 @@
 import 'dart:math';
 
+import 'package:agunsa/core/router/app_router.dart';
+import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_list_tile.dart';
+import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
+import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/profile/display/widgets/custom_app_bar.dart';
+import 'package:agunsa/features/profile/display/widgets/log_out_widget.dart';
 import 'package:agunsa/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +24,7 @@ class ProfileScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CustomAppBar(uiUtils: uiUtils),
-           SizedBox(height: uiUtils.screenHeight * 0.07),
+            SizedBox(height: uiUtils.screenHeight * 0.07),
             CircleAvatar(
               radius: 25,
               backgroundColor: uiUtils.primaryColor,
@@ -77,21 +82,23 @@ class ProfileScreen extends ConsumerWidget {
                             fontSize: 17,
                             fontWeight: FontWeight.bold),
                       ),
-                      onTap: () {},
+                      onTap: () {
+                        final router = ref.read(routerDelegateProvider);
+                        router.push(AppRoute.security);
+                      },
                       trailing: Icon(
                         Icons.arrow_forward_ios,
                         size: 20,
                         color: uiUtils.grayLightColor,
                       ),
                     ),
-                     Divider(
+                    Divider(
                       color: uiUtils.grayLightColor,
                     ),
                     CustomListTile(
                       leading: Icon(
                         Icons.logout,
                         color: uiUtils.primaryColor,
-                      
                       ),
                       title: Text(
                         'Cerrar Sesión',
@@ -100,7 +107,10 @@ class ProfileScreen extends ConsumerWidget {
                             fontSize: 17,
                             fontWeight: FontWeight.bold),
                       ),
-                      onTap: () {},
+                      onTap: () {
+                        uiUtils.showModalDialog(
+                            context, LogoutWidget(uiUtils: uiUtils));
+                      },
                       trailing: Icon(
                         Icons.arrow_forward_ios,
                         size: 20,
@@ -112,7 +122,10 @@ class ProfileScreen extends ConsumerWidget {
             const Spacer(),
           ],
         ),
+        bottomNavigationBar: CustomBottomNavitionBar(uiUtils: uiUtils),
       ),
     );
   }
 }
+
+

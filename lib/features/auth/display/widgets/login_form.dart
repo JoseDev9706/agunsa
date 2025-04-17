@@ -174,7 +174,7 @@ class LoginForm extends ConsumerWidget {
                     : uiUtils.primaryColor,
                 onTap: () {
                   final router = ref.read(routerDelegateProvider);
-                  router.push(AppRoute.home);
+                  router.pushReplacement(AppRoute.home);
                   // final emailError = validateEmail(formState.email);
                   // final passwordError = validatePassword(formState.password);
 

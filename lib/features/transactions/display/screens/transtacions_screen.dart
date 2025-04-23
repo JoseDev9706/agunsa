@@ -1,6 +1,7 @@
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
+import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/paginator_widget.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/utils/ui_utils.dart';
@@ -14,8 +15,16 @@ class TransactionsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
-    final currentPageProvider = StateProvider<int>((ref) => 1);
-    const totalPages = 3;
+    final currentPage = ref.watch(currentPageProvider);
+    final svgItems = ref.watch(filteredSvgItemsProvider);
+    const itemsPerPage = 6;
+    final totalPages = (svgItems.length / itemsPerPage).ceil();
+
+    final pagedItems = svgItems
+        .skip((currentPage - 1) * itemsPerPage)
+        .take(itemsPerPage)
+        .toList();
+
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -52,6 +61,9 @@ class TransactionsScreen extends ConsumerWidget {
                             size: 25,
                           ),
                         ),
+                        onChanged: (value) => ref
+                            .read(searchQueryProvider.notifier)
+                            .state = value,
                       ),
                     ),
                     SizedBox(height: uiUtils.screenHeight * 0.02),
@@ -61,20 +73,18 @@ class TransactionsScreen extends ConsumerWidget {
                       child: Wrap(
                         spacing: 40,
                         runSpacing: 30,
-                        children: [
-                          TransactionsCard(
-                            uiUtils: uiUtils,
-                            onTap: () {
-                              final router = ref.read(routerDelegateProvider);
-                              router.push(AppRoute.takeContainer);
-                            },
-                          ),
-                          TransactionsCard(uiUtils: uiUtils),
-                          TransactionsCard(uiUtils: uiUtils),
-                          TransactionsCard(uiUtils: uiUtils),
-                          TransactionsCard(uiUtils: uiUtils),
-                          TransactionsCard(uiUtils: uiUtils),
-                        ],
+                        children: pagedItems
+                            .map((item) => TransactionsCard(
+                                  uiUtils: uiUtils,
+                                  name: item.name,
+                                  svgPath: item.path,
+                                  onTap: () {
+                                    final router =
+                                        ref.read(routerDelegateProvider);
+                                    router.push(AppRoute.takeContainer);
+                                  },
+                                ))
+                            .toList(),
                       ),
                     ),
                     SizedBox(height: uiUtils.screenHeight * 0.04),
@@ -83,7 +93,7 @@ class TransactionsScreen extends ConsumerWidget {
                       children: [
                         Paginator(
                           uiUtils: uiUtils,
-                          currentPage: 1,
+                          currentPage: currentPage,
                           totalPages: totalPages,
                           onPageChanged: (newPage) {
                             ref.read(currentPageProvider.notifier).state =
@@ -107,14 +117,19 @@ class TransactionsScreen extends ConsumerWidget {
   }
 }
 
+
 class TransactionsCard extends StatelessWidget {
   const TransactionsCard({
     super.key,
     required this.uiUtils,
+    required this.name,
+    required this.svgPath,
     this.onTap,
   });
 
   final UiUtils uiUtils;
+  final String name;
+  final String svgPath;
   final VoidCallback? onTap;
 
   @override
@@ -122,27 +137,39 @@ class TransactionsCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-          decoration: BoxDecoration(
-            color: uiUtils.whiteColor,
-            borderRadius: BorderRadius.circular(5),
-            boxShadow: const [
-              BoxShadow(
-                  color: Colors.black12, blurRadius: 10, offset: Offset(0, 10))
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SvgPicture.asset("assets/svg/descarga.svg"),
-              const SizedBox(height: 10),
-              Text(
-                textAlign: TextAlign.center,
-                'Agunsas',
-                style: TextStyle(color: uiUtils.primaryColor, fontSize: 16),
-              ),
-            ],
-          )),
+        width: 140,
+        height: 133,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: uiUtils.whiteColor,
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: const [
+            BoxShadow(
+                color: Colors.black12, blurRadius: 10, offset: Offset(0, 10))
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              svgPath,
+              width: 73,
+              height: 58,
+              color: uiUtils.primaryColor,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              textAlign: TextAlign.center,
+              name,
+              style: TextStyle(
+                  color: uiUtils.primaryColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

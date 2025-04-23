@@ -1,10 +1,12 @@
+import 'package:agunsa/core/amplify_connet/configure_amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:agunsa/core/router/app_router.dart';
-import 'package:agunsa/core/router/routes_provider.dart'; // Asegúrate de importar tu provider
+import 'package:agunsa/core/router/routes_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await configureAmplify();
   runApp(const ProviderScope(child: MyApp()));
 }
 

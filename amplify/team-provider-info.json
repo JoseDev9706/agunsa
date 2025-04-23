@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-agunsa-dev-7b0fe-authRole",
+      "UnauthRoleArn": "arn:aws:iam::245442309502:role/amplify-agunsa-dev-7b0fe-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::245442309502:role/amplify-agunsa-dev-7b0fe-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-agunsa-dev-7b0fe-deployment",
+      "UnauthRoleName": "amplify-agunsa-dev-7b0fe-unauthRole",
+      "StackName": "amplify-agunsa-dev-7b0fe",
+      "StackId": "arn:aws:cloudformation:us-east-1:245442309502:stack/amplify-agunsa-dev-7b0fe/84f0e730-1fd9-11f0-842e-0e2a5d7821b3",
+      "AmplifyAppId": "d1644dafyu5y4"
+    },
+    "categories": {
+      "auth": {
+        "agunsa2a97a4e6": {}
+      }
+    }
+  }
+}

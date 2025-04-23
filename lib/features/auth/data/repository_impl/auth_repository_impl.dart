@@ -9,12 +9,19 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserEntity> login(String email, String password) async {
-    final userModel = await remoteDataSource.login(email, password);
-    return userModel.toEntity();
+    if (email.isEmpty || password.isEmpty) {
+      throw Exception('Correo o y contraseña no pueden estar vacíos');
+    }
+    return remoteDataSource.login(email, password);
   }
 
   @override
   Future<void> logout() async {
     // Implementación de logout
+  }
+  
+  @override
+  Future<UserEntity?> getCurrentUser() {
+    return remoteDataSource.getCurrentUserEmail();
   }
 }

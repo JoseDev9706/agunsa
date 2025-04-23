@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:agunsa/core/router/app_router.dart';
+import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
@@ -16,7 +18,7 @@ class TakeContainerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
-    final image = ref.watch(imageProvider);
+    final images = ref.watch(imageProvider);
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -34,7 +36,12 @@ class TakeContainerScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                           color: uiUtils.primaryColor, shape: BoxShape.circle),
-                      child: Text(
+                      child: images.isNotEmpty && images.first != null
+                          ? const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                            )
+                          : Text(
                         '1',
                         style: TextStyle(
                             color: uiUtils.whiteColor,
@@ -68,7 +75,7 @@ class TakeContainerScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    if (image != null) ...[
+                    if (images.isNotEmpty && images.first != null) ...[
                       Container(
                         height: uiUtils.screenHeight * 0.4,
                         width: uiUtils.screenWidth * 0.75,
@@ -77,7 +84,7 @@ class TakeContainerScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(10)),
                         child: Image.file(
                             File(
-                              image.path,
+                              images.first!.path,
                             ),
                             fit: BoxFit.fill),
                       ),
@@ -89,7 +96,15 @@ class TakeContainerScreen extends ConsumerWidget {
                             width: uiUtils.screenWidth * 0.4,
                             color: uiUtils.primaryColor,
                             text: 'CONFIRMAR',
-                            onTap: () {},
+                            onTap: () {
+                              ref.read(routerDelegateProvider).push(
+                                AppRoute.takeAditionalPhotos,
+                                args: {
+                                  'images': images,
+                                  'isContainer': true,
+                                },
+                              );
+                            },
                             textColor: uiUtils.whiteColor,
                           ),
                           GeneralBottom(
@@ -97,7 +112,7 @@ class TakeContainerScreen extends ConsumerWidget {
                             color: Colors.transparent,
                             text: 'REPETIR',
                             onTap: () =>
-                                ref.read(imageProvider.notifier).state = null,
+                                ref.read(imageProvider.notifier).state = [],
                             textColor: uiUtils.primaryColor,
                           ),
                         ],
@@ -128,7 +143,9 @@ class TakeContainerScreen extends ConsumerWidget {
                               await CodeUtils().checkCameraPermission(context);
                           if (capturedImage != null) {
                             ref.read(imageProvider.notifier).state =
-                                capturedImage;
+                                [
+                              capturedImage
+                            ];
                           }
                         },
                         child: CircleAvatar(

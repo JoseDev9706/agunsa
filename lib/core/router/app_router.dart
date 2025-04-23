@@ -3,6 +3,8 @@ import 'package:agunsa/features/auth/display/screens/register_screen.dart';
 import 'package:agunsa/features/profile/display/screens/change_password.dart';
 import 'package:agunsa/features/profile/display/screens/profile_screen.dart';
 import 'package:agunsa/features/profile/display/screens/security_screen.dart';
+import 'package:agunsa/features/transactions/display/screens/container_info.dart';
+import 'package:agunsa/features/transactions/display/screens/take_aditional_photos.dart';
 import 'package:agunsa/features/transactions/display/screens/take_container_screen.dart';
 import 'package:agunsa/features/transactions/display/screens/transtacions_screen.dart';
 import 'package:agunsa/home/display/screens/home_screen.dart';
@@ -19,6 +21,8 @@ enum AppRoute {
   changePassword,
   transactions,
   takeContainer,
+  takeAditionalPhotos,
+  containerInfo,
 }
 
 class AppRouterDelegate extends RouterDelegate<AppRoute>
@@ -104,6 +108,10 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         return const TransactionsScreen();
       case AppRoute.takeContainer:
         return const TakeContainerScreen();
+      case AppRoute.takeAditionalPhotos:
+        return const TakeAditionalPhotos();
+      case AppRoute.containerInfo:
+        return ContainerInfo(args: _args);
       default:
         return const LoginScreen();
     }

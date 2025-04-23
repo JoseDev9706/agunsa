@@ -17,8 +17,8 @@ class TransactionAppBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 15),
-        height: uiUtils.screenHeight * 0.15,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      // height: uiUtils.screenHeight * 0.15,
         color: Colors.transparent,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -45,7 +45,9 @@ class TransactionAppBar extends ConsumerWidget {
                  ),
                )
             ]),
-            const Spacer(),
+          // if (title != null || subtitle != null) ...[
+          //   const Spacer(),
+          // ],
             Text(
               title ?? "PERFIL",
               style: TextStyle(

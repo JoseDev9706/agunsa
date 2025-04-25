@@ -38,7 +38,7 @@ final authRepositoryProvider = AutoDisposeProvider<AuthRepository>.internal(
 );
 
 typedef AuthRepositoryRef = AutoDisposeProviderRef<AuthRepository>;
-String _$loginFormStateHash() => r'de3eddd0ef0c5ddc8342b05781b4aa285396298c';
+String _$loginFormStateHash() => r'3d19c77776e77a79b2113450df7a5ccd746d2920';
 
 /// See also [LoginFormState].
 @ProviderFor(LoginFormState)
@@ -54,7 +54,7 @@ final loginFormStateProvider =
 );
 
 typedef _$LoginFormState = AutoDisposeNotifier<LoginFormData>;
-String _$loginControllerHash() => r'97850f7ceb1d461de84db0c6095dff9a9a01ed34';
+String _$loginControllerHash() => r'2cc8230d3562553626e12b3c71baf5d47281d7b1';
 
 /// See also [LoginController].
 @ProviderFor(LoginController)

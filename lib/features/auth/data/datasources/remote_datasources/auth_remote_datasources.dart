@@ -1,11 +1,12 @@
 import 'dart:developer';
 
+import 'package:agunsa/core/class/auth_result.dart';
 import 'package:agunsa/features/auth/data/models/user_model.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:dio/dio.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<UserModel> login(String email, String password);
+  Future<AuthResult> login(String email, String password);
   Future<UserModel> getCurrentUserEmail();
   Future<void> logout();
 }
@@ -16,28 +17,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<UserModel> login(String email, String password) async {
+  Future<AuthResult> login(String email, String password) async {
     try {
-      try {
-        await Amplify.Auth.signOut();
-      } catch (e) {
-        log('Logout error - $e');
-      }
+      await Amplify.Auth.signOut();
 
-      final result =
-          await Amplify.Auth.signIn(username: email, password: password);
+      final result = await Amplify.Auth.signIn(
+        username: email,
+        password: password,
+      );
 
       if (result.isSignedIn) {
         final user = await Amplify.Auth.getCurrentUser();
-        return UserModel(email: email, token: user.userId);
+        log('User is signed in: ${user.username}');
+        log('User ID: ${user.userId}');
+        return AuthSuccess(UserModel(email: email, token: user.userId));
+      } else if (result.nextStep.signInStep.name ==
+          'confirmSignInWithNewPassword') {
+        return RequirePasswordChange(result);
       } else {
-        return UserModel(email: '', token: '');
+        return AuthFailure("Credenciales inválidas.");
       }
     } catch (e) {
-      log('Logout error - $e');
-      return UserModel(email: '', token: '');
+      return AuthFailure(e.toString());
     }
   }
+
 
   @override
   Future<UserModel> getCurrentUserEmail() async {

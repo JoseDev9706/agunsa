@@ -1,3 +1,4 @@
+import 'package:agunsa/core/class/auth_result.dart';
 import 'package:agunsa/features/auth/data/datasources/remote_datasources/auth_remote_datasources.dart';
 import 'package:agunsa/features/auth/data/repository_impl/auth_repository_impl.dart';
 import 'package:agunsa/features/auth/domain/respositories/auth_repository.dart';
@@ -68,12 +69,19 @@ class LoginController extends _$LoginController {
   @override
   FutureOr<void> build() {}
 
-  Future<void> login(String email, String password) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() => ref
-        .read(loginUseCaseProvider)
-        .execute(email, password)
-        .then((_) => null));
+  Future<AuthResult?> login(String email, String password) async {
+    try {
+      state = const AsyncLoading();
+
+      final result =
+          await ref.read(loginUseCaseProvider).execute(email, password);
+
+      state = AsyncData(result);
+      return result;
+    } catch (error, stackTrace) {
+      state = AsyncError(error, stackTrace);
+      return null;
+    }
   }
 }
 

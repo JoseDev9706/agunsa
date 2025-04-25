@@ -9,6 +9,7 @@ class CustomFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final TextEditingController controller;
   final bool isObscure;
+  final VoidCallback? onTapIcon;
   const CustomFormField(
       {super.key,
       required this.label,
@@ -17,7 +18,8 @@ class CustomFormField extends StatelessWidget {
       required this.isEmail,
       this.validator,
       required this.controller,
-      required this.isObscure});
+      required this.isObscure,
+      this.onTapIcon});
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +47,10 @@ class CustomFormField extends StatelessWidget {
             ],
           ),
           child: TextFormField(
+            style: TextStyle(
+                color: uiUtils.grayDarkColor,
+                fontSize: 16,
+                fontWeight: FontWeight.bold),
             controller: controller,
             validator: validator,
             obscureText: isObscure,
@@ -53,8 +59,10 @@ class CustomFormField extends StatelessWidget {
                 prefixIcon: icon == null ? null : Icon(icon),
                 suffixIcon: isPassword
                     ? IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.remove_red_eye),
+                        onPressed: onTapIcon,
+                        icon: isObscure
+                            ? const Icon(Icons.visibility_off)
+                            : const Icon(Icons.remove_red_eye),
                       )
                     : null),
           ),

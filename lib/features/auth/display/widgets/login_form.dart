@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:agunsa/core/class/auth_result.dart';
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
@@ -172,21 +173,40 @@ class LoginForm extends ConsumerWidget {
                 color: loginState.isLoading
                     ? uiUtils.grayLightColor
                     : uiUtils.primaryColor,
-                onTap: () {
-                  final router = ref.read(routerDelegateProvider);
-                  router.pushReplacement(AppRoute.home);
-                  // final emailError = validateEmail(formState.email);
-                  // final passwordError = validatePassword(formState.password);
+                onTap: () async {
+                  final emailError = validateEmail(formState.email);
+                  final passwordError = validatePassword(formState.password);
 
-                  // formNotifier.setEmailError(emailError ?? '');
-                  // formNotifier.setPasswordError(passwordError ?? '');
+                  formNotifier.setEmailError(emailError ?? '');
+                  formNotifier.setPasswordError(passwordError ?? '');
 
-                  // if (emailError == null && passwordError == null) {
-                  //   ref.read(loginControllerProvider.notifier).login(
-                  //         formState.email,
-                  //         formState.password,
-                  //       );
-                  // }
+                  if (emailError == null && passwordError == null) {
+                    final result =
+                        await ref.read(loginControllerProvider.notifier).login(
+                              formState.email,
+                              formState.password,
+                            );
+                    if (result != null) {
+                      log('Login result: ${result.toString()}');
+                      if (result is AuthSuccess) {
+                        log('Login exitoso: ${result.user.email}');
+                        final router = ref.read(routerDelegateProvider);
+                        router.pushReplacement(AppRoute.home, args: {
+                          'user': result.user,
+                        });
+                      } else if (result is AuthFailure) {
+                        log('Error de login: ${result.message}');
+                      } else if (result is RequirePasswordChange) {
+                        log('Cambio de contraseña requerido: ${result.nextStep}');
+                        final router = ref.read(routerDelegateProvider);
+                        router.pushReplacement(AppRoute.home, args: {
+                          'nextStep': result.nextStep,
+                        });
+                      } else {
+                        log('Error inesperado: ${result.toString()}');
+                      }
+                    }
+                  }
                 },
                 text: loginState.isLoading ? 'CARGANDO...' : 'COMENZAR',
                 textColor: uiUtils.whiteColor,

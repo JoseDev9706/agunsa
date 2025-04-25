@@ -109,7 +109,7 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       onTap: () {
                         uiUtils.showModalDialog(
-                            context, LogoutWidget(uiUtils: uiUtils));
+                            context, LogoutWidget(uiUtils: uiUtils), true);
                       },
                       trailing: Icon(
                         Icons.arrow_forward_ios,

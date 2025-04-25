@@ -25,8 +25,10 @@ class UiUtils {
   }
 
   Future<void> showLoadingDialog() async {}
-  Future<void> showModalDialog(BuildContext context, Widget child) async {
+  Future<void> showModalDialog(
+      BuildContext context, Widget child, bool isDismissible) async {
     return await showModalBottomSheet(
+        isDismissible: isDismissible,
         context: context,
         builder: (context) {
           return Container(

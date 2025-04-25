@@ -1,4 +1,4 @@
-import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
+import 'package:agunsa/core/class/auth_result.dart';
 import 'package:agunsa/features/auth/domain/respositories/auth_repository.dart';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -12,7 +12,7 @@ class LoginUseCase {
 
   LoginUseCase(this.repository);
 
-  Future<UserEntity> execute(String email, String password) async {
+  Future<AuthResult> execute(String email, String password) async {
     return await repository.login(email, password);
   }
 }

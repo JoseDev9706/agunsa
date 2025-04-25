@@ -65,7 +65,7 @@ class SecurityScreen extends ConsumerWidget{
                   CustomListTile(
                      onTap: () {
                         uiUtils.showModalDialog(
-                            context, LogoutWidget(uiUtils: uiUtils));
+                          context, LogoutWidget(uiUtils: uiUtils), true);
                       },
                     leading: Icon(
                       Icons.logout,

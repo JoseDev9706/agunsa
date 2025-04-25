@@ -1,20 +1,41 @@
-
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
 import 'package:agunsa/features/profile/display/widgets/log_out_widget.dart';
+import 'package:agunsa/home/display/widgets/change_password_adv.dart';
 import 'package:agunsa/home/display/widgets/options_card.dart';
 import 'package:agunsa/utils/ui_utils.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+  final SignInResult? isNeedPasswordConfirmation;
+  const HomeScreen({
+    super.key,
+    this.isNeedPasswordConfirmation,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
+    if (isNeedPasswordConfirmation?.nextStep != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        uiUtils.showModalDialog(
+          context,
+          ChangePasswordAdv(
+            uiUtils: uiUtils,
+            onChangePassword: () {
+              final router = ref.read(routerDelegateProvider);
+              router.push(AppRoute.changePassword,
+                  args: {'nextStep': isNeedPasswordConfirmation});
+            },
+          ),
+          false,
+        );
+      });
+    }
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -32,7 +53,7 @@ class HomeScreen extends ConsumerWidget {
                       IconButton(
                           onPressed: () {
                             uiUtils.showModalDialog(
-                                context, LogoutWidget(uiUtils: uiUtils));
+                                context, LogoutWidget(uiUtils: uiUtils), true);
                           },
                           icon: Icon(
                             Icons.logout,
@@ -104,7 +125,6 @@ class HomeScreen extends ConsumerWidget {
                         Icons.add_circle,
                         color: uiUtils.whiteColor,
                       ),
-                     
                     ),
                     const SizedBox(height: 40),
                     OptionsCard(
@@ -139,5 +159,3 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 }
-
-

@@ -97,13 +97,13 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
       case AppRoute.register:
         return const RegisterScreen();
       case AppRoute.home:
-        return const HomeScreen();
+        return HomeScreen(isNeedPasswordConfirmation: _args?['nextStep']);
       case AppRoute.profile:
         return const ProfileScreen();
       case AppRoute.security:
         return const SecurityScreen();
       case AppRoute.changePassword:
-        return const ChangePassword();
+        return ChangePassword(_args?['nextStep']);
       case AppRoute.transactions:
         return const TransactionsScreen();
       case AppRoute.takeContainer:

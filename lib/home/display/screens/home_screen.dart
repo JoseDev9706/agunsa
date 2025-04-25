@@ -20,7 +20,8 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
-    if (isNeedPasswordConfirmation?.nextStep != null) {
+    if (isNeedPasswordConfirmation?.nextStep.signInStep.name ==
+        'signInWithPassword') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         uiUtils.showModalDialog(
           context,

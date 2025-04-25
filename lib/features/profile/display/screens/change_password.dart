@@ -1,3 +1,4 @@
+import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/profile/display/providers/profile_provider.dart';
 import 'package:agunsa/features/profile/display/widgets/custom_app_bar.dart';
@@ -150,7 +151,8 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
                                       newPasswordController.text,
                                       widget.isNeedPasswordConfirmation!,
                                     );
-
+                                // Limpiar los campos después de cambiar la contraseña
+                                formNotifier.clearFields();
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -158,7 +160,9 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
                                           'Contraseña actualizada correctamente'),
                                       backgroundColor: Colors.green,
                                     ),
+
                                   );
+                                 
                                 }
                               } catch (e) {
                                 if (context.mounted) {

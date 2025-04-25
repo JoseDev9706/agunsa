@@ -44,6 +44,10 @@ class ChangePasswordFormState extends _$ChangePasswordFormState {
     state = state.copyWith(obscurePassword: !state.obscurePassword);
   }
 
+  void clearFields() {
+    state = const ChangePasswordData();
+  }
+
   void setCurrentPasswordError(String error) {
     state = state.copyWith(currentPasswordError: error);
   }

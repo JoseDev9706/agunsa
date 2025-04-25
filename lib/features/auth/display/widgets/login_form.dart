@@ -174,6 +174,7 @@ class LoginForm extends ConsumerWidget {
                     ? uiUtils.grayLightColor
                     : uiUtils.primaryColor,
                 onTap: () async {
+                  log('Login form submitted');
                   final emailError = validateEmail(formState.email);
                   final passwordError = validatePassword(formState.password);
 

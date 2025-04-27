@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:agunsa/core/class/auth_result.dart';
 import 'package:agunsa/features/auth/data/models/user_model.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart'
+    show CognitoAuthSession, CognitoFetchAuthSessionPluginOptions;
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:dio/dio.dart';
 
@@ -30,7 +32,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         final user = await Amplify.Auth.getCurrentUser();
         log('User is signed in: ${user.username}');
         log('User ID: ${user.userId}');
-        return AuthSuccess(UserModel(email: email, token: user.userId));
+
+        final session = await Amplify.Auth.fetchAuthSession(
+            options: FetchAuthSessionOptions(
+                pluginOptions: CognitoFetchAuthSessionPluginOptions()));
+
+        if (session.isSignedIn) {
+          final cognitoSession = session as CognitoAuthSession;
+
+          log('Access Token: ${cognitoSession.userPoolTokensResult.value.accessToken.raw}');
+          final accessToken =
+              cognitoSession.userPoolTokensResult.value.accessToken.raw;
+          // log('ID Token: ${cognitoSession.userPoolTokensResult}');
+
+          return AuthSuccess(
+            UserModel(email: email, token: accessToken),
+          );
+        } else {
+          return AuthFailure("Sesión no iniciada correctamente.");
+        }
       } else if (result.nextStep.signInStep.name ==
           'confirmSignInWithNewPassword') {
         return RequirePasswordChange(result);
@@ -41,8 +61,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return AuthFailure(e.toString());
     }
   }
-
-
   @override
   Future<UserModel> getCurrentUserEmail() async {
     final user = await Amplify.Auth.getCurrentUser();

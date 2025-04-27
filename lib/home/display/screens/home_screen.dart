@@ -1,20 +1,24 @@
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
+import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
 import 'package:agunsa/features/profile/display/widgets/log_out_widget.dart';
 import 'package:agunsa/home/display/widgets/change_password_adv.dart';
 import 'package:agunsa/home/display/widgets/options_card.dart';
 import 'package:agunsa/utils/ui_utils.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
 class HomeScreen extends ConsumerWidget {
   final SignInResult? isNeedPasswordConfirmation;
+  final UserEntity? user;
   const HomeScreen({
     super.key,
     this.isNeedPasswordConfirmation,
+    this.user,
   });
 
   @override
@@ -28,6 +32,7 @@ class HomeScreen extends ConsumerWidget {
           ChangePasswordAdv(
             uiUtils: uiUtils,
             onChangePassword: () {
+              uiUtils.hideModalDialog(context);
               final router = ref.read(routerDelegateProvider);
               router.push(AppRoute.changePassword,
                   args: {'nextStep': isNeedPasswordConfirmation});
@@ -53,9 +58,13 @@ class HomeScreen extends ConsumerWidget {
                     children: [
                       IconButton(
                           onPressed: () {
-                            uiUtils.showModalDialog(
-                                context, LogoutWidget(uiUtils: uiUtils), true);
-                          },
+                            Clipboard.setData(
+                                ClipboardData(text: '${user?.token}'));
+                            uiUtils.showSnackBar(
+                                context, "Token copiado al portapapeles");
+                            // uiUtils.showModalDialog(
+                            //     context, LogoutWidget(uiUtils: uiUtils), true);
+                          },  
                           icon: Icon(
                             Icons.logout,
                             color: uiUtils.whiteColor,

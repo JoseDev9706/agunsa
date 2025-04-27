@@ -190,7 +190,8 @@ class LoginForm extends ConsumerWidget {
                     if (result != null) {
                       log('Login result: ${result.toString()}');
                       if (result is AuthSuccess) {
-                        log('Login exitoso: ${result.user.email}');
+                        log('Login exitoso: ${result.user.email}, ${result.user.token}');
+
                         final router = ref.read(routerDelegateProvider);
                         router.pushReplacement(AppRoute.home, args: {
                           'user': result.user,

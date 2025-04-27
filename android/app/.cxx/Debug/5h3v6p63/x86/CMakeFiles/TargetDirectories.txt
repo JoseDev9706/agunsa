@@ -1,0 +1,2 @@
+D:/Projects/agunsa/android/app/.cxx/Debug/5h3v6p63/x86/CMakeFiles/edit_cache.dir
+D:/Projects/agunsa/android/app/.cxx/Debug/5h3v6p63/x86/CMakeFiles/rebuild_cache.dir

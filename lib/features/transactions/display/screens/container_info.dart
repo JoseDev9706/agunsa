@@ -1,7 +1,10 @@
 import 'dart:io';
 
+import 'package:agunsa/core/router/app_router.dart';
+import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
+import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
@@ -18,300 +21,686 @@ class ContainerInfo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
+    final isExpanded = ref.watch(expandedContainersProvider
+        .select((state) => state['containerInfo'] ?? false));
+    final isRegistroFotosExpanded = ref.watch(expandedContainersProvider
+        .select((state) => state['registroFotos'] ?? false));
+    final isRegistroPrecintExpanded = ref.watch(expandedContainersProvider
+        .select((state) => state['registroPrecint'] ?? false));
+    final isRegistroPlacaExpanded = ref.watch(expandedContainersProvider
+        .select((state) => state['registroPlaca'] ?? false));
+    final isRegistroConductorExpanded = ref.watch(expandedContainersProvider
+        .select((state) => state['registroConductor'] ?? false));
+
     return SafeArea(
-        child: Scaffold(
-      body: Column(
-        children: [
-          TransactionAppBar(
-            uiUtils: uiUtils,
-            title: '',
+      child: Scaffold(
+        body: Column(
+          children: [
+            TransactionAppBar(uiUtils: uiUtils, title: ''),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _transactionHeader(),
+                      const SizedBox(height: 20),
+                      _animatedSection(
+                        title: 'DATOS DEL CONTENEDOR',
+                        isExpanded: isExpanded,
+                        onTap: () {
+                          ref
+                              .read(expandedContainersProvider.notifier)
+                              .toggle('containerInfo');
+                        },
+                        content: _containerInfo(args),
+                      ),
+                      Divider(color: uiUtils.grayLightColor, thickness: 1),
+                      _animatedSection(
+                        title: 'REGISTRO FOTOGRÁFICO',
+                        isExpanded: isRegistroFotosExpanded,
+                        onTap: () {
+                          ref
+                              .read(expandedContainersProvider.notifier)
+                              .toggle('registroFotos');
+                        },
+                        content: _imageGallery(args,
+                            selectedIndexes: [1, 2], isPlaca: false),
+                      ),
+                      if (args?['images']?.length >= 4) ...[
+                        // Sección de "DATOS PRECINTO" si hay 4 o más imágenes
+                        Divider(color: uiUtils.grayLightColor, thickness: 1),
+                        _animatedSection(
+                          title: 'DATOS PRECINTO',
+                          isExpanded: isRegistroPrecintExpanded,
+                          onTap: () {
+                            ref
+                                .read(expandedContainersProvider.notifier)
+                                .toggle('registroPrecint');
+                          },
+                          content: _imageGallery(args,
+                              selectedIndexes: [3], isPlaca: false),
+                        ),
+                      ],
+                      if (args?['images']?.length >= 5) ...[
+                        Divider(color: uiUtils.grayLightColor, thickness: 1),
+                        _animatedSection(
+                          title: 'DATOS DE LA PLACA',
+                          isExpanded: isRegistroPlacaExpanded,
+                          onTap: () {
+                            ref
+                                .read(expandedContainersProvider.notifier)
+                                .toggle('registroPlaca');
+                          },
+                          content: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _imageGallery(args,
+                                  selectedIndexes: [4], isPlaca: true),
+                              Expanded(
+                                flex: 4,
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(2),
+                                      border: Border.all(
+                                          color: uiUtils.labelColor, width: 1),
+                                      color: uiUtils.labelColor),
+                                  child: Text(
+                                    'NUMERO',
+                                    style: TextStyle(
+                                        color: uiUtils.grayDarkColor,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 6,
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(2),
+                                      border: Border.all(
+                                          color: uiUtils.labelColor, width: 1),
+                                      color: Colors.transparent),
+                                  child: Center(
+                                    child: Text(
+                                      'ABC1234',
+                                      style: TextStyle(
+                                          color: uiUtils.grayLightColor,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      if (args?['images']?.length >= 6) ...[
+                        Divider(color: uiUtils.grayLightColor, thickness: 1),
+                        _animatedSection(
+                          title: 'DATOS DEL CONDUCTOR',
+                          isExpanded: isRegistroConductorExpanded,
+                          onTap: () {
+                            ref
+                                .read(expandedContainersProvider.notifier)
+                                .toggle('registroConductor');
+                          },
+                          content: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              _imageGallery(args,
+                                  selectedIndexes: [5],
+                                  isPlaca: false,
+                                  isCond: true),
+                              SizedBox(
+                                height: uiUtils.screenHeight * 0.1,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            height: uiUtils.screenHeight * 0.03,
+                                            margin:
+                                                const EdgeInsets.only(left: 0),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 0),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                border: Border.all(
+                                                    color: uiUtils.labelColor,
+                                                    width: 1),
+                                                color: uiUtils.labelColor),
+                                            child: Center(
+                                              child: Text(
+                                                'NOMBRES:',
+                                                style: TextStyle(
+                                                    color:
+                                                        uiUtils.grayLightColor,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            height: uiUtils.screenHeight * 0.03,
+                                            width: uiUtils.screenWidth * 0.34,
+                                            margin:
+                                                const EdgeInsets.only(left: 0),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 5),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                border: Border.all(
+                                                    color: uiUtils.labelColor,
+                                                    width: 1),
+                                                color: Colors.transparent),
+                                            child: Center(
+                                              child: Text(
+                                                'CARLOS MARIO',
+                                                style: TextStyle(
+                                                    color:
+                                                        uiUtils.grayLightColor,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.normal),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            height: uiUtils.screenHeight * 0.03,
+                                            margin:
+                                                const EdgeInsets.only(left: 0),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 0),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                border: Border.all(
+                                                    color: uiUtils.labelColor,
+                                                    width: 1),
+                                                color: uiUtils.labelColor),
+                                            child: Center(
+                                              child: Text(
+                                                'NOMBRES:',
+                                                style: TextStyle(
+                                                    color:
+                                                        uiUtils.grayLightColor,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            height: uiUtils.screenHeight * 0.03,
+                                            width: uiUtils.screenWidth * 0.34,
+                                            margin:
+                                                const EdgeInsets.only(left: 0),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 5),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                border: Border.all(
+                                                    color: uiUtils.labelColor,
+                                                    width: 1),
+                                                color: Colors.transparent),
+                                            child: Center(
+                                              child: Text(
+                                                'CARLOS MARIO',
+                                                style: TextStyle(
+                                                    color:
+                                                        uiUtils.grayLightColor,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.normal),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            height: uiUtils.screenHeight * 0.03,
+                                            margin:
+                                                const EdgeInsets.only(left: 0),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 0),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                border: Border.all(
+                                                    color: uiUtils.labelColor,
+                                                    width: 1),
+                                                color: uiUtils.labelColor),
+                                            child: Center(
+                                              child: Text(
+                                                'NOMBRES:',
+                                                style: TextStyle(
+                                                    color:
+                                                        uiUtils.grayLightColor,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            height: uiUtils.screenHeight * 0.03,
+                                            width: uiUtils.screenWidth * 0.34,
+                                            margin:
+                                                const EdgeInsets.only(left: 0),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 5),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                border: Border.all(
+                                                    color: uiUtils.labelColor,
+                                                    width: 1),
+                                                color: Colors.transparent),
+                                            child: Center(
+                                              child: Text(
+                                                'CARLOS MARIO',
+                                                style: TextStyle(
+                                                    color:
+                                                        uiUtils.grayLightColor,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.normal),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GeneralBottom(
+                            width: uiUtils.screenWidth * 0.5,
+                            color: uiUtils.primaryColor,
+                            text: () {
+                              final imageCount = args?['images']?.length ?? 0;
+
+                              if (imageCount > 5) {
+                                return 'FINALIZAR';
+                              } else if (imageCount > 4) {
+                                return 'CAPTURA DNI';
+                              } else if (imageCount > 3) {
+                                return 'CAPTURA PLACA';
+                              } else {
+                                return 'CAPTURA PRECINTOS';
+                              }
+                            }(),
+                            onTap: () {
+                              final imageCount = args?['images']?.length ?? 0;
+
+                              if (imageCount == 3) {
+                                ref.read(routerDelegateProvider).push(
+                                  AppRoute.takePrecint,
+                                  args: {
+                                    'images': args?['images'],
+                                    'isContainer': true,
+                                  },
+                                );
+                              } else if (imageCount == 4) {
+                                ref.read(routerDelegateProvider).push(
+                                  AppRoute.talePlaca,
+                                  args: {
+                                    'images': args?['images'],
+                                    'isContainer': true,
+                                  },
+                                );
+                              } else if (imageCount == 5) {
+                                ref.read(routerDelegateProvider).push(
+                                  AppRoute.takeDni,
+                                  args: {
+                                    'images': args?['images'],
+                                    'isContainer': true,
+                                  },
+                                );
+                              } else if (imageCount == 6) {
+                                ref.read(routerDelegateProvider).push(
+                                  AppRoute.resumeTransaction,
+                                  args: {
+                                    'images': args?['images'],
+                                    'isContainer': true,
+                                  },
+                                );
+                              } else {
+                                ref.read(routerDelegateProvider).push(
+                                  AppRoute.containerInfo,
+                                  args: {
+                                    'images': args?['images'],
+                                    'isContainer': true,
+                                  },
+                                );
+                              }
+                            },
+                            textColor: uiUtils.whiteColor,
+                            icon: SvgPicture.asset(
+                              'assets/svg/camera.svg',
+                              color: uiUtils.whiteColor,
+                              height: 20,
+                              width: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _transactionHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: UiUtils().grayDarkColor,
+            borderRadius: BorderRadius.circular(5),
           ),
-          Expanded(
-            child: Padding(
-               padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
+          child: Row(
+            children: [
+              Text('TRANSACCION:',
+                  style: TextStyle(color: UiUtils().whiteColor)),
+              Text('DESCARGA', style: TextStyle(color: UiUtils().whiteColor)),
+              const SizedBox(width: 15),
+              SvgPicture.asset(
+                'assets/svg/descarga.svg',
+                color: UiUtils().whiteColor,
+                height: 20,
+                width: 20,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _animatedSection({
+    required String title,
+    required bool isExpanded,
+    required VoidCallback onTap,
+    required Widget content,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: onTap,
+            child: Row(
+              children: [
+                Transform.rotate(
+                  angle: !isExpanded ? -1.5708 : 0,
+                  child: SvgPicture.asset(
+                    'assets/svg/drop_rigth.svg',
+                    color: UiUtils().primaryColor,
+                    height: 8,
+                    width: 8,
+                  ),
+                ),
+                const SizedBox(width: 3),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: UiUtils().primaryColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isExpanded) ...[
+            const SizedBox(height: 10),
+            content,
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _imageGallery(dynamic args,
+      {List<int> selectedIndexes = const [],
+      bool? isPlaca = false,
+      bool isCond = false}) {
+    final images = args?['images'];
+    if (images.isEmpty || selectedIndexes.isEmpty) return const SizedBox();
+
+    return Row(
+      children: selectedIndexes.map<Widget>((index) {
+        if (index >= images.length)
+          return const SizedBox(); // Evita fuera de rango
+        final image = images[index];
+
+        return Container(
+          margin: const EdgeInsets.only(right: 8),
+          height: isPlaca!
+              ? UiUtils().screenHeight * 0.05
+              : isCond
+                  ? UiUtils().screenHeight * 0.1
+                  : UiUtils().screenHeight * 0.09,
+          width: isPlaca
+              ? UiUtils().screenWidth * 0.25
+              : isCond
+                  ? UiUtils().screenWidth * 0.35
+                  : UiUtils().screenWidth * 0.2,
+          decoration: BoxDecoration(
+            color: UiUtils().labelColor,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: Image.file(
+              File(image.path),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) =>
+                  Container(color: UiUtils().grayDarkColor),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  _containerInfo(Map<String, dynamic>? args) {
+    UiUtils uiUtils = UiUtils();
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.file(
+              File(args?['images'][0].path),
+              height: 115,
+              width: 94,
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: 94,
+                width: 94,
+                color: uiUtils.grayDarkColor,
+              ),
+              fit: BoxFit.fill,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Container(
-                          decoration: BoxDecoration(
-                            color: uiUtils.grayDarkColor,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 4),
-                          child: Row(
-                            children: [
-                              Text(
-                                'TRANSACCION:',
-                                style: TextStyle(color: uiUtils.whiteColor),
-                              ),
-                              Text(
-                                'DESCARGA',
-                                style: TextStyle(color: uiUtils.whiteColor),
-                              ),
-                              const SizedBox(width: 15),
-                              SvgPicture.asset(
-                                'assets/svg/descarga.svg',
-                                color: uiUtils.whiteColor,
-                                height: 20,
-                                width: 20,
-                              ),
-                            ],
-                          )),
-                    ],
+                  LabelInfoWidget(
+                    isPhotoInfo: true,
+                    uiUtils: uiUtils,
+                    label: 'NUMERO DE CONTENEDOR',
                   ),
-                  const SizedBox(height: 20),
-                  AnimatedContainer(
-                    duration: const Duration(seconds: 1),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/svg/drop_rigth.svg',
-                              color: uiUtils.primaryColor,
-                              height: 8,
-                              width: 8,
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              'DATOS DEL CONTENEDOR',
-                              style: TextStyle(
-                                  color: uiUtils.primaryColor,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Image.file(
-                              File(args?['images'][0].path),
-                              height: 115,
-                              width: 94,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                height: 94,
-                                width: 94,
-                                color: uiUtils.grayDarkColor,
-                              ),
-                              fit: BoxFit.fill,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  LabelInfoWidget(
-                                    isPhotoInfo: true,
-                                    uiUtils: uiUtils,
-                                    label: 'NUMERO DE CONTENEDOR',
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 20),
-                                    padding: const EdgeInsets.only(top: 5),
-                                    child: Text(
-                                      'GCXU 577020 45G1',
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          color: uiUtils.optionsColor),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 15),
-                                    child: Divider(
-                                      color: uiUtils.grayLightColor,
-                                      thickness: 1,
-                                    ),
-                                  ),
-                                  LabelInfoWidget(
-                                      isPhotoInfo: true,
-                                      uiUtils: uiUtils,
-                                      label:
-                                          'IDENTIFICACIÓN LÍNEA DE TRANSPORTE:'),
-                                  Container(
-                                    margin: const EdgeInsets.only(left: 20),
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 5),
-                                    child: Text(
-                                      '45G1',
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          color: uiUtils.optionsColor),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        LabelInfo2(
-                          uiUtils: uiUtils,
-                          label: 'CODIGO ISO',
-                          subLabel: '45G1',
-                        ),
-                        Text(
-                            'Este código indica que es un contenedor High Cube de 40 pies con altura adicional.',
-                            style: TextStyle(
-                                fontSize: 12, color: uiUtils.optionsColor)),
-                        const SizedBox(height: 10),
-                        LabelInfo2(
-                            uiUtils: uiUtils,
-                            label: 'TIPO DE CONTENEDOR:',
-                            subLabel: 'GCXU'),
-                        const SizedBox(height: 10),
-                        LabelInfo2(
-                            uiUtils: uiUtils,
-                            labelWidget: Row(
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/svg/icon-info.svg',
-                                  color: uiUtils.grayDarkColor,
-                                  height: 12,
-                                  width: 12,
-                                ),
-                                const SizedBox(width: 5),
-                                Text('TARA',
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        color: uiUtils.grayDarkColor)),
-                                const Spacer(),
-                                Text('(PESO VACIO DEL CONTENEDOR)',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: uiUtils.grayDarkColor)),
-                              ],
-                            ),
-                            label: '',
-                            subLabel: '3.700 KG'),
-                        const SizedBox(height: 10),
-                        LabelInfo2(
-                            uiUtils: uiUtils,
-                            labelWidget: Row(
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/svg/icon-info.svg',
-                                  color: uiUtils.grayDarkColor,
-                                  height: 12,
-                                  width: 12,
-                                ),
-                                const SizedBox(width: 5),
-                                Text('PLAYLOAD',
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        color: uiUtils.grayDarkColor)),
-                                const Spacer(),
-                                Text('(PESO NETO QUE PUEDE CARGAR)',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: uiUtils.grayDarkColor)),
-                              ],
-                            ),
-                            label: '',
-                            subLabel: '28.800 KG'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Divider(
-                    color: uiUtils.grayLightColor,
-                    thickness: 1,
-                  ),
-                  AnimatedContainer(
-                    duration: const Duration(seconds: 2),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/svg/drop_rigth.svg',
-                              color: uiUtils.primaryColor,
-                              height: 8,
-                              width: 8,
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              'REGISTRO FOTOGRÁFICO',
-                              style: TextStyle(
-                                  color: uiUtils.primaryColor,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            ...?args?['images']
-                                ?.asMap()
-                                .entries
-                                .where((entry) =>
-                                    entry.key >= 1 && entry.value != null)
-                                .map((entry) {
-                              return Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                height: uiUtils.screenHeight * 0.09,
-                                width: uiUtils.screenWidth * 0.2,
-                                decoration: BoxDecoration(
-                                  color: uiUtils.labelColor,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(5),
-                                  child: Image.file(
-                                    File(entry.value.path),
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Container(
-                                      color: uiUtils.grayDarkColor,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Divider(
-                    color: uiUtils.grayLightColor,
-                    thickness: 1,
-                  ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GeneralBottom(
-                        width: uiUtils.screenWidth * 0.5,
-                        color: uiUtils.primaryColor,
-                        text: 'CAPTURA PRECINTOS',
-                        onTap: () {},
-                        textColor: uiUtils.whiteColor,
-                        icon: SvgPicture.asset(
-                          'assets/svg/camera.svg',
-                          color: uiUtils.whiteColor,
-                          height: 20,
-                          width: 20,
-                        ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 20),
+                    padding: const EdgeInsets.only(top: 5),
+                    child: Text(
+                      'GCXU 577020 45G1',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: uiUtils.optionsColor,
                       ),
-                    ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15),
+                    child: Divider(
+                      color: uiUtils.grayLightColor,
+                      thickness: 1,
+                    ),
+                  ),
+                  LabelInfoWidget(
+                    isPhotoInfo: true,
+                    uiUtils: uiUtils,
+                    label: 'IDENTIFICACIÓN LÍNEA DE TRANSPORTE:',
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Text(
+                      '45G1',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: uiUtils.optionsColor,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          )
-        ],
-      ),
-      bottomNavigationBar: CustomBottomNavitionBar(uiUtils: uiUtils),
-    ));
+          ],
+        ),
+        const SizedBox(height: 20),
+        LabelInfo2(
+          uiUtils: uiUtils,
+          label: 'CODIGO ISO',
+          subLabel: '45G1',
+        ),
+        Text(
+          'Este código indica que es un contenedor High Cube de 40 pies con altura adicional.',
+          style: TextStyle(fontSize: 12, color: uiUtils.optionsColor),
+        ),
+        const SizedBox(height: 10),
+        LabelInfo2(
+          uiUtils: uiUtils,
+          label: 'TIPO DE CONTENEDOR:',
+          subLabel: 'GCXU',
+        ),
+        const SizedBox(height: 10),
+        LabelInfo2(
+          uiUtils: uiUtils,
+          labelWidget: Row(
+            children: [
+              SvgPicture.asset(
+                'assets/svg/icon-info.svg',
+                color: uiUtils.grayDarkColor,
+                height: 12,
+                width: 12,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                'TARA',
+                style: TextStyle(
+                    fontSize: 13,
+                    color: uiUtils.grayDarkColor,
+                    fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              Text(
+                '(PESO VACIO DEL CONTENEDOR)',
+                style: TextStyle(
+                    fontSize: 12,
+                    color: uiUtils.grayDarkColor,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          label: '',
+          subLabel: '3.700 KG',
+        ),
+        const SizedBox(height: 10),
+        LabelInfo2(
+          uiUtils: uiUtils,
+          labelWidget: Row(
+            children: [
+              SvgPicture.asset(
+                'assets/svg/icon-info.svg',
+                color: uiUtils.grayDarkColor,
+                height: 12,
+                width: 12,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                'PLAYLOAD',
+                style: TextStyle(
+                    fontSize: 13,
+                    color: uiUtils.grayDarkColor,
+                    fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              Text(
+                '(PESO NETO QUE PUEDE CARGAR)',
+                style: TextStyle(
+                    fontSize: 12,
+                    color: uiUtils.grayDarkColor,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          label: '',
+          subLabel: '28.800 KG',
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
   }
 }
 
@@ -348,7 +737,7 @@ class LabelInfo2 extends StatelessWidget {
                   style: TextStyle(
                       color: uiUtils.grayDarkColor,
                       fontSize: 13,
-                      fontWeight: FontWeight.normal),
+                      fontWeight: FontWeight.bold),
                 ),
           ),
         ),
@@ -367,7 +756,7 @@ class LabelInfo2 extends StatelessWidget {
                 style: TextStyle(
                     color: uiUtils.grayLightColor,
                     fontSize: 13,
-                    fontWeight: FontWeight.normal),
+                    fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -402,7 +791,7 @@ class LabelInfoWidget extends StatelessWidget {
         style: TextStyle(
             color: uiUtils.grayLightColor,
             fontSize: 13,
-            fontWeight: FontWeight.normal),
+            fontWeight: FontWeight.bold),
       ),
     );
   }

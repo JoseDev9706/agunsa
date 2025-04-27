@@ -30,6 +30,7 @@ final svgItemsProvider = Provider<List<SvgItem>>((ref) {
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 final currentPageProvider = StateProvider<int>((ref) => 1);
+
 final filteredSvgItemsProvider = Provider<List<SvgItem>>((ref) {
   final query = ref.watch(searchQueryProvider).toLowerCase();
   final items = ref.watch(svgItemsProvider);
@@ -40,4 +41,23 @@ final filteredSvgItemsProvider = Provider<List<SvgItem>>((ref) {
       .where((item) => item.name.toLowerCase().contains(query))
       .toList();
 });
+
+final expandedContainersProvider =
+    StateNotifierProvider<ExpandedContainersNotifier, Map<String, bool>>(
+  (ref) => ExpandedContainersNotifier(),
+);
+
+class ExpandedContainersNotifier extends StateNotifier<Map<String, bool>> {
+  ExpandedContainersNotifier() : super({});
+
+  void toggle(String id) {
+    state = {
+      ...state,
+      id: !(state[id] ?? false),
+    };
+  }
+
+  bool isExpanded(String id) => state[id] ?? false;
+}
+
 

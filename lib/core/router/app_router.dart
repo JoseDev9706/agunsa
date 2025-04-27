@@ -1,13 +1,18 @@
 import 'package:agunsa/features/auth/display/screens/login_screen.dart';
 import 'package:agunsa/features/auth/display/screens/register_screen.dart';
+import 'package:agunsa/features/general_info/display/screens/splash_screen.dart';
 import 'package:agunsa/features/profile/display/screens/change_password.dart';
 import 'package:agunsa/features/profile/display/screens/profile_screen.dart';
 import 'package:agunsa/features/profile/display/screens/security_screen.dart';
 import 'package:agunsa/features/transactions/display/screens/container_info.dart';
+import 'package:agunsa/features/transactions/display/screens/resume_transaction.dart';
 import 'package:agunsa/features/transactions/display/screens/take_aditional_photos.dart';
 import 'package:agunsa/features/transactions/display/screens/take_container_screen.dart';
+import 'package:agunsa/features/transactions/display/screens/take_dni_screen.dart';
+import 'package:agunsa/features/transactions/display/screens/take_place_screen.dart';
+import 'package:agunsa/features/transactions/display/screens/take_precint_screen.dart';
 import 'package:agunsa/features/transactions/display/screens/transtacions_screen.dart';
-import 'package:agunsa/home/display/screens/home_screen.dart';
+import 'package:agunsa/features/home/display/screens/home_screen.dart';
 import 'package:agunsa/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +28,10 @@ enum AppRoute {
   takeContainer,
   takeAditionalPhotos,
   containerInfo,
+  takePrecint,
+  takeDni,
+  talePlaca,
+  resumeTransaction,
 }
 
 class AppRouterDelegate extends RouterDelegate<AppRoute>
@@ -70,7 +79,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
     UiUtils().getDeviceSize(context);
 
     if (_routeStack.first == AppRoute.splash) {
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 6), () {
         _routeStack.first = AppRoute.login;
         notifyListeners();
       });
@@ -91,7 +100,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
   Widget _buildPage(AppRoute route) {
     switch (route) {
       case AppRoute.splash:
-        return const Placeholder();
+        return const SplashScreen();
       case AppRoute.login:
         return const LoginScreen();
       case AppRoute.register:
@@ -114,8 +123,15 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         return const TakeAditionalPhotos();
       case AppRoute.containerInfo:
         return ContainerInfo(args: _args);
-      default:
-        return const LoginScreen();
+      case AppRoute.takePrecint:
+        return const TakePrecintScreen();
+      case AppRoute.takeDni:
+        return const TakeDniScreen();
+      case AppRoute.talePlaca:
+        return const TakePlacaScreen();
+      case AppRoute.resumeTransaction:
+        return const ResumeTransaction();
+     
     }
   }
 

@@ -1,6 +1,50 @@
+import 'dart:developer';
+
 import 'package:agunsa/core/class/svg_item.dart';
+import 'package:agunsa/features/transactions/data/datasources/transaction_remote_datasource.dart';
+import 'package:agunsa/features/transactions/data/repository_impl/transaction_respositories_impl.dart';
+import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
+import 'package:agunsa/features/transactions/domain/respositories/transaction_repositories.dart';
+import 'package:agunsa/features/transactions/domain/use_cases/get_transaction_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'transactions_provider.g.dart';
+
+@riverpod
+TransactionRemoteDatasource transactionRemoteDatasource(
+    TransactionRemoteDatasourceRef ref) {
+  return TransactionRemoteDatasourceImpl();
+}
+
+@riverpod
+TransactionRepositories transactionRepositories(
+    TransactionRepositoriesRef ref) {
+  return TransactionRespositoriesImpl(
+      ref.watch(transactionRemoteDatasourceProvider));
+}
+
+@riverpod
+class TransactionsController extends _$TransactionsController {
+  @override
+  FutureOr<List<TransactionType>> build() async {
+    return [];
+  }
+
+  Future<List<TransactionType>> fetchTransactionTypes() async {
+    final transactionTypes = await ref.read(getTransactionTypesProvider).call();
+    return transactionTypes;
+  }
+}
+
+final transactionTypesProvider =
+    FutureProvider<List<TransactionType>>((ref) async {
+  return await ref
+      .read(transactionsControllerProvider.notifier)
+      .fetchTransactionTypes();
+});
+
 
 final imageProvider = StateProvider<List<XFile?>>((ref) => []);
 final svgItemsProvider = Provider<List<SvgItem>>((ref) {
@@ -59,5 +103,3 @@ class ExpandedContainersNotifier extends StateNotifier<Map<String, bool>> {
 
   bool isExpanded(String id) => state[id] ?? false;
 }
-
-

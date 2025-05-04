@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
@@ -16,98 +18,108 @@ class TransactionsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
     final currentPage = ref.watch(currentPageProvider);
-    final svgItems = ref.watch(filteredSvgItemsProvider);
-    const itemsPerPage = 6;
-    final totalPages = (svgItems.length / itemsPerPage).ceil();
+    final transactionTypesAsync = ref.watch(transactionTypesProvider);
 
-    final pagedItems = svgItems
-        .skip((currentPage - 1) * itemsPerPage)
-        .take(itemsPerPage)
-        .toList();
+    const itemsPerPage = 6;
 
     return SafeArea(
       child: Scaffold(
-        body: Column(
-          children: [
-            TransactionAppBar(
-              uiUtils: uiUtils,
-              title: 'Transacciones',
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: uiUtils.screenWidth * 0.05),
-                child: Column(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
+        body: transactionTypesAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text('Error: $e')),
+          data: (transactionTypes) {
+            final totalPages = (transactionTypes.length / itemsPerPage).ceil();
+
+            final pagedItems = transactionTypes
+                .skip((currentPage - 1) * itemsPerPage)
+                .take(itemsPerPage)
+                .toList();
+
+            return Column(
+              children: [
+                TransactionAppBar(
+                  uiUtils: uiUtils,
+                  title: 'Transacciones',
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: uiUtils.screenWidth * 0.05),
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
                           boxShadow: const [
                             BoxShadow(
                                 color: Colors.black12,
                                 blurRadius: 10,
-                                offset: Offset(0, 10))
+                                offset: Offset(0, 10),
+                              )
                           ],
                           color: uiUtils.whiteColor,
-                          borderRadius: BorderRadius.circular(25)),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          hintText: 'Buscar transacción',
-                          hintStyle: TextStyle(
-                              color: uiUtils.labelColor, fontSize: 18),
-                          border: InputBorder.none,
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: uiUtils.primaryColor,
-                            size: 25,
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              hintText: 'Buscar transacción',
+                              hintStyle: TextStyle(
+                                  color: uiUtils.labelColor, fontSize: 18),
+                              border: InputBorder.none,
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color: uiUtils.primaryColor,
+                                size: 25,
+                              ),
+                            ),
+                            onChanged: (value) => ref
+                                .read(searchQueryProvider.notifier)
+                                .state = value,
                           ),
                         ),
-                        onChanged: (value) => ref
-                            .read(searchQueryProvider.notifier)
-                            .state = value,
-                      ),
-                    ),
-                    SizedBox(height: uiUtils.screenHeight * 0.02),
-                    Divider(color: uiUtils.labelColor),
-                    SizedBox(height: uiUtils.screenHeight * 0.02),
-                    Expanded(
-                      child: Wrap(
-                        spacing: 40,
-                        runSpacing: 30,
-                        children: pagedItems
-                            .map((item) => TransactionsCard(
-                                  uiUtils: uiUtils,
-                                  name: item.name,
-                                  svgPath: item.path,
-                                  onTap: () {
-                                    final router =
-                                        ref.read(routerDelegateProvider);
-                                    router.push(AppRoute.takeContainer);
-                                  },
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                    SizedBox(height: uiUtils.screenHeight * 0.04),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Paginator(
-                          uiUtils: uiUtils,
-                          currentPage: currentPage,
-                          totalPages: totalPages,
-                          onPageChanged: (newPage) {
-                            ref.read(currentPageProvider.notifier).state =
-                                newPage;
-                          },
+                        SizedBox(height: uiUtils.screenHeight * 0.02),
+                        Divider(color: uiUtils.labelColor),
+                        SizedBox(height: uiUtils.screenHeight * 0.02),
+                        Expanded(
+                          child: Wrap(
+                            spacing: 40,
+                            runSpacing: 30,
+                            children: pagedItems
+                                .map((item) => TransactionsCard(
+                                      uiUtils: uiUtils,
+                                      name: item.name ?? 'Sin nombre',
+                                      svgPath: item.imageUrl ?? '',
+                                      onTap: () {
+                                        final router =
+                                            ref.read(routerDelegateProvider);
+                                        router.push(AppRoute.takeContainer);
+                                      },
+                                    ))
+                                .toList(),
+                          ),
                         ),
+                        SizedBox(height: uiUtils.screenHeight * 0.04),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Paginator(
+                              uiUtils: uiUtils,
+                              currentPage: currentPage,
+                              totalPages: totalPages,
+                              onPageChanged: (newPage) {
+                                ref.read(currentPageProvider.notifier).state =
+                                    newPage;
+                              },
+                            ),
+                          ],
+                        ),
+                        Divider(color: uiUtils.labelColor),
                       ],
                     ),
-                    Divider(color: uiUtils.labelColor),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
         bottomNavigationBar: CustomBottomNavitionBar(
           uiUtils: uiUtils,
@@ -134,6 +146,7 @@ class TransactionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log('SVG Path: $svgPath');
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -152,7 +165,7 @@ class TransactionsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
+            SvgPicture.network(
               svgPath,
               width: 73,
               height: 58,

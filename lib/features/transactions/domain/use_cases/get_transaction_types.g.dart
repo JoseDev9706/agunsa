@@ -1,29 +1,29 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'update_password.dart';
+part of 'get_transaction_types.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$updatePassordUseCaseHash() =>
-    r'4e9650c16cd6f407ce4f9a233bc041d7d041d691';
+String _$getTransactionTypesHash() =>
+    r'b2fec2425912671fdf15e299d5b24f3c8eb7df87';
 
-/// See also [updatePassordUseCase].
-@ProviderFor(updatePassordUseCase)
-final updatePassordUseCaseProvider =
-    AutoDisposeProvider<UpdatePassordUseCase>.internal(
-  updatePassordUseCase,
-  name: r'updatePassordUseCaseProvider',
+/// See also [getTransactionTypes].
+@ProviderFor(getTransactionTypes)
+final getTransactionTypesProvider =
+    AutoDisposeProvider<GetTransactionTypes>.internal(
+  getTransactionTypes,
+  name: r'getTransactionTypesProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$updatePassordUseCaseHash,
+      : _$getTransactionTypesHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef UpdatePassordUseCaseRef = AutoDisposeProviderRef<UpdatePassordUseCase>;
+typedef GetTransactionTypesRef = AutoDisposeProviderRef<GetTransactionTypes>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

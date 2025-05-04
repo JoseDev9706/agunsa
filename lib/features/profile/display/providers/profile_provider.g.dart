@@ -22,6 +22,8 @@ final profileRemoteDataSourceProvider =
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef ProfileRemoteDataSourceRef
     = AutoDisposeProviderRef<ProfileRemoteDatasource>;
 String _$profileRepositoryHash() => r'e8f6dfbf2f102fbeb34125e9a2b39faaafb5d305';
@@ -39,9 +41,11 @@ final profileRepositoryProvider =
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef ProfileRepositoryRef = AutoDisposeProviderRef<ProfileRepository>;
 String _$changePasswordFormStateHash() =>
-    r'123cf42efd6c669ea4ac5d5b44560fa4b89d5464';
+    r'4a4e860ca1083a81d3224203bd8a78a6d59a651b';
 
 /// See also [ChangePasswordFormState].
 @ProviderFor(ChangePasswordFormState)
@@ -58,7 +62,7 @@ final changePasswordFormStateProvider = AutoDisposeNotifierProvider<
 
 typedef _$ChangePasswordFormState = AutoDisposeNotifier<ChangePasswordData>;
 String _$changePasswordControllerHash() =>
-    r'b26e11a65669855e73557cc77ff4d0cdc2067cb0';
+    r'f9f7f16f8669124d5ed70dec0494fcfe87919af4';
 
 /// See also [ChangePasswordController].
 @ProviderFor(ChangePasswordController)
@@ -75,4 +79,4 @@ final changePasswordControllerProvider =
 
 typedef _$ChangePasswordController = AutoDisposeAsyncNotifier<void>;
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

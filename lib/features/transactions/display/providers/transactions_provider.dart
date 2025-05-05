@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:agunsa/core/class/svg_item.dart';
 import 'package:agunsa/features/transactions/data/datasources/transaction_remote_datasource.dart';
 import 'package:agunsa/features/transactions/data/repository_impl/transaction_respositories_impl.dart';
+import 'package:agunsa/features/transactions/domain/entities/photos.dart';
 import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
 import 'package:agunsa/features/transactions/domain/respositories/transaction_repositories.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/get_transaction_types.dart';
+import 'package:agunsa/features/transactions/domain/use_cases/upload_image_to_server.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -45,8 +48,45 @@ final transactionTypesProvider =
       .fetchTransactionTypes();
 });
 
+Future<Foto> uploadImageToServer(
+    WidgetRef ref, XFile image, String idToken) async {
+  final uploadUsecase = ref.read(uploadImageToServerProvider);
+  final bytes = await image.readAsBytes();
+  final base64Image = base64Encode(bytes);
+  final fileName = (image.path.split('/').last);
+  final result = await uploadUsecase.call(
+      Foto(fileName: fileName, base64: base64Image, fechaHora: DateTime.now()),
+      idToken);
+  if (result != null) {
+    return result;
+  } else {
+    throw Exception('Error al subir la imagen a la API');
+  }
+}
 
 final imageProvider = StateProvider<List<XFile?>>((ref) => []);
+
+
+final expandedContainersProvider =
+    StateNotifierProvider<ExpandedContainersNotifier, Map<String, bool>>(
+  (ref) => ExpandedContainersNotifier(),
+);
+
+class ExpandedContainersNotifier extends StateNotifier<Map<String, bool>> {
+  ExpandedContainersNotifier() : super({});
+
+  void toggle(String id) {
+    state = {
+      ...state,
+      id: !(state[id] ?? false),
+    };
+  }
+
+  bool isExpanded(String id) => state[id] ?? false;
+}
+
+
+
 final svgItemsProvider = Provider<List<SvgItem>>((ref) {
   final Map<String, String> svgAssets = {
     'Descarga': 'assets/svg/ICONOS TRAN-02.svg',
@@ -85,21 +125,3 @@ final filteredSvgItemsProvider = Provider<List<SvgItem>>((ref) {
       .where((item) => item.name.toLowerCase().contains(query))
       .toList();
 });
-
-final expandedContainersProvider =
-    StateNotifierProvider<ExpandedContainersNotifier, Map<String, bool>>(
-  (ref) => ExpandedContainersNotifier(),
-);
-
-class ExpandedContainersNotifier extends StateNotifier<Map<String, bool>> {
-  ExpandedContainersNotifier() : super({});
-
-  void toggle(String id) {
-    state = {
-      ...state,
-      id: !(state[id] ?? false),
-    };
-  }
-
-  bool isExpanded(String id) => state[id] ?? false;
-}

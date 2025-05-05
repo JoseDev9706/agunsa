@@ -118,7 +118,9 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
       case AppRoute.transactions:
         return const TransactionsScreen();
       case AppRoute.takeContainer:
-        return const TakeContainerScreen();
+        return TakeContainerScreen(
+          user: _args?['user'],
+        );
       case AppRoute.takeAditionalPhotos:
         return const TakeAditionalPhotos();
       case AppRoute.containerInfo:

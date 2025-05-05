@@ -12,11 +12,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
-class TakeAditionalPhotos extends ConsumerWidget {
+class TakeAditionalPhotos extends ConsumerStatefulWidget {
   const TakeAditionalPhotos({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _TakeAditionalPhotosState();
+}
+
+class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
+  @override
+  Widget build(BuildContext context) {
     UiUtils uiUtils = UiUtils();
     final images = ref.watch(imageProvider);
     return SafeArea(
@@ -77,14 +83,16 @@ class TakeAditionalPhotos extends ConsumerWidget {
                   const Spacer(),
                   GestureDetector(
                     onTap: () async {
-                     if (images.length < 3) {
-                         final capturedImage =
-                          await CodeUtils().checkCameraPermission(context);
-                      if (capturedImage != null) {
-                        ref.read(imageProvider.notifier).state = images
-                          ..add(capturedImage);
-                      }
-                      }else {
+                      if (images.length < 3) {
+                        final capturedImage =
+                            await CodeUtils().checkCameraPermission(context);
+                        if (capturedImage != null) {
+                          setState(() {
+                            ref.read(imageProvider.notifier).state = images
+                              ..add(capturedImage);
+                          });
+                        }
+                      } else {
                         log('Ya se han tomado las fotos necesarias');
                       }
                     },
@@ -100,7 +108,7 @@ class TakeAditionalPhotos extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  if (images.length >= 3) ...[
+                  if (images.length >= 2) ...[
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Row(
@@ -133,11 +141,12 @@ class TakeAditionalPhotos extends ConsumerWidget {
                             color: uiUtils.primaryColor,
                             text: 'CONFIRMAR',
                             onTap: () {
-                              ref.read(routerDelegateProvider).push(AppRoute.containerInfo,
-                                  args: {
-                                    'images': images,
-                                    'isContainer': true,
-                                  });
+                              ref
+                                  .read(routerDelegateProvider)
+                                  .push(AppRoute.containerInfo, args: {
+                                'images': images,
+                                'isContainer': true,
+                              });
                             },
                             textColor: uiUtils.whiteColor,
                           ),

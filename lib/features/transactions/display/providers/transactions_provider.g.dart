@@ -47,12 +47,12 @@ final transactionRepositoriesProvider =
 typedef TransactionRepositoriesRef
     = AutoDisposeProviderRef<TransactionRepositories>;
 String _$transactionsControllerHash() =>
-    r'8df28845e7b612102d7eb247a066b9466fddf5bf';
+    r'6831bddbc7f324b7a04423122e59121a6f8cd714';
 
 /// See also [TransactionsController].
 @ProviderFor(TransactionsController)
-final transactionsControllerProvider =
-    AutoDisposeAsyncNotifierProvider<TransactionsController, void>.internal(
+final transactionsControllerProvider = AutoDisposeAsyncNotifierProvider<
+    TransactionsController, List<TransactionType>>.internal(
   TransactionsController.new,
   name: r'transactionsControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -62,6 +62,7 @@ final transactionsControllerProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$TransactionsController = AutoDisposeAsyncNotifier<void>;
+typedef _$TransactionsController
+    = AutoDisposeAsyncNotifier<List<TransactionType>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

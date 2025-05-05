@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
+import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
+import 'package:agunsa/features/profile/display/providers/profile_provider.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/utils/code_utils.dart';
@@ -13,12 +15,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 class TakeContainerScreen extends ConsumerWidget {
-  const TakeContainerScreen({super.key});
+  final UserEntity user;
+  const TakeContainerScreen({super.key, required this.user});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
     final images = ref.watch(imageProvider);
+    
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -96,14 +100,19 @@ class TakeContainerScreen extends ConsumerWidget {
                             width: uiUtils.screenWidth * 0.4,
                             color: uiUtils.primaryColor,
                             text: 'CONFIRMAR',
-                            onTap: () {
-                              ref.read(routerDelegateProvider).push(
-                                AppRoute.takeAditionalPhotos,
-                                args: {
-                                  'images': images,
-                                  'isContainer': true,
-                                },
+                            onTap: () async {
+                              await uploadImageToServer(
+                                ref,
+                                images.first!,
+                                user.token,
                               );
+                              // ref.read(routerDelegateProvider).push(
+                              //   AppRoute.takeAditionalPhotos,
+                              //   args: {
+                              //     'images': images,
+                              //     'isContainer': true,
+                              //   },
+                              // );
                             },
                             textColor: uiUtils.whiteColor,
                           ),

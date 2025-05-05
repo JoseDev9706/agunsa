@@ -113,7 +113,8 @@ class HomeScreen extends ConsumerWidget {
                     OptionsCard(
                       onTap: () {
                         final router = ref.read(routerDelegateProvider);
-                        router.push(AppRoute.transactions);
+                        router
+                            .push(AppRoute.takeContainer, args: {'user': user});
                       },
                       uiUtils: uiUtils,
                       title: "Nueva Transacción",

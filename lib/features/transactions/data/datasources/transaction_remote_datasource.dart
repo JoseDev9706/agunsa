@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:agunsa/features/transactions/data/models/foto.dart';
 import 'package:agunsa/features/transactions/data/models/transaction_type.dart';
@@ -47,12 +48,12 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           'Authorization': 'Bearer $idToken',
         },
         body: jsonEncode({
-          'body': {
-            'filename': image.fileName,
-            'imagebase64': image.base64,
-          }
+          'filename': image.fileName,
+          'image_base64': image.base64,
         }),
       );
+
+      log(response.body);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -67,4 +68,5 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       throw Exception('Error al conectar con la API: $e');
     }
   }
+
 }

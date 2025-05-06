@@ -116,10 +116,13 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
       case AppRoute.changePassword:
         return ChangePassword(_args?['nextStep']);
       case AppRoute.transactions:
-        return const TransactionsScreen();
+        return TransactionsScreen(
+          user: _args?['user'],
+        );
       case AppRoute.takeContainer:
         return TakeContainerScreen(
           user: _args?['user'],
+          transactionType: _args?['transactionType'],
         );
       case AppRoute.takeAditionalPhotos:
         return const TakeAditionalPhotos();

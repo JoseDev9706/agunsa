@@ -3,16 +3,23 @@ import 'dart:developer';
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
+import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/paginator_widget.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
+import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
 import 'package:agunsa/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
 class TransactionsScreen extends ConsumerWidget {
-  const TransactionsScreen({super.key});
+  final UserEntity? user;
+
+  const TransactionsScreen({
+    super.key,
+    this.user,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -91,7 +98,11 @@ class TransactionsScreen extends ConsumerWidget {
                                       onTap: () {
                                         final router =
                                             ref.read(routerDelegateProvider);
-                                        router.push(AppRoute.takeContainer);
+                                        router.push(AppRoute.takeContainer,
+                                            args: {
+                                              'user': user,
+                                              'transactionType': item
+                                            });
                                       },
                                     ))
                                 .toList(),

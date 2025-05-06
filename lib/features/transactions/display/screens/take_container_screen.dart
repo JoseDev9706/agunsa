@@ -7,6 +7,7 @@ import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
 import 'package:agunsa/features/profile/display/providers/profile_provider.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
+import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
 import 'package:agunsa/utils/code_utils.dart';
 import 'package:agunsa/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,9 @@ import 'package:image_picker/image_picker.dart';
 
 class TakeContainerScreen extends ConsumerWidget {
   final UserEntity user;
-  const TakeContainerScreen({super.key, required this.user});
+  final TransactionType? transactionType;
+  const TakeContainerScreen(
+      {super.key, required this.user, this.transactionType});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,13 +109,14 @@ class TakeContainerScreen extends ConsumerWidget {
                                 images.first!,
                                 user.token,
                               );
-                              // ref.read(routerDelegateProvider).push(
-                              //   AppRoute.takeAditionalPhotos,
-                              //   args: {
-                              //     'images': images,
-                              //     'isContainer': true,
-                              //   },
-                              // );
+                              ref.read(routerDelegateProvider).push(
+                                AppRoute.takeAditionalPhotos,
+                                args: {
+                                  'images': images,
+                                  'isContainer': true,
+                                  'user': user
+                                },
+                              );
                             },
                             textColor: uiUtils.whiteColor,
                           ),

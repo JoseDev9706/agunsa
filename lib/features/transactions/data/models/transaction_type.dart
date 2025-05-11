@@ -15,10 +15,10 @@ class TransactionTypeModel extends TransactionType {
 
   factory TransactionTypeModel.fromJson(Map<String, dynamic> json) {
     return TransactionTypeModel(
-      id: json['id'] as int,
-      name: json['name'] as String,
+      id: json['Id'] as int,
+      name: json['Name'] as String,
       isInOut: json['isInOut'] as bool,
-      imageUrl: json['urlImage'] as String,
+      imageUrl: json['UrlImage'] as String,
     );
   }
   

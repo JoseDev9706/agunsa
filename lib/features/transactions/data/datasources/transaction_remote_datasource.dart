@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:agunsa/core/config/constants.dart';
 import 'package:agunsa/features/transactions/data/models/foto.dart';
 import 'package:agunsa/features/transactions/data/models/transaction_type.dart';
 import 'package:agunsa/features/transactions/domain/entities/photos.dart';
@@ -13,31 +14,36 @@ abstract class TransactionRemoteDatasource {
 }
 
 class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
-    static const String _baseUrl = 'https://hamilton-wt-ranks-specific.trycloudflare.com/api/TransactionsTypes';
-  static const String _uploadImage =
-      'https://99w26g1h8j.execute-api.us-east-2.amazonaws.com/v1/container-back';
+  static const String _uploadImage = '${baseUrl}container-back';
+  static const String _getTransactionTypes = '${baseUrl}transaction-type';
   @override
   Future<List<TransactionType>> getAllTransactions() async {
     try {
-      final response = await http.get(Uri.parse(_baseUrl));
+      final response = await http.get(Uri.parse(_getTransactionTypes));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
+        log('TransaccionesData: $data');
+        log('Tipo de body: ${data['body'].runtimeType}');
 
-        final List<dynamic> transactionsJson = data['data'];
+        final List<dynamic> transactionsJson = jsonDecode(data['body']);
+        log('Transacciones: $transactionsJson');
+
         final List<TransactionType> transactions = transactionsJson
             .map((json) => TransactionTypeModel.fromJson(json))
             .toList();
 
         return transactions;
-      } else {
-        throw Exception('Error al obtener las transacciones. Código: ${response.statusCode}');
+} else {
+        throw Exception(
+            'Error al obtener las transacciones. Código: ${response.statusCode}');
       }
     } catch (e) {
+      log('Error in getAllTransactions: $e');
       throw Exception('Error al conectar con la API: $e');
     }
   }
-  
+
   @override
   Future<FotoModel> uploadImageToServer(Foto image, String idToken) async {
     try {
@@ -68,5 +74,4 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       throw Exception('Error al conectar con la API: $e');
     }
   }
-
 }

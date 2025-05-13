@@ -1,4 +1,5 @@
 import 'package:agunsa/core/router/routes_provider.dart';
+import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,6 +30,8 @@ class TransactionAppBar extends ConsumerWidget {
                  onTap: () {
                 
                 ref.read(routerDelegateProvider).popRoute();
+                final images = ref.watch(imageProvider);
+                images.clear();
                  },
                  child:  Container(
                   height: 25,

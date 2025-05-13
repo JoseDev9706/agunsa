@@ -1,9 +1,13 @@
 import 'dart:developer';
 
+import 'package:agunsa/core/exeptions/domain_exeptions.dart';
 import 'package:agunsa/features/transactions/data/datasources/transaction_remote_datasource.dart';
 import 'package:agunsa/features/transactions/domain/entities/photos.dart';
+import 'package:agunsa/features/transactions/domain/entities/precint.dart';
 import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
 import 'package:agunsa/features/transactions/domain/respositories/transaction_repositories.dart';
+import 'package:agunsa/features/transactions/domain/use_cases/upload_precinto.dart';
+import 'package:dartz/dartz.dart';
 
 class TransactionRespositoriesImpl implements TransactionRepositories {
   final TransactionRemoteDatasource remoteDataSource;
@@ -32,7 +36,20 @@ class TransactionRespositoriesImpl implements TransactionRepositories {
       return result;
     } catch (e) {
       log('Error in uploadImageToServer: $e');
-      rethrow;
+      return Foto(fileName: '', base64: '', fechaHora: DateTime.now());
+    }
+  }
+
+  @override
+  Future<Either<DomainExeptions, Precinct>> uploadPrecint(
+      PrecinctParam precintParam, String idToken) async {
+    try {
+      final result =
+          await remoteDataSource.uploadPrecint(precintParam, idToken);
+      return right(result);
+    } catch (e) {
+      log('Error en uploadPrecint: $e');
+      return left(DomainExeptions(e.toString()));
     }
   }
 }

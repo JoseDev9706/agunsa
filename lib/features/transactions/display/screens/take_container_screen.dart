@@ -104,19 +104,19 @@ class TakeContainerScreen extends ConsumerWidget {
                             color: uiUtils.primaryColor,
                             text: 'CONFIRMAR',
                             onTap: () async {
-                              await uploadImageToServer(
+                              await uploadPrecint(
                                 ref,
                                 images.first!,
                                 user.token,
                               );
-                              ref.read(routerDelegateProvider).push(
-                                AppRoute.takeAditionalPhotos,
-                                args: {
-                                  'images': images,
-                                  'isContainer': true,
-                                  'user': user
-                                },
-                              );
+                              // ref.read(routerDelegateProvider).push(
+                              //   AppRoute.takeAditionalPhotos,
+                              //   args: {
+                              //     'images': images,
+                              //     'isContainer': true,
+                              //     'user': user
+                              //   },
+                              // );
                             },
                             textColor: uiUtils.whiteColor,
                           ),

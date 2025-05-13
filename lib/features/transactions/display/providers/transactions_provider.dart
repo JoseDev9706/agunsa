@@ -5,10 +5,12 @@ import 'package:agunsa/core/class/svg_item.dart';
 import 'package:agunsa/features/transactions/data/datasources/transaction_remote_datasource.dart';
 import 'package:agunsa/features/transactions/data/repository_impl/transaction_respositories_impl.dart';
 import 'package:agunsa/features/transactions/domain/entities/photos.dart';
+import 'package:agunsa/features/transactions/domain/entities/precint.dart';
 import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
 import 'package:agunsa/features/transactions/domain/respositories/transaction_repositories.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/get_transaction_types.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/upload_image_to_server.dart';
+import 'package:agunsa/features/transactions/domain/use_cases/upload_precinto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -27,6 +29,7 @@ TransactionRepositories transactionRepositories(
   return TransactionRespositoriesImpl(
       ref.watch(transactionRemoteDatasourceProvider));
 }
+
 
 @riverpod
 class TransactionsController extends _$TransactionsController {
@@ -57,12 +60,27 @@ Future<Foto> uploadImageToServer(
   final result = await uploadUsecase.call(
       Foto(fileName: fileName, base64: base64Image, fechaHora: DateTime.now()),
       idToken);
-  if (result != null) {
-    return result;
-  } else {
-    throw Exception('Error al subir la imagen a la API');
-  }
+  return result;
 }
+Future<Precinct?> uploadPrecint(
+    WidgetRef ref, XFile photoPrecint, String idToken) async {
+  final uploadUsecase = ref.read(uploadPrecintoProvider);
+
+  final bytes = await photoPrecint.readAsBytes();
+  final base64Image = base64Encode(bytes);
+  final fileName = (photoPrecint.path.split('/').last);
+  final precint = PrecinctParam(fileName: fileName, base64: base64Image);
+  final result = await uploadUsecase.call(precint, idToken);
+
+  return result.fold(
+    (failure) {
+      log(failure.message);
+      return null;
+    },
+    (precinct) => precinct,
+  );
+}
+
 
 final imageProvider = StateProvider<List<XFile?>>((ref) => []);
 

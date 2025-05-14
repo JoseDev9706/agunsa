@@ -6,7 +6,8 @@ import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
+import 'package:agunsa/features/transactions/domain/entities/photos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -31,6 +32,11 @@ class ContainerInfo extends ConsumerWidget {
         .select((state) => state['registroPlaca'] ?? false));
     final isRegistroConductorExpanded = ref.watch(expandedContainersProvider
         .select((state) => state['registroConductor'] ?? false));
+    final fotoProviderInfo = ref.watch(fotoProvider);
+    final precintProviderInfo = ref.watch(precintProvider);
+    final placaProviderInfo = ref.watch(placaProvider);
+    final conductorProviderInfo = ref.watch(dniProvider);
+    final images = ref.watch(imageProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -54,7 +60,9 @@ class ContainerInfo extends ConsumerWidget {
                               .read(expandedContainersProvider.notifier)
                               .toggle('containerInfo');
                         },
-                        content: _containerInfo(args),
+                        content: fotoProviderInfo != null
+                            ? _containerInfo(fotoProviderInfo)
+                            : Container(),
                       ),
                       Divider(color: uiUtils.grayLightColor, thickness: 1),
                       _animatedSection(
@@ -68,7 +76,7 @@ class ContainerInfo extends ConsumerWidget {
                         content: _imageGallery(args,
                             selectedIndexes: [1, 2], isPlaca: false),
                       ),
-                      if (args?['images']?.length >= 4) ...[
+                      if (images.length >= 4) ...[
                         // Sección de "DATOS PRECINTO" si hay 4 o más imágenes
                         Divider(color: uiUtils.grayLightColor, thickness: 1),
                         _animatedSection(
@@ -79,11 +87,59 @@ class ContainerInfo extends ConsumerWidget {
                                 .read(expandedContainersProvider.notifier)
                                 .toggle('registroPrecint');
                           },
-                          content: _imageGallery(args,
+                            content: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _imageGallery(args,
                               selectedIndexes: [3], isPlaca: false),
-                        ),
+                                Expanded(
+                                  flex: 6,
+                                  child: Container(
+                                    margin: const EdgeInsets.only(left: 0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(2),
+                                        border: Border.all(
+                                            color: uiUtils.labelColor,
+                                            width: 1),
+                                        color: uiUtils.labelColor),
+                                    child: Text(
+                                      'CÓDIGO PRECINTO ADUANA',
+                                      style: TextStyle(
+                                          color: uiUtils.grayDarkColor,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                    margin: const EdgeInsets.only(left: 0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(2),
+                                        border: Border.all(
+                                            color: uiUtils.labelColor,
+                                            width: 1),
+                                        color: Colors.transparent),
+                                    child: Center(
+                                      child: Text(
+                                        precintProviderInfo?.codPrecinto ?? '',
+                                        style: TextStyle(
+                                            color: uiUtils.grayLightColor,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.normal),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )),
                       ],
-                      if (args?['images']?.length >= 5) ...[
+                      if (images.length >= 5) ...[
                         Divider(color: uiUtils.grayLightColor, thickness: 1),
                         _animatedSection(
                           title: 'DATOS DE LA PLACA',
@@ -131,7 +187,7 @@ class ContainerInfo extends ConsumerWidget {
                                       color: Colors.transparent),
                                   child: Center(
                                     child: Text(
-                                      'ABC1234',
+                                      placaProviderInfo?.codigo ?? '',
                                       style: TextStyle(
                                           color: uiUtils.grayLightColor,
                                           fontSize: 13,
@@ -144,7 +200,7 @@ class ContainerInfo extends ConsumerWidget {
                           ),
                         ),
                       ],
-                      if (args?['images']?.length >= 6) ...[
+                      if (images.length >= 6) ...[
                         Divider(color: uiUtils.grayLightColor, thickness: 1),
                         _animatedSection(
                           title: 'DATOS DEL CONDUCTOR',
@@ -201,6 +257,64 @@ class ContainerInfo extends ConsumerWidget {
                                             margin:
                                                 const EdgeInsets.only(left: 0),
                                             padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 5),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                border: Border.all(
+                                                    color: uiUtils.labelColor,
+                                                    width: 1),
+                                                color: Colors.transparent),
+                                            child: Center(
+                                              child: Text(
+                                                'Carlos Mario',
+                                                style: TextStyle(
+                                                    color:
+                                                        uiUtils.grayLightColor,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.normal),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            height: uiUtils.screenHeight * 0.03,
+                                            margin:
+                                                const EdgeInsets.only(left: 0),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 0),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                border: Border.all(
+                                                    color: uiUtils.labelColor,
+                                                    width: 1),
+                                                color: uiUtils.labelColor),
+                                            child: Center(
+                                              child: Text(
+                                                'APELLIDOS:',
+                                                style: TextStyle(
+                                                    color:
+                                                        uiUtils.grayLightColor,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            height: uiUtils.screenHeight * 0.03,
+                                            width: uiUtils.screenWidth * 0.34,
+                                            margin:
+                                                const EdgeInsets.only(left: 0),
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 10, vertical: 5),
                                             decoration: BoxDecoration(
                                                 borderRadius:
@@ -211,7 +325,7 @@ class ContainerInfo extends ConsumerWidget {
                                                 color: Colors.transparent),
                                             child: Center(
                                               child: Text(
-                                                'CARLOS MARIO',
+                                                'Sanchez Sanchez',
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
@@ -243,7 +357,7 @@ class ContainerInfo extends ConsumerWidget {
                                                 color: uiUtils.labelColor),
                                             child: Center(
                                               child: Text(
-                                                'NOMBRES:',
+                                                'DNI:           ',
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
@@ -269,65 +383,7 @@ class ContainerInfo extends ConsumerWidget {
                                                 color: Colors.transparent),
                                             child: Center(
                                               child: Text(
-                                                'CARLOS MARIO',
-                                                style: TextStyle(
-                                                    color:
-                                                        uiUtils.grayLightColor,
-                                                    fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.normal),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            height: uiUtils.screenHeight * 0.03,
-                                            margin:
-                                                const EdgeInsets.only(left: 0),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 0),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                                border: Border.all(
-                                                    color: uiUtils.labelColor,
-                                                    width: 1),
-                                                color: uiUtils.labelColor),
-                                            child: Center(
-                                              child: Text(
-                                                'NOMBRES:',
-                                                style: TextStyle(
-                                                    color:
-                                                        uiUtils.grayLightColor,
-                                                    fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            height: uiUtils.screenHeight * 0.03,
-                                            width: uiUtils.screenWidth * 0.34,
-                                            margin:
-                                                const EdgeInsets.only(left: 0),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 5),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                                border: Border.all(
-                                                    color: uiUtils.labelColor,
-                                                    width: 1),
-                                                color: Colors.transparent),
-                                            child: Center(
-                                              child: Text(
-                                                'CARLOS MARIO',
+                                                '70074390-9',
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
@@ -355,7 +411,7 @@ class ContainerInfo extends ConsumerWidget {
                             width: uiUtils.screenWidth * 0.5,
                             color: uiUtils.primaryColor,
                             text: () {
-                              final imageCount = args?['images']?.length ?? 0;
+                              final imageCount = images.length ?? 0;
 
                               if (imageCount > 5) {
                                 return 'FINALIZAR';
@@ -368,7 +424,7 @@ class ContainerInfo extends ConsumerWidget {
                               }
                             }(),
                             onTap: () {
-                              final imageCount = args?['images']?.length ?? 0;
+                              final imageCount = images.length ?? 0;
 
                               if (imageCount == 3) {
                                 ref.read(routerDelegateProvider).push(
@@ -512,7 +568,7 @@ class ContainerInfo extends ConsumerWidget {
       bool? isPlaca = false,
       bool isCond = false}) {
     final images = args?['images'];
-    if (images.isEmpty || selectedIndexes.isEmpty) return const SizedBox();
+    if (images == null || selectedIndexes.isEmpty) return const SizedBox();
 
     return Row(
       children: selectedIndexes.map<Widget>((index) {
@@ -550,8 +606,9 @@ class ContainerInfo extends ConsumerWidget {
     );
   }
 
-  _containerInfo(Map<String, dynamic>? args) {
+  _containerInfo(Foto foto) {
     UiUtils uiUtils = UiUtils();
+
     return Column(
       children: [
         const SizedBox(height: 10),
@@ -583,7 +640,7 @@ class ContainerInfo extends ConsumerWidget {
                     margin: const EdgeInsets.only(left: 20),
                     padding: const EdgeInsets.only(top: 5),
                     child: Text(
-                      'GCXU 577020 45G1',
+                      foto.numSerie,
                       style: TextStyle(
                         fontSize: 13,
                         color: uiUtils.optionsColor,
@@ -606,7 +663,7 @@ class ContainerInfo extends ConsumerWidget {
                     margin: const EdgeInsets.only(left: 20),
                     padding: const EdgeInsets.symmetric(vertical: 5),
                     child: Text(
-                      '45G1',
+                      foto.numControl,
                       style: TextStyle(
                         fontSize: 13,
                         color: uiUtils.optionsColor,
@@ -622,7 +679,7 @@ class ContainerInfo extends ConsumerWidget {
         LabelInfo2(
           uiUtils: uiUtils,
           label: 'CODIGO ISO',
-          subLabel: '45G1',
+          subLabel: foto.codPropietario,
         ),
         Text(
           'Este código indica que es un contenedor High Cube de 40 pies con altura adicional.',
@@ -632,7 +689,7 @@ class ContainerInfo extends ConsumerWidget {
         LabelInfo2(
           uiUtils: uiUtils,
           label: 'TIPO DE CONTENEDOR:',
-          subLabel: 'GCXU',
+          subLabel: foto.tipoContenedor,
         ),
         const SizedBox(height: 10),
         LabelInfo2(
@@ -664,7 +721,7 @@ class ContainerInfo extends ConsumerWidget {
             ],
           ),
           label: '',
-          subLabel: '3.700 KG',
+          subLabel: '${foto.taraKg} KG',
         ),
         const SizedBox(height: 10),
         LabelInfo2(
@@ -696,7 +753,7 @@ class ContainerInfo extends ConsumerWidget {
             ],
           ),
           label: '',
-          subLabel: '28.800 KG',
+          subLabel: '${foto.payloadKg} KG',
         ),
         const SizedBox(height: 20),
       ],

@@ -1,6 +1,6 @@
 import 'package:agunsa/core/widgets/animated_tittle.dart';
 import 'package:agunsa/core/widgets/custom_list_tile.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 
 class OptionsCard extends StatelessWidget {

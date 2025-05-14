@@ -5,7 +5,7 @@ import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
 import 'package:agunsa/features/profile/display/widgets/log_out_widget.dart';
 import 'package:agunsa/features/home/display/widgets/change_password_adv.dart';
 import 'package:agunsa/features/home/display/widgets/options_card.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

@@ -1,5 +1,5 @@
 import 'package:agunsa/core/widgets/general_bottom.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 
 class ChangePasswordAdv extends StatelessWidget {

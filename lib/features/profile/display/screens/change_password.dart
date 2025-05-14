@@ -3,7 +3,7 @@ import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/profile/display/providers/profile_provider.dart';
 import 'package:agunsa/features/profile/display/widgets/custom_app_bar.dart';
 import 'package:agunsa/features/profile/display/widgets/custom_form_field.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

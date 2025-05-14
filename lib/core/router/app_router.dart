@@ -13,7 +13,7 @@ import 'package:agunsa/features/transactions/display/screens/take_place_screen.d
 import 'package:agunsa/features/transactions/display/screens/take_precint_screen.dart';
 import 'package:agunsa/features/transactions/display/screens/transtacions_screen.dart';
 import 'package:agunsa/features/home/display/screens/home_screen.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 
 enum AppRoute {
@@ -121,11 +121,13 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         );
       case AppRoute.takeContainer:
         return TakeContainerScreen(
-          user: _args?['user'],
+          
           transactionType: _args?['transactionType'],
         );
       case AppRoute.takeAditionalPhotos:
-        return const TakeAditionalPhotos();
+        return TakeAditionalPhotos(
+            // user: _args?['user'],
+            );
       case AppRoute.containerInfo:
         return ContainerInfo(args: _args);
       case AppRoute.takePrecint:

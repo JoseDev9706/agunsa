@@ -1,34 +1,41 @@
 import 'package:agunsa/features/transactions/domain/entities/photos.dart';
 
 class FotoModel extends Foto {
-  FotoModel({
-    required int id,
-    required String base64,
-    String? urlImagen,
-    required DateTime fechaHora,
-    String? fileName,
-  }) : super(
-          id: id,
-          base64: base64,
-          urlImagen: urlImagen,
-          fechaHora: fechaHora,
-          fileName: fileName,
-        );
+  FotoModel(
+      {required super.codPropietario,
+      required super.numSerie,
+      required super.numControl,
+      required super.tipoContenedor,
+      required super.maxGrossKg,
+      required super.maxGrossLbs,
+      required super.taraKg,
+      required super.taraLbs,
+      required super.payloadKg,
+      required super.payloadLbs});
 
   factory FotoModel.fromJson(Map<String, dynamic> json) => FotoModel(
-        id: json['id'] ?? 0,
-        base64: json['base64'] ?? '',
-        urlImagen: json['url_imagen'] ?? '',
-        fechaHora: DateTime.parse(json['fecha_hora']) ?? DateTime.now(),
-        fileName: json['filename'] ?? '',
-      );
+      codPropietario: json['cod_propietario'],
+      numSerie: json['num_serie'],
+      numControl: json['num_control'],
+      tipoContenedor: json['tipo_contenedor'],
+      maxGrossKg: json['max_gross_kg'],
+      maxGrossLbs: json['max_gross_lbs'],
+      taraKg: json['tara_kg'],
+      taraLbs: json['tara_lbs'],
+      payloadKg: json['payload_kg'],
+      payloadLbs: json['payload_lbs']);
 
   Map<String, dynamic> toJson() => {
-        'id': id ?? 0,
-        'base64': base64 ?? '',
-        'url_imagen': urlImagen ?? '',
-        'fecha_hora':
-            fechaHora.toIso8601String() ?? DateTime.now().toIso8601String(),
-        'filename': fileName ?? '',
+        'cod_propietario': codPropietario,
+        'num_serie': numSerie,
+        'num_control': numControl,
+        'tipo_contenedor': tipoContenedor,
+        'max_gross_kg': maxGrossKg,
+        'max_gross_lbs': maxGrossLbs,
+        'tara_kg': taraKg,
+        'tara_lbs': taraLbs,
+        'payload_kg': payloadKg,
+        'payload_lbs': payloadLbs,
       };
+ 
 }

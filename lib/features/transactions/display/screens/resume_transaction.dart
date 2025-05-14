@@ -1,6 +1,9 @@
+import 'package:agunsa/core/router/app_router.dart';
+import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
+import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,7 +15,7 @@ class ResumeTransaction extends ConsumerWidget {
     UiUtils uiUtils = UiUtils();
     // final transactionState = ref.watch(transactionControllerProvider);
     // final transactionNotifier = ref.read(transactionControllerProvider.notifier);
-    final bool send = true; //transactionState.sendTransaction;
+    final send = ref.watch(sendTransactionProvider);
     return SafeArea(
         child: Scaffold(
       backgroundColor: uiUtils.modalColor,
@@ -63,7 +66,12 @@ class ResumeTransaction extends ConsumerWidget {
                           width: uiUtils.screenWidth * 0.5,
                           color: uiUtils.primaryColor,
                           text: 'HOME',
-                          onTap:() {},
+                          onTap: () {
+                            resetTransactionProviders(ref);
+                            ref
+                                .read(routerDelegateProvider)
+                                .pushReplacement(AppRoute.home);
+                          },
                           textColor: uiUtils.whiteColor),
                       const SizedBox(
                         height: 20,
@@ -73,7 +81,12 @@ class ResumeTransaction extends ConsumerWidget {
                           width: uiUtils.screenWidth * 0.5,
                           color: uiUtils.primaryColor,
                           text: 'NUEVA TRANSACCION',
-                          onTap:() {},
+                          onTap: () {
+                            resetTransactionProviders(ref);
+                            ref
+                                .read(routerDelegateProvider)
+                                .pushReplacement(AppRoute.transactions);
+                          },
                           textColor: uiUtils.whiteColor),
                     ],
                   )
@@ -155,7 +168,9 @@ class ResumeTransaction extends ConsumerWidget {
                         width: double.infinity,
                         color: uiUtils.primaryColor,
                         text: 'GUARDAR TRANSACCION',
-                        onTap: () {},
+                        onTap: () {
+                          sendTransaction(ref);
+                        },
                         textColor: uiUtils.whiteColor,
                       )
                     ],

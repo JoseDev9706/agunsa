@@ -46,6 +46,38 @@ final transactionRepositoriesProvider =
 // ignore: unused_element
 typedef TransactionRepositoriesRef
     = AutoDisposeProviderRef<TransactionRepositories>;
+String _$uploadPlacaHash() => r'720537e796859a972fd357d90909a0956d3d1801';
+
+/// See also [uploadPlaca].
+@ProviderFor(uploadPlaca)
+final uploadPlacaProvider = AutoDisposeProvider<UploadPlaca>.internal(
+  uploadPlaca,
+  name: r'uploadPlacaProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$uploadPlacaHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UploadPlacaRef = AutoDisposeProviderRef<UploadPlaca>;
+String _$getDniHash() => r'df62bb34e7965ffc252e005dfddcf0fa903b2e3b';
+
+/// See also [getDni].
+@ProviderFor(getDni)
+final getDniProvider = AutoDisposeProvider<GetDni>.internal(
+  getDni,
+  name: r'getDniProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$getDniHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef GetDniRef = AutoDisposeProviderRef<GetDni>;
 String _$transactionsControllerHash() =>
     r'6831bddbc7f324b7a04423122e59121a6f8cd714';
 

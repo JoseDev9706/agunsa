@@ -1,3 +1,4 @@
+import 'package:agunsa/core/class/image_params.dart';
 import 'package:agunsa/core/exeptions/domain_exeptions.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/domain/entities/precint.dart';
@@ -12,7 +13,8 @@ class UploadPrecinto {
   final TransactionRepositories transactionRepositories;
   UploadPrecinto(this.transactionRepositories);
 
-  Future<Either< DomainExeptions, Precinct>> call(PrecinctParam precintParam, String idToken) {
+  Future<Either<DomainExeptions, Precinct>> call(
+      ImageParams precintParam, String idToken) {
     return transactionRepositories.uploadPrecint(precintParam, idToken);
   }
 }
@@ -22,8 +24,3 @@ UploadPrecinto uploadPrecinto(UploadPrecintoRef ref) {
   return UploadPrecinto(ref.read(transactionRepositoriesProvider));
 }
     
-class PrecinctParam{
-  final String fileName;
-  final String base64;
-  PrecinctParam({required this.fileName, required this.base64});
-}

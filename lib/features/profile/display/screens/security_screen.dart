@@ -4,7 +4,7 @@ import 'package:agunsa/core/widgets/custom_list_tile.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
 import 'package:agunsa/features/profile/display/screens/change_password.dart';
 import 'package:agunsa/features/profile/display/widgets/log_out_widget.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

@@ -8,7 +8,7 @@ import 'package:agunsa/features/transactions/display/providers/transactions_prov
 import 'package:agunsa/features/transactions/display/widgets/paginator_widget.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';

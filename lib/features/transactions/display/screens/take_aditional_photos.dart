@@ -4,16 +4,21 @@ import 'dart:io';
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
+import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
-import 'package:agunsa/utils/code_utils.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/code_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
 class TakeAditionalPhotos extends ConsumerStatefulWidget {
-  const TakeAditionalPhotos({super.key});
+  // final UserEntity user;
+  const TakeAditionalPhotos({
+    super.key,
+    // required this.user,
+  });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>

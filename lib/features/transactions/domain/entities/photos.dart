@@ -1,14 +1,25 @@
 class Foto {
-  final int? id;
-  final String base64;
-  final String? urlImagen;
-  final DateTime fechaHora;
-  final String? fileName;
+  final String codPropietario;
+  final String numSerie;
+  final String numControl;
+  final String tipoContenedor;
+  final int maxGrossKg;
+  final int maxGrossLbs;
+  final int taraKg;
+  final int taraLbs;
+  final int payloadKg;
+  final int payloadLbs;
 
-  Foto(
-      {this.id,
-      required this.base64,
-      this.urlImagen,
-      required this.fechaHora,
-      required this.fileName});
+  Foto({
+    required this.codPropietario,
+    required this.numSerie,
+    required this.numControl,
+    required this.tipoContenedor,
+    required this.maxGrossKg,
+    required this.maxGrossLbs,
+    required this.taraKg,
+    required this.taraLbs,
+    required this.payloadKg,
+    required this.payloadLbs,
+  });
 }

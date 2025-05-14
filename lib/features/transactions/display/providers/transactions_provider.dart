@@ -1,15 +1,20 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:agunsa/core/class/image_params.dart';
 import 'package:agunsa/core/class/svg_item.dart';
 import 'package:agunsa/features/transactions/data/datasources/transaction_remote_datasource.dart';
 import 'package:agunsa/features/transactions/data/repository_impl/transaction_respositories_impl.dart';
+import 'package:agunsa/features/transactions/domain/entities/deliver.dart';
 import 'package:agunsa/features/transactions/domain/entities/photos.dart';
+import 'package:agunsa/features/transactions/domain/entities/placa.dart';
 import 'package:agunsa/features/transactions/domain/entities/precint.dart';
 import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
 import 'package:agunsa/features/transactions/domain/respositories/transaction_repositories.dart';
+import 'package:agunsa/features/transactions/domain/use_cases/get_dni.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/get_transaction_types.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/upload_image_to_server.dart';
+import 'package:agunsa/features/transactions/domain/use_cases/upload_placa.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/upload_precinto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -30,6 +35,15 @@ TransactionRepositories transactionRepositories(
       ref.watch(transactionRemoteDatasourceProvider));
 }
 
+@riverpod
+UploadPlaca uploadPlaca(UploadPlacaRef ref) {
+  return UploadPlaca(ref.watch(transactionRepositoriesProvider));
+}
+
+@riverpod
+GetDni getDni(GetDniRef ref) {
+  return GetDni(ref.watch(transactionRepositoriesProvider));
+}
 
 @riverpod
 class TransactionsController extends _$TransactionsController {
@@ -51,17 +65,29 @@ final transactionTypesProvider =
       .fetchTransactionTypes();
 });
 
-Future<Foto> uploadImageToServer(
+Future<Foto?> uploadImageToServer(
     WidgetRef ref, XFile image, String idToken) async {
   final uploadUsecase = ref.read(uploadImageToServerProvider);
   final bytes = await image.readAsBytes();
   final base64Image = base64Encode(bytes);
   final fileName = (image.path.split('/').last);
+  
   final result = await uploadUsecase.call(
-      Foto(fileName: fileName, base64: base64Image, fechaHora: DateTime.now()),
-      idToken);
-  return result;
+      ImageParams(fileName: fileName, base64: base64Image), idToken);
+
+  return result.fold(
+    (failure) {
+      ref.read(fotoProvider.notifier).state = null;
+      return null;
+    },
+    (foto) {
+      ref.read(fotoProvider.notifier).state = foto;
+      return foto;
+    },
+  );
 }
+
+
 Future<Precinct?> uploadPrecint(
     WidgetRef ref, XFile photoPrecint, String idToken) async {
   final uploadUsecase = ref.read(uploadPrecintoProvider);
@@ -69,21 +95,77 @@ Future<Precinct?> uploadPrecint(
   final bytes = await photoPrecint.readAsBytes();
   final base64Image = base64Encode(bytes);
   final fileName = (photoPrecint.path.split('/').last);
-  final precint = PrecinctParam(fileName: fileName, base64: base64Image);
+  final precint = ImageParams(fileName: fileName, base64: base64Image);
   final result = await uploadUsecase.call(precint, idToken);
 
   return result.fold(
     (failure) {
-      log(failure.message);
+      ref.read(precintProvider.notifier).state = null;
       return null;
     },
-    (precinct) => precinct,
+    (precinct) {
+      ref.read(precintProvider.notifier).state = precinct;
+      return precinct;
+    },
   );
 }
 
+Future<Conductor?> getDniInfo(WidgetRef ref, XFile dni) async {
+  final getDniUsecase = ref.read(getDniProvider);
+  final bytes = await dni.readAsBytes();
+  final base64Image = base64Encode(bytes);
+  final fileName = (dni.path.split('/').last);
+  final result = await getDniUsecase.call(
+      ImageParams(fileName: fileName, base64: base64Image), '');
+
+  return result.fold(
+    (failure) => null,
+    (conductor) {
+      ref.read(dniProvider.notifier).state = conductor;
+      return conductor;
+    },
+  );
+}
+
+Future<Placa?> getPlacaInfo(WidgetRef ref, XFile placa, String idToken) async {
+  final getPlacaUsecase = ref.read(uploadPlacaProvider);
+  final bytes = await placa.readAsBytes();
+  final base64Image = base64Encode(bytes);
+  final fileName = (placa.path.split('/').last);
+  final result = await getPlacaUsecase.call(
+      ImageParams(fileName: fileName, base64: base64Image), idToken);
+
+  return result.fold(
+    (failure) => null,
+    (placa) {
+      ref.read(placaProvider.notifier).state = placa;
+      return placa;
+    },
+  );
+}
 
 final imageProvider = StateProvider<List<XFile?>>((ref) => []);
+final placaProvider = StateProvider<Placa?>((ref) => null);
+final dniProvider = StateProvider<Conductor?>((ref) => null);
+final precintProvider = StateProvider<Precinct?>((ref) => null);
+final fotoProvider = StateProvider<Foto?>((ref) => null);
+final sendTransactionProvider = StateProvider<bool>((ref) => false);
 
+void resetTransactionProviders(WidgetRef ref) {
+  ref.read(imageProvider.notifier).state = [];
+  ref.read(placaProvider.notifier).state = null;
+  ref.read(dniProvider.notifier).state = null;
+  ref.read(precintProvider.notifier).state = null;
+  ref.read(fotoProvider.notifier).state = null;
+
+  ref.read(sendTransactionProvider.notifier).state = false;
+
+  ref.invalidate(transactionsControllerProvider);
+}
+
+void sendTransaction(WidgetRef ref) {
+  ref.read(sendTransactionProvider.notifier).state = true;
+}
 
 final expandedContainersProvider =
     StateNotifierProvider<ExpandedContainersNotifier, Map<String, bool>>(
@@ -102,8 +184,6 @@ class ExpandedContainersNotifier extends StateNotifier<Map<String, bool>> {
 
   bool isExpanded(String id) => state[id] ?? false;
 }
-
-
 
 final svgItemsProvider = Provider<List<SvgItem>>((ref) {
   final Map<String, String> svgAssets = {

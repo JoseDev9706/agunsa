@@ -6,8 +6,8 @@ import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
-import 'package:agunsa/utils/code_utils.dart';
-import 'package:agunsa/utils/ui_utils.dart';
+import 'package:agunsa/core/utils/code_utils.dart';
+import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -106,8 +106,7 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                       : Container(
                           height: uiUtils.screenHeight * 0.15,
                           width: uiUtils.screenWidth * 0.75,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 15),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
                           decoration: BoxDecoration(
                               color: uiUtils.labelColor,
                               borderRadius: BorderRadius.circular(10)),
@@ -129,9 +128,10 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                                   width: uiUtils.screenWidth * 0.4,
                                   color: uiUtils.primaryColor,
                                   text: 'CONFIRMAR',
-                                  onTap: () {
+                                  onTap: () async {
                                     ref.read(imageProvider.notifier).state =
                                         images..add(fileTaked);
+                                    await getPlacaInfo(ref, fileTaked!, '');
                                     ref.read(routerDelegateProvider).push(
                                       AppRoute.containerInfo,
                                       args: {
@@ -161,7 +161,6 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                               ],
                             ),
                             const SizedBox(height: 20),
-                           
                           ],
                         )
                       : GestureDetector(

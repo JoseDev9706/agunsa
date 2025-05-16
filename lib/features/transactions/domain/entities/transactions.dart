@@ -1,35 +1,55 @@
 class Transaction {
-  final int id;
-  final String containerNumber;
-  final String ContainerTransportLine;
-  final String transactionType;
-  final String transactionNumber;
-  final DateTime fechaHora;
+  final String? containerNumber;
+  final String? containerTransportLine;
+  final String? containerIso;
+  final String? containerType;
+  final double? containerTara;
+  final double? containerPayload;
+  final String? createdDataContainer;
+  final String? updatedDataContainer;
+  final String? driverDni;
+  final String? driverName;
+  final String? driverLastName;
+  final String? createdDataDriver;
+  final String? updatedDataDriver;
+  final String? plate;
+  final String? createdDataPlate;
+  final String? updatedDataPlate;
+  final String? sealCode;
+  final String? createdDataSeal;
+  final String? updatedDataSeal;
+  final String? transactionNumber;
+  final int? initialTransactionId;
+  final int? transactionTypeId;
+  final int epochCreatedDatetime;
+  final int createdByUserId;
+  final bool? currentStatus;
 
   Transaction({
-    required this.id,
-    required this.containerNumber,
-    required this.ContainerTransportLine,
-    required this.transactionType,
-    required this.transactionNumber,
-    required this.fechaHora,
+    this.containerNumber,
+    this.containerTransportLine,
+    this.containerIso,
+    this.containerType,
+    this.containerTara,
+    this.containerPayload,
+    this.createdDataContainer,
+    this.updatedDataContainer,
+    this.driverDni,
+    this.driverName,
+    this.driverLastName,
+    this.createdDataDriver,
+    this.updatedDataDriver,
+    this.plate,
+    this.createdDataPlate,
+    this.updatedDataPlate,
+    this.sealCode,
+    this.createdDataSeal,
+    this.updatedDataSeal,
+    this.transactionNumber,
+    this.initialTransactionId,
+    this.transactionTypeId,
+    required this.epochCreatedDatetime,
+    required this.createdByUserId,
+    this.currentStatus,
   });
-
-  factory Transaction.fromJson(Map<String, dynamic> json) => Transaction(
-        id: json['id'],
-        transactionType: json['tipo_transaction'],
-        containerNumber: json['numero_contenedor'],
-        ContainerTransportLine: json['linea_transporte_contenedor'],
-        transactionNumber: json['numero_transaction'],
-        fechaHora: DateTime.parse(json['fecha_hora']),
-      );
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'tipo_transaction': transactionType,
-        'numero_transaction': transactionNumber,
-        'numero_contenedor': containerNumber,
-        'linea_transporte_contenedor': ContainerTransportLine,
-        'fecha_hora': fechaHora.toIso8601String(),
-      };
 }

@@ -1,11 +1,13 @@
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
+import 'package:agunsa/features/transactions/data/models/transaction.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ResumeTransaction extends ConsumerWidget {
   const ResumeTransaction({super.key});
@@ -16,6 +18,7 @@ class ResumeTransaction extends ConsumerWidget {
     // final transactionState = ref.watch(transactionControllerProvider);
     // final transactionNotifier = ref.read(transactionControllerProvider.notifier);
     final send = ref.watch(sendTransactionProvider);
+    final transactionType = ref.watch(transactionTypeSelectedProvider);
     return SafeArea(
         child: Scaffold(
       backgroundColor: uiUtils.modalColor,
@@ -39,30 +42,48 @@ class ResumeTransaction extends ConsumerWidget {
             child: send
                 ? Column(
                     children: [
+                      transactionType?.isInOut ?? false
+                          ? SvgPicture.asset(
+                              'assets/svg/pending.svg',
+                              width: 46,
+                              height: 46,
+                            )
+                          :
                       Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                               color: uiUtils.green, shape: BoxShape.circle),
-                          child: const Icon(
+                              child: Icon(
+                            
+                               
                             Icons.check,
-                            color: Colors.white,
+                                color: uiUtils.whiteColor,
+
                           )),
                       const SizedBox(
                         height: 20,
                       ),
                       Text(
                         textAlign: TextAlign.center,
+                        transactionType?.isInOut ?? false
+                            ? 'TRANSACCION EN ESTADO PENDIENTE'
+                            :
                         'TRANSACCION COMPLETADA CON EXITO',
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: uiUtils.grayDarkColor),
+                            color: transactionType?.isInOut ?? false
+                                ? uiUtils.orange
+                                : uiUtils.grayDarkColor),
                       ),
                       const SizedBox(
                         height: 20,
                       ),
                       GeneralBottom(
-                        icon: Icon(Icons.home, color: uiUtils.whiteColor,),
+                          icon: Icon(
+                            Icons.home,
+                            color: uiUtils.whiteColor,
+                          ),
                           width: uiUtils.screenWidth * 0.5,
                           color: uiUtils.primaryColor,
                           text: 'HOME',
@@ -76,8 +97,11 @@ class ResumeTransaction extends ConsumerWidget {
                       const SizedBox(
                         height: 20,
                       ),
-                           GeneralBottom(
-                        icon: Icon(Icons.add_circle_outline_outlined, color: uiUtils.whiteColor,),
+                      GeneralBottom(
+                          icon: Icon(
+                            Icons.add_circle_outline_outlined,
+                            color: uiUtils.whiteColor,
+                          ),
                           width: uiUtils.screenWidth * 0.5,
                           color: uiUtils.primaryColor,
                           text: 'NUEVA TRANSACCION',
@@ -168,8 +192,48 @@ class ResumeTransaction extends ConsumerWidget {
                         width: double.infinity,
                         color: uiUtils.primaryColor,
                         text: 'GUARDAR TRANSACCION',
-                        onTap: () {
-                          sendTransaction(ref);
+                        onTap: () async {
+                          TransactionModel transaction = transactionType
+                                      ?.isInOut ??
+                                  false
+                              ? TransactionModel(
+                                  transactionNumber: "TRX-00001",
+                                  transactionTypeId: 1,
+                                  initialTransactionId: 1,
+                                  epochCreatedDatetime: 1747225000,
+                                  createdByUserId: 1,
+                                  currentStatus: true)
+                              : TransactionModel(
+                                  containerNumber: "MSSS1234567",
+                                  containerTransportLine: "MSC",
+                                  containerIso: "22G1",
+                                  containerType: "Dry",
+                                  containerTara: 2350.0,
+                                  containerPayload: 28000.0,
+                                  createdDataContainer: "2025-05-14T12:00:00Z",
+                                  updatedDataContainer: "2025-05-14T12:00:00Z",
+                                  driverDni: "12345678-9",
+                                  driverName: "Carlos",
+                                  driverLastName: "González",
+                                  createdDataDriver: "2025-05-14T12:00:00Z",
+                                  updatedDataDriver: "2025-05-14T12:00:00Z",
+                                  plate: "XY-1234",
+                                  createdDataPlate: "2025-05-14T12:00:00Z",
+                                  updatedDataPlate: "2025-05-14T12:00:00Z",
+                                  sealCode: "SEAL7890",
+                                  createdDataSeal: "2025-05-14T12:00:00Z",
+                                  updatedDataSeal: "2025-05-14T12:00:00Z",
+                                  transactionNumber: "TRX-00001",
+                                  initialTransactionId: 1,
+                                  transactionTypeId: 1,
+                                  epochCreatedDatetime: 1747244000,
+                                  createdByUserId: 1,
+                                  currentStatus:
+                                      transactionType?.isInOut ?? false
+                                          ? true
+                                          : false);
+
+                          await createTransactionFuntion(ref, transaction);
                         },
                         textColor: uiUtils.whiteColor,
                       )

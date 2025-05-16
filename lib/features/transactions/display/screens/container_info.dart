@@ -50,7 +50,7 @@ class ContainerInfo extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _transactionHeader(),
+                      _transactionHeader(ref),
                       const SizedBox(height: 20),
                       _animatedSection(
                         title: 'DATOS DEL CONTENEDOR',
@@ -61,7 +61,7 @@ class ContainerInfo extends ConsumerWidget {
                               .toggle('containerInfo');
                         },
                         content: fotoProviderInfo != null
-                            ? _containerInfo(fotoProviderInfo)
+                            ? _containerInfo(fotoProviderInfo, ref)
                             : Container(),
                       ),
                       Divider(color: uiUtils.grayLightColor, thickness: 1),
@@ -73,7 +73,7 @@ class ContainerInfo extends ConsumerWidget {
                               .read(expandedContainersProvider.notifier)
                               .toggle('registroFotos');
                         },
-                        content: _imageGallery(args,
+                        content: _imageGallery(ref,
                             selectedIndexes: [1, 2], isPlaca: false),
                       ),
                       if (images.length >= 4) ...[
@@ -90,7 +90,7 @@ class ContainerInfo extends ConsumerWidget {
                             content: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _imageGallery(args,
+                                _imageGallery(ref,
                               selectedIndexes: [3], isPlaca: false),
                                 Expanded(
                                   flex: 6,
@@ -152,7 +152,7 @@ class ContainerInfo extends ConsumerWidget {
                           content: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _imageGallery(args,
+                              _imageGallery(ref,
                                   selectedIndexes: [4], isPlaca: true),
                               Expanded(
                                 flex: 4,
@@ -214,7 +214,7 @@ class ContainerInfo extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              _imageGallery(args,
+                              _imageGallery(ref,
                                   selectedIndexes: [5],
                                   isPlaca: false,
                                   isCond: true),
@@ -489,7 +489,8 @@ class ContainerInfo extends ConsumerWidget {
     );
   }
 
-  Widget _transactionHeader() {
+  Widget _transactionHeader(WidgetRef ref) {
+    final transactionType = ref.watch(transactionTypeSelectedProvider);
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -503,13 +504,14 @@ class ContainerInfo extends ConsumerWidget {
             children: [
               Text('TRANSACCION:',
                   style: TextStyle(color: UiUtils().whiteColor)),
-              Text('DESCARGA', style: TextStyle(color: UiUtils().whiteColor)),
+              Text(transactionType?.name ?? '',
+                  style: TextStyle(color: UiUtils().whiteColor)),
               const SizedBox(width: 15),
-              SvgPicture.asset(
-                'assets/svg/descarga.svg',
+              SvgPicture.network(
+                transactionType?.imageUrl ?? '',
                 color: UiUtils().whiteColor,
-                height: 20,
-                width: 20,
+                height: 25,
+                width: 25,
               ),
             ],
           ),
@@ -563,11 +565,11 @@ class ContainerInfo extends ConsumerWidget {
     );
   }
 
-  Widget _imageGallery(dynamic args,
+  Widget _imageGallery(WidgetRef ref,
       {List<int> selectedIndexes = const [],
       bool? isPlaca = false,
       bool isCond = false}) {
-    final images = args?['images'];
+    final images = ref.watch(imageProvider);
     if (images == null || selectedIndexes.isEmpty) return const SizedBox();
 
     return Row(
@@ -595,7 +597,7 @@ class ContainerInfo extends ConsumerWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(5),
             child: Image.file(
-              File(image.path),
+              File(image?.path ?? ''),
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) =>
                   Container(color: UiUtils().grayDarkColor),
@@ -606,9 +608,9 @@ class ContainerInfo extends ConsumerWidget {
     );
   }
 
-  _containerInfo(Foto foto) {
+  _containerInfo(Foto foto, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
-
+    final images = ref.watch(imageProvider);
     return Column(
       children: [
         const SizedBox(height: 10),
@@ -616,7 +618,7 @@ class ContainerInfo extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Image.file(
-              File(args?['images'][0].path),
+              File(images.first?.path ?? ''),
               height: 115,
               width: 94,
               errorBuilder: (context, error, stackTrace) => Container(

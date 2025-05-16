@@ -5,62 +5,64 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TransactionAppBar extends ConsumerWidget {
-  const TransactionAppBar({
-    super.key,
-    required this.uiUtils, this.title,
-    this.subtitle
-  });
+  const TransactionAppBar(
+      {super.key,
+      required this.uiUtils,
+      this.title,
+      this.subtitle,
+      this.titleColor,
+      this.iconColor});
 
   final UiUtils uiUtils;
   final String? title;
   final String? subtitle;
+  final Color? titleColor;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       // height: uiUtils.screenHeight * 0.15,
-        color: Colors.transparent,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-               GestureDetector(
-                 onTap: () {
-                
+      color: Colors.transparent,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Row(children: [
+            GestureDetector(
+              onTap: () {
                 ref.read(routerDelegateProvider).popRoute();
                 final images = ref.watch(imageProvider);
                 if (images.isNotEmpty && images.first != null) {
                   ref.read(imageProvider.notifier).state = [];
                 }
-                 },
-                 child:  Container(
+              },
+              child: Container(
                   height: 25,
                   width: 25,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: uiUtils.grayDarkColor,),
+                    color: uiUtils.grayDarkColor,
+                  ),
                   padding: const EdgeInsets.all(2),
-                   child: Icon(
-                      Icons.arrow_back,
-                      color: uiUtils.whiteColor,
-                      size: 20,
-                    )
-                 ),
-               )
-            ]),
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: iconColor ?? uiUtils.whiteColor,
+                    size: 20,
+                  )),
+            )
+          ]),
           // if (title != null || subtitle != null) ...[
           //   const Spacer(),
           // ],
-            Text(
-              title ?? "PERFIL",
-              style: TextStyle(
-                color: uiUtils.grayDarkColor,
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-              ),
+          Text(
+            title ?? "PERFIL",
+            style: TextStyle(
+              color: titleColor ?? uiUtils.grayDarkColor,
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
             ),
+          ),
           if (subtitle != null) ...[
             const SizedBox(height: 2),
             Text(
@@ -71,8 +73,8 @@ class TransactionAppBar extends ConsumerWidget {
               ),
             ),
           ]
-          ],
-        ),
+        ],
+      ),
     );
   }
 }

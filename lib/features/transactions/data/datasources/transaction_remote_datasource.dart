@@ -4,13 +4,16 @@ import 'dart:developer';
 import 'package:agunsa/core/class/image_params.dart';
 import 'package:agunsa/core/config/constants.dart';
 import 'package:agunsa/features/transactions/data/models/foto.dart';
+import 'package:agunsa/features/transactions/data/models/pending_transaction.dart';
 import 'package:agunsa/features/transactions/data/models/precint.dart';
+import 'package:agunsa/features/transactions/data/models/transaction.dart';
 import 'package:agunsa/features/transactions/data/models/transaction_type.dart';
 import 'package:agunsa/features/transactions/domain/entities/deliver.dart';
 import 'package:agunsa/features/transactions/domain/entities/photos.dart';
 import 'package:agunsa/features/transactions/domain/entities/placa.dart';
 import 'package:agunsa/features/transactions/domain/entities/precint.dart';
 import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
+import 'package:agunsa/features/transactions/domain/entities/transactions.dart';
 import 'package:http/http.dart' as http;
 
 abstract class TransactionRemoteDatasource {
@@ -19,6 +22,11 @@ abstract class TransactionRemoteDatasource {
   Future<Precinct> uploadPrecint(ImageParams precintParam, String idToken);
   Future<Placa> upLoadPlaca(ImageParams placaParams, String idToken);
   Future<Conductor> getDni(ImageParams dniParams, String idToken);
+  Future<String?> createTransaction(TransactionModel transaction);
+  Future<List<TransactionModel>> getTransactionById(String id);
+  Future<List<PendingTransactionModel>> getPendingTransactions();
+  Future<String?> createPendingTransaction(TransactionModel transaction);
+  
 }
 
 class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
@@ -27,6 +35,11 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   static const String _getprecinto = '${baseUrl}precinto';
   static const String _getplaca = '${baseUrl}placa-camion';
   static const String _getdni = '${baseUrl}dni_conductor';
+  static const String _createTransaction = '${baseUrl}transaction';
+  static const String _getTransactionById = '${baseUrl}transaction';
+  static const String _getPendingTransactions = '${baseUrl}pending-transaction';
+  static const String _createPendingTransaction =
+      '${baseUrl}pending-transaction';
 
   Future<T> _genericRequest<T>({
     required String url,
@@ -49,7 +62,6 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       log('Respuesta cruda: ${response.body}');
 
-      // Validación de estructura para endpoints tipo Precint
       if (responseData.containsKey('statusCode')) {
         if (responseData['statusCode'] == 200) {
           return parseResponse(responseData);
@@ -172,5 +184,89 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
         return Placa.fromJson(bodyData);
       },
     );
+  }
+
+  @override
+  Future<String?> createTransaction(TransactionModel transaction) async {
+    final response = await http.post(
+      Uri.parse(_createTransaction),
+      body: jsonEncode(transaction.toJson()),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      final bodyDecoded = jsonDecode(responseBody['body']);
+      log('Respuesta de la API: ${bodyDecoded['message']}');
+      return bodyDecoded['message'];
+    }
+
+    return null;
+  }
+
+  @override
+  Future<List<PendingTransactionModel>> getPendingTransactions() async {
+    final response = await http.get(Uri.parse(_getPendingTransactions));
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      log('Tipo de body: ${responseBody['body'].runtimeType}');
+
+      final bodyString = responseBody['body'] as String;
+      final data = jsonDecode(bodyString) as List;
+      log('Transacciones pendientes: $data');
+
+      return data
+          .map((json) => PendingTransactionModel.fromJson(json))
+          .toList();
+    } else {
+      log('Error al obtener las transacciones pendientes. Código: ${response.statusCode}');
+      return [];
+    }
+  }
+
+  @override
+  Future<List<TransactionModel>> getTransactionById(String id) async {
+    final response = await http.get(Uri.parse(_getTransactionById));
+    List<TransactionModel> transactions = [];
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData.containsKey('statusCode')) {
+        if (responseData['statusCode'] == 200) {
+          final List<dynamic> data = responseData['body'];
+          transactions =
+              data.map((json) => TransactionModel.fromJson(json)).toList();
+          return transactions;
+        } else {
+          log('Error al obtener la transacción por ID');
+          return [];
+        }
+      }
+    } else {
+      log('Error al obtener la transacción por ID. Código: ${response.statusCode}');
+      return [];
+    }
+    return transactions;
+  }
+
+  @override
+  Future<String?> createPendingTransaction(TransactionModel transaction) async {
+    final response = await http.post(Uri.parse(_createPendingTransaction));
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData.containsKey('statusCode')) {
+        if (responseData['statusCode'] == 200) {
+          final List<dynamic> data = responseData['body'];
+          return data[0];
+        } else {
+          log('Error al obtener la transacción pendiente');
+          return null;
+        }
+      }
+    } else {
+      log('Error al obtener la transacción pendiente. Código: ${response.statusCode}');
+      return null;
+    }
+    return null;
   }
 }

@@ -11,6 +11,7 @@ import 'package:agunsa/features/transactions/display/screens/take_container_scre
 import 'package:agunsa/features/transactions/display/screens/take_dni_screen.dart';
 import 'package:agunsa/features/transactions/display/screens/take_place_screen.dart';
 import 'package:agunsa/features/transactions/display/screens/take_precint_screen.dart';
+import 'package:agunsa/features/transactions/display/screens/transactions_on_process.dart';
 import 'package:agunsa/features/transactions/display/screens/transtacions_screen.dart';
 import 'package:agunsa/features/home/display/screens/home_screen.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
@@ -32,6 +33,7 @@ enum AppRoute {
   takeDni,
   talePlaca,
   resumeTransaction,
+  proccess
 }
 
 class AppRouterDelegate extends RouterDelegate<AppRoute>
@@ -138,6 +140,9 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         return const TakePlacaScreen();
       case AppRoute.resumeTransaction:
         return const ResumeTransaction();
+      case AppRoute.proccess:
+        return const TransactionsOnProcess();
+      
      
     }
   }

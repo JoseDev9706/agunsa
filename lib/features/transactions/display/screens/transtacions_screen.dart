@@ -98,6 +98,7 @@ class TransactionsScreen extends ConsumerWidget {
                                       onTap: () {
                                         final router =
                                             ref.read(routerDelegateProvider);
+                                        seleteTransactionType(ref, item);
                                         router.push(AppRoute.takeContainer,
                                             args: {
                                               'user': user,

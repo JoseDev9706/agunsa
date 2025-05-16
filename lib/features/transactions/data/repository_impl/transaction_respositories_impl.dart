@@ -3,11 +3,14 @@ import 'dart:developer';
 import 'package:agunsa/core/class/image_params.dart';
 import 'package:agunsa/core/exeptions/domain_exeptions.dart';
 import 'package:agunsa/features/transactions/data/datasources/transaction_remote_datasource.dart';
+import 'package:agunsa/features/transactions/data/models/transaction.dart';
 import 'package:agunsa/features/transactions/domain/entities/deliver.dart';
+import 'package:agunsa/features/transactions/domain/entities/peding_transaction.dart';
 import 'package:agunsa/features/transactions/domain/entities/photos.dart';
 import 'package:agunsa/features/transactions/domain/entities/placa.dart';
 import 'package:agunsa/features/transactions/domain/entities/precint.dart';
 import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
+import 'package:agunsa/features/transactions/domain/entities/transactions.dart';
 import 'package:agunsa/features/transactions/domain/respositories/transaction_repositories.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/upload_precinto.dart';
 import 'package:dartz/dartz.dart';
@@ -77,6 +80,55 @@ class TransactionRespositoriesImpl implements TransactionRepositories {
       return right(result);
     } catch (e) {
       log('Error en uploadPlaca: $e');
+      return left(DomainExeptions(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<DomainExeptions, String>> createTransaction(
+      TransactionModel transaction) async {
+    try {
+      final result = await remoteDataSource.createTransaction(transaction);
+      return right(result!);
+    } catch (e) {
+      log('Error en createTransaction: $e');
+      return left(DomainExeptions(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<DomainExeptions, List<PendingTransaction>>>
+      getPendingTransactions() async {
+    try {
+      final result = await remoteDataSource.getPendingTransactions();
+      return right(result);
+    } catch (e) {
+      log('Error en getPendingTransactions: $e');
+      return left(DomainExeptions(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<DomainExeptions, List<Transaction>>> getTransactionById(
+      String id) async {
+    try {
+      final result = await remoteDataSource.getTransactionById(id);
+      return right(result);
+    } catch (e) {
+      log('Error en getTransactionById: $e');
+      return left(DomainExeptions(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<DomainExeptions, String>> createPendingTransaction(
+      TransactionModel transaction) async {
+    try {
+      final result =
+          await remoteDataSource.createPendingTransaction(transaction);
+      return right(result!);
+    } catch (e) {
+      log('Error en createPendingTransaction: $e');
       return left(DomainExeptions(e.toString()));
     }
   }

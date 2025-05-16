@@ -157,7 +157,10 @@ class HomeScreen extends ConsumerWidget {
                       leading: SvgPicture.asset(
                         "assets/svg/report.svg",
                       ),
-                      onTap: () {},
+                      onTap: () {
+                        final router = ref.read(routerDelegateProvider);
+                        router.push(AppRoute.proccess);
+                      },
                     )
                   ],
                 ),

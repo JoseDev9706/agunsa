@@ -48,18 +48,14 @@ class ResumeTransaction extends ConsumerWidget {
                               width: 46,
                               height: 46,
                             )
-                          :
-                      Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                              color: uiUtils.green, shape: BoxShape.circle),
+                          : Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                  color: uiUtils.green, shape: BoxShape.circle),
                               child: Icon(
-                            
-                               
-                            Icons.check,
+                                Icons.check,
                                 color: uiUtils.whiteColor,
-
-                          )),
+                              )),
                       const SizedBox(
                         height: 20,
                       ),
@@ -67,8 +63,7 @@ class ResumeTransaction extends ConsumerWidget {
                         textAlign: TextAlign.center,
                         transactionType?.isInOut ?? false
                             ? 'TRANSACCION EN ESTADO PENDIENTE'
-                            :
-                        'TRANSACCION COMPLETADA CON EXITO',
+                            : 'TRANSACCION COMPLETADA CON EXITO',
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -193,45 +188,34 @@ class ResumeTransaction extends ConsumerWidget {
                         color: uiUtils.primaryColor,
                         text: 'GUARDAR TRANSACCION',
                         onTap: () async {
-                          TransactionModel transaction = transactionType
-                                      ?.isInOut ??
-                                  false
-                              ? TransactionModel(
-                                  transactionNumber: "TRX-00001",
-                                  transactionTypeId: 1,
-                                  initialTransactionId: 1,
-                                  epochCreatedDatetime: 1747225000,
-                                  createdByUserId: 1,
-                                  currentStatus: true)
-                              : TransactionModel(
-                                  containerNumber: "MSSS1234567",
-                                  containerTransportLine: "MSC",
-                                  containerIso: "22G1",
-                                  containerType: "Dry",
-                                  containerTara: 2350.0,
-                                  containerPayload: 28000.0,
-                                  createdDataContainer: "2025-05-14T12:00:00Z",
-                                  updatedDataContainer: "2025-05-14T12:00:00Z",
-                                  driverDni: "12345678-9",
-                                  driverName: "Carlos",
-                                  driverLastName: "González",
-                                  createdDataDriver: "2025-05-14T12:00:00Z",
-                                  updatedDataDriver: "2025-05-14T12:00:00Z",
-                                  plate: "XY-1234",
-                                  createdDataPlate: "2025-05-14T12:00:00Z",
-                                  updatedDataPlate: "2025-05-14T12:00:00Z",
-                                  sealCode: "SEAL7890",
-                                  createdDataSeal: "2025-05-14T12:00:00Z",
-                                  updatedDataSeal: "2025-05-14T12:00:00Z",
-                                  transactionNumber: "TRX-00001",
-                                  initialTransactionId: 1,
-                                  transactionTypeId: 1,
-                                  epochCreatedDatetime: 1747244000,
-                                  createdByUserId: 1,
-                                  currentStatus:
-                                      transactionType?.isInOut ?? false
-                                          ? true
-                                          : false);
+                          TransactionModel transaction = TransactionModel(
+                              containerNumber: "MSSS1234567",
+                              containerTransportLine: "MSC",
+                              containerIso: "22G1",
+                              containerType: "Dry",
+                              containerTara: 2350.0,
+                              containerPayload: 28000.0,
+                              createdDataContainer: "2025-05-14T12:00:00Z",
+                              updatedDataContainer: "2025-05-14T12:00:00Z",
+                              driverDni: "12345678-9",
+                              driverName: "Carlos",
+                              driverLastName: "González",
+                              createdDataDriver: "2025-05-14T12:00:00Z",
+                              updatedDataDriver: "2025-05-14T12:00:00Z",
+                              plate: "XY-1234",
+                              createdDataPlate: "2025-05-14T12:00:00Z",
+                              updatedDataPlate: "2025-05-14T12:00:00Z",
+                              sealCode: "SEAL7890",
+                              createdDataSeal: "2025-05-14T12:00:00Z",
+                              updatedDataSeal: "2025-05-14T12:00:00Z",
+                              transactionNumber: "TRX-00001",
+                              initialTransactionId: 1,
+                              transactionTypeId: 1,
+                              epochCreatedDatetime: 1747244000,
+                              createdByUserId: 1,
+                              currentStatus: transactionType?.isInOut ?? false
+                                  ? true
+                                  : false);
 
                           await createTransactionFuntion(ref, transaction);
                         },

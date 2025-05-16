@@ -198,15 +198,17 @@ class LoginForm extends ConsumerWidget {
                         });
                       } else if (result is AuthFailure) {
                         log('Error de login: ${result.message}');
+                        formNotifier.setEmailError(result.message);
+                        formNotifier.setPasswordError(result.message);
                       } else if (result is RequirePasswordChange) {
                         log('Cambio de contraseña requerido: ${result.nextStep}');
                         final router = ref.read(routerDelegateProvider);
                         router.pushReplacement(AppRoute.home, args: {
                           'nextStep': result.nextStep,
                         });
-                      } else {
-                        log('Error inesperado: ${result.toString()}');
-                      }
+                      } else {}
+                      SnackBar(content: Text(result.toString()));
+                      log('Error inesperado: ${result.toString()}');
                     }
                   }
                 },

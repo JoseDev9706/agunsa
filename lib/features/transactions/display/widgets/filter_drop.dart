@@ -42,8 +42,9 @@ class FilterDropdown extends ConsumerWidget {
               )
               .toList(),
           child: Container(
-            height: 45,
-            width: 45,
+            height: uiUtils.screenHeight * 0.05,
+            width: uiUtils.screenWidth * 0.1,
+            
             decoration: BoxDecoration(
               boxShadow: const [
                 BoxShadow(

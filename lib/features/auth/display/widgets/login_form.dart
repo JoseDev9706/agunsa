@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:agunsa/core/class/auth_result.dart';
@@ -198,8 +199,25 @@ class LoginForm extends ConsumerWidget {
                         });
                       } else if (result is AuthFailure) {
                         log('Error de login: ${result.message}');
-                        formNotifier.setEmailError(result.message);
-                        formNotifier.setPasswordError(result.message);
+
+                        final errorMessage = result.message['message'];
+
+                        if (errorMessage == 'User does not exist.') {
+                          formNotifier.setEmailError(
+                              'El usuario con ese email no existe');
+                        } else if (errorMessage == 'Invalid password') {
+                          formNotifier
+                              .setPasswordError('Contraseña incorrecta');
+                        } else if (errorMessage == 'User not confirmed') {
+                          formNotifier
+                              .setEmailError('El usuario no está confirmado');
+                        } else if (errorMessage == 'User is disabled') {
+                          formNotifier
+                              .setEmailError('El usuario está deshabilitado');
+                        } else {
+                          formNotifier.setEmailError(
+                              errorMessage ?? 'Error desconocido');
+                        }
                       } else if (result is RequirePasswordChange) {
                         log('Cambio de contraseña requerido: ${result.nextStep}');
                         final router = ref.read(routerDelegateProvider);

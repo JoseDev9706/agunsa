@@ -48,7 +48,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                   'Toma dos fotos laterales del contendor',
                   style: TextStyle(
                       color: uiUtils.primaryColor,
-                      fontSize: 25,
+                      fontSize: uiUtils.screenWidth * 0.065,
                       fontWeight: FontWeight.bold),
                 ),
               ),
@@ -60,22 +60,22 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                   'Estas imágenes no serán procesadas por inteligencia artificial, pero quedarán guardadas como evidencia del proceso.',
                   style: TextStyle(
                     color: uiUtils.black,
-                    fontSize: 16,
+                    fontSize: uiUtils.screenWidth * 0.045,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
               const SizedBox(height: 20),
               Container(
-                width: uiUtils.screenWidth * 0.7,
-                height: uiUtils.screenWidth * 0.7,
+                width: uiUtils.screenWidth * 0.75,
+                height: uiUtils.screenWidth * 0.75,
                 decoration: BoxDecoration(
                   color: uiUtils.labelColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Stack(
                   children: [
-                    Positioned.fill(
+                    Center(
                       child: SvgPicture.asset(
                         'assets/svg/camera_port.svg',
                         fit: BoxFit.cover,
@@ -123,12 +123,12 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: uiUtils.screenHeight * 0.03),
               if (images.length >= 2) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       ...images
                           .asMap()
@@ -154,6 +154,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                           );
                         },
                       ),
+                      if (images.length > 2)
                       Expanded(
                         child: GeneralBottom(
                           width: uiUtils.screenWidth * 0.3,
@@ -175,7 +176,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                   ),
                 ),
               ],
-              const SizedBox(height: 30),
+              SizedBox(height: uiUtils.screenHeight * 0.05),
             ],
           ),
         ),

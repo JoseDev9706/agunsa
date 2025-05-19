@@ -108,7 +108,7 @@ class ContainerInfo extends ConsumerWidget {
                                       'CÓDIGO PRECINTO ADUANA',
                                       style: TextStyle(
                                           color: uiUtils.grayDarkColor,
-                                          fontSize: 13,
+                                          fontSize: uiUtils.screenWidth * 0.03,
                                           fontWeight: FontWeight.bold),
                                     ),
                                   ),
@@ -130,7 +130,8 @@ class ContainerInfo extends ConsumerWidget {
                                         precintProviderInfo?.codPrecinto ?? '',
                                         style: TextStyle(
                                             color: uiUtils.grayLightColor,
-                                            fontSize: 13,
+                                            fontSize:
+                                                uiUtils.screenWidth * 0.03,
                                             fontWeight: FontWeight.normal),
                                       ),
                                     ),
@@ -224,6 +225,7 @@ class ContainerInfo extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Expanded(
+                                     
                                       child: Row(
                                         children: [
                                           Container(
@@ -245,7 +247,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
-                                                    fontSize: 13,
+                                                    fontSize:
+                                                        uiUtils.screenWidth *
+                                                            0.03,
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
@@ -253,7 +257,7 @@ class ContainerInfo extends ConsumerWidget {
                                           ),
                                           Container(
                                             height: uiUtils.screenHeight * 0.03,
-                                            width: uiUtils.screenWidth * 0.34,
+                                            width: uiUtils.screenWidth * 0.3,
                                             margin:
                                                 const EdgeInsets.only(left: 0),
                                             padding: const EdgeInsets.symmetric(
@@ -271,7 +275,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
-                                                    fontSize: 13,
+                                                    fontSize:
+                                                        uiUtils.screenWidth *
+                                                            0.03,
                                                     fontWeight:
                                                         FontWeight.normal),
                                               ),
@@ -303,7 +309,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
-                                                    fontSize: 13,
+                                                    fontSize:
+                                                        uiUtils.screenWidth *
+                                                            0.03,
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
@@ -311,7 +319,7 @@ class ContainerInfo extends ConsumerWidget {
                                           ),
                                           Container(
                                             height: uiUtils.screenHeight * 0.03,
-                                            width: uiUtils.screenWidth * 0.34,
+                                            width: uiUtils.screenWidth * 0.3,
                                             margin:
                                                 const EdgeInsets.only(left: 0),
                                             padding: const EdgeInsets.symmetric(
@@ -329,7 +337,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
-                                                    fontSize: 13,
+                                                    fontSize:
+                                                        uiUtils.screenWidth *
+                                                            0.03,
                                                     fontWeight:
                                                         FontWeight.normal),
                                               ),
@@ -361,7 +371,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
-                                                    fontSize: 13,
+                                                    fontSize:
+                                                        uiUtils.screenWidth *
+                                                            0.03,
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
@@ -369,7 +381,7 @@ class ContainerInfo extends ConsumerWidget {
                                           ),
                                           Container(
                                             height: uiUtils.screenHeight * 0.03,
-                                            width: uiUtils.screenWidth * 0.34,
+                                            width: uiUtils.screenWidth * 0.3,
                                             margin:
                                                 const EdgeInsets.only(left: 0),
                                             padding: const EdgeInsets.symmetric(
@@ -387,7 +399,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
-                                                    fontSize: 13,
+                                                    fontSize:
+                                                        uiUtils.screenWidth *
+                                                            0.03,
                                                     fontWeight:
                                                         FontWeight.normal),
                                               ),
@@ -716,7 +730,7 @@ class ContainerInfo extends ConsumerWidget {
               Text(
                 '(PESO VACIO DEL CONTENEDOR)',
                 style: TextStyle(
-                    fontSize: 12,
+                    fontSize: uiUtils.screenWidth * 0.028,
                     color: uiUtils.grayDarkColor,
                     fontWeight: FontWeight.bold),
               ),
@@ -748,7 +762,7 @@ class ContainerInfo extends ConsumerWidget {
               Text(
                 '(PESO NETO QUE PUEDE CARGAR)',
                 style: TextStyle(
-                    fontSize: 12,
+                    fontSize: uiUtils.screenWidth * 0.025,
                     color: uiUtils.grayDarkColor,
                     fontWeight: FontWeight.bold),
               ),
@@ -849,7 +863,7 @@ class LabelInfoWidget extends StatelessWidget {
         label,
         style: TextStyle(
             color: uiUtils.grayLightColor,
-            fontSize: 13,
+            fontSize: uiUtils.screenWidth * 0.025,
             fontWeight: FontWeight.bold),
       ),
     );

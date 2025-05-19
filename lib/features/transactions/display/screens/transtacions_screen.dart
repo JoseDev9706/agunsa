@@ -25,7 +25,10 @@ class TransactionsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
     final currentPage = ref.watch(currentPageProvider);
-    final transactionTypesAsync = ref.watch(transactionTypesProvider);
+    final transactionTypesAsync = ref.watch(filteredTransactionTypesProvider);
+    final searchController = TextEditingController();
+
+
 
     const itemsPerPage = 6;
 
@@ -56,14 +59,14 @@ class TransactionsScreen extends ConsumerWidget {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                          boxShadow: const [
-                            BoxShadow(
+                            boxShadow: const [
+                              BoxShadow(
                                 color: Colors.black12,
                                 blurRadius: 10,
                                 offset: Offset(0, 10),
                               )
-                          ],
-                          color: uiUtils.whiteColor,
+                            ],
+                            color: uiUtils.whiteColor,
                             borderRadius: BorderRadius.circular(25),
                           ),
                           child: TextFormField(
@@ -104,29 +107,35 @@ class TransactionsScreen extends ConsumerWidget {
                                               'user': user,
                                               'transactionType': item
                                             });
+                                        ref
+                                            .read(searchQueryProvider.notifier)
+                                            .state = '';
                                       },
                                     ))
                                 .toList(),
                           ),
                         ),
                         SizedBox(height: uiUtils.screenHeight * 0.04),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Paginator(
-                              uiUtils: uiUtils,
-                              currentPage: currentPage,
-                              totalPages: totalPages,
-                              onPageChanged: (newPage) {
-                                ref.read(currentPageProvider.notifier).state =
-                                    newPage;
-                              },
-                            ),
-                          ],
-                        ),
-                        Divider(color: uiUtils.labelColor),
                       ],
                     ),
+                  ),
+                ),
+                Divider(color: uiUtils.labelColor),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Paginator(
+                        uiUtils: uiUtils,
+                        currentPage: currentPage,
+                        totalPages: totalPages,
+                        onPageChanged: (newPage) {
+                          ref.read(currentPageProvider.notifier).state =
+                              newPage;
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -140,7 +149,6 @@ class TransactionsScreen extends ConsumerWidget {
     );
   }
 }
-
 
 class TransactionsCard extends StatelessWidget {
   const TransactionsCard({
@@ -162,8 +170,8 @@ class TransactionsCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 140,
-        height: 133,
+        width: uiUtils.screenWidth * 0.35,
+        height: uiUtils.screenHeight * 0.15,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           color: uiUtils.whiteColor,
@@ -183,13 +191,13 @@ class TransactionsCard extends StatelessWidget {
               height: 58,
               color: uiUtils.primaryColor,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             Text(
               textAlign: TextAlign.center,
               name,
               style: TextStyle(
                   color: uiUtils.primaryColor,
-                  fontSize: 18,
+                  fontSize: uiUtils.screenWidth * 0.04,
                   fontWeight: FontWeight.bold),
             ),
           ],

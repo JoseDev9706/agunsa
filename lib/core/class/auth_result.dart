@@ -14,6 +14,7 @@ class RequirePasswordChange extends AuthResult {
 }
 
 class AuthFailure extends AuthResult {
-  final String message;
+  final Map<String, dynamic> message;
   AuthFailure(this.message);
 }
+

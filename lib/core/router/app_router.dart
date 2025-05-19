@@ -78,7 +78,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
 
   @override
   Widget build(BuildContext context) {
-    UiUtils().getDeviceSize(context);
+   
 
     if (_routeStack.first == AppRoute.splash) {
       Future.delayed(const Duration(seconds: 6), () {
@@ -86,15 +86,21 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         notifyListeners();
       });
     }
-    return Navigator(
-      key: navigatorKey,
-      pages: _routeStack
-          .map((route) => MaterialPage(child: _buildPage(route)))
-          .toList(),
-      onPopPage: (route, result) {
-        if (!route.didPop(result)) return false;
-        popRoute();
-        return true;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        UiUtils().getDeviceSize(context,
+            height: constraints.maxHeight, width: constraints.maxWidth);
+        return Navigator(
+          key: navigatorKey,
+          pages: _routeStack
+              .map((route) => MaterialPage(child: _buildPage(route)))
+              .toList(),
+          onPopPage: (route, result) {
+            if (!route.didPop(result)) return false;
+            popRoute();
+            return true;
+          },
+        );
       },
     );
   }
@@ -123,7 +129,6 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         );
       case AppRoute.takeContainer:
         return TakeContainerScreen(
-          
           transactionType: _args?['transactionType'],
         );
       case AppRoute.takeAditionalPhotos:
@@ -142,8 +147,6 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         return const ResumeTransaction();
       case AppRoute.proccess:
         return const TransactionsOnProcess();
-      
-     
     }
   }
 

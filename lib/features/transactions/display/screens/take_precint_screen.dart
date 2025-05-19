@@ -5,6 +5,7 @@ import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
+import 'package:agunsa/features/transactions/display/widgets/container_photo.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/core/utils/code_utils.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
@@ -67,7 +68,7 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                             : 'Toma foto del Precindo',
                         style: TextStyle(
                             color: uiUtils.primaryColor,
-                            fontSize: 25,
+                            fontSize: uiUtils.screenWidth * 0.065,
                             fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -81,7 +82,7 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                             : 'Asegúrate de que los números y letras del precinto se vean claramente antes de tomar la foto. Podras tomar hasta 4 fotos.',
                         style: TextStyle(
                           color: uiUtils.black,
-                          fontSize: 16,
+                          fontSize: uiUtils.screenWidth * 0.045,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -104,25 +105,10 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                               ),
                             ),
                           )
-                        : Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 60, vertical: 60),
-                            decoration: BoxDecoration(
-                                color: uiUtils.labelColor,
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Stack(
-                              children: [
-                                SvgPicture.asset('assets/svg/camera_port.svg'),
-                                Positioned.fill(
-                                  child: Center(
-                                    child:
-                                        SvgPicture.asset('assets/svg/camera.svg'),
-                                  ),
-                                ),
-                              ],
-                            ),
+                        : ContainerPhotoWidget(
+                            uiUtils: uiUtils,
                           ),
-                    const SizedBox(height: 56),
+                    const SizedBox(height: 26),
                     fileTaked != null
                         ? Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,6 +196,7 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                               ),
                             ),
                           ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),

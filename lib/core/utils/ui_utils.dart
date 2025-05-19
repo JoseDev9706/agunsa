@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 class UiUtils {
@@ -21,9 +23,12 @@ class UiUtils {
   final Color green = const Color(0xFF419A20);
   final Color orange = const Color(0xFFFCB018);
 
-  void getDeviceSize(BuildContext context) {
-    screenHeight = MediaQueryData.fromView(View.of(context)).size.height;
-    screenWidth = MediaQueryData.fromView(View.of(context)).size.width;
+  void getDeviceSize(BuildContext context,
+      {required double height, required double width}) {
+    screenHeight = height;
+    screenWidth = width;
+    log('Screen Height: $screenHeight');
+    log('Screen Width: $screenWidth');
   }
 
   Future<void> showLoadingDialog() async {}

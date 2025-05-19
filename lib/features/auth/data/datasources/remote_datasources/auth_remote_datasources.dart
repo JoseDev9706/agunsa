@@ -34,7 +34,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         log('User ID: ${user.userId}');
 
         final session = await Amplify.Auth.fetchAuthSession(
-            options: FetchAuthSessionOptions(
+            options: const FetchAuthSessionOptions(
                 pluginOptions: CognitoFetchAuthSessionPluginOptions()));
 
         if (session.isSignedIn) {
@@ -43,24 +43,30 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           log('Access Token: ${cognitoSession.userPoolTokensResult.value.accessToken.raw}');
           final accessToken =
               cognitoSession.userPoolTokensResult.value.accessToken.raw;
-          // log('ID Token: ${cognitoSession.userPoolTokensResult}');
 
           return AuthSuccess(
             UserModel(email: email, token: accessToken),
           );
         } else {
-          return AuthFailure("Sesión no iniciada correctamente.");
+          return AuthFailure({"message": "Sesión no iniciada correctamente."});
         }
       } else if (result.nextStep.signInStep.name ==
           'confirmSignInWithNewPassword') {
         return RequirePasswordChange(result);
       } else {
-        return AuthFailure("Credenciales inválidas.");
+        return AuthFailure({"message": "Credenciales inválidas."});
       }
+    } on AuthException catch (e) {
+      return AuthFailure({
+        "message": e.message,
+        "underlyingException": e.underlyingException?.toString()
+      });
     } catch (e) {
-      return AuthFailure(e.toString());
+      // cualquier otro error inesperado
+      return AuthFailure({"message": e.toString()});
     }
   }
+
   @override
   Future<UserModel> getCurrentUserEmail() async {
     final user = await Amplify.Auth.getCurrentUser();

@@ -16,6 +16,7 @@ class AuthRepositoryImpl implements AuthRepository {
     return remoteDataSource.login(email, password);
   }
 
+
   @override
   Future<void> logout() async {
     await remoteDataSource.logout();

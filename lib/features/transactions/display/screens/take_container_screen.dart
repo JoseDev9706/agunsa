@@ -6,6 +6,7 @@ import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
 import 'package:agunsa/features/profile/display/providers/profile_provider.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
+import 'package:agunsa/features/transactions/display/widgets/container_photo.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
 import 'package:agunsa/core/utils/code_utils.dart';
@@ -61,7 +62,7 @@ class TakeContainerScreen extends ConsumerWidget {
                       'Toma una foto del contenedor',
                       style: TextStyle(
                           color: uiUtils.primaryColor,
-                          fontSize: 25,
+                          fontSize: uiUtils.screenWidth * 0.065,
                           fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
@@ -69,7 +70,7 @@ class TakeContainerScreen extends ConsumerWidget {
                       'Usamos inteligencia artificial para leer los datos.',
                       style: TextStyle(
                         color: uiUtils.black,
-                        fontSize: 16,
+                        fontSize: uiUtils.screenWidth * 0.045,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -77,7 +78,7 @@ class TakeContainerScreen extends ConsumerWidget {
                       'Asegurate de que la imagen sea clara y enfocada.',
                       style: TextStyle(
                         color: uiUtils.black,
-                        fontSize: 16,
+                        fontSize: uiUtils.screenWidth * 0.045,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -138,24 +139,7 @@ class TakeContainerScreen extends ConsumerWidget {
                         ],
                       )
                     ] else ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 60),
-                        decoration: BoxDecoration(
-                            color: uiUtils.labelColor,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Stack(
-                          children: [
-                            SvgPicture.asset('assets/svg/camera_port.svg'),
-                            Positioned.fill(
-                              child: Center(
-                                child:
-                                    SvgPicture.asset('assets/svg/camera.svg'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      ContainerPhotoWidget(uiUtils: uiUtils),
                       const Spacer(),
                       GestureDetector(
                         onTap: () async {
@@ -180,7 +164,7 @@ class TakeContainerScreen extends ConsumerWidget {
                         ),
                       ),
                     ],
-                    const Spacer(),
+                    SizedBox(height: uiUtils.screenHeight * 0.1),
                   ],
                 ),
               ),
@@ -191,3 +175,5 @@ class TakeContainerScreen extends ConsumerWidget {
     );
   }
 }
+
+

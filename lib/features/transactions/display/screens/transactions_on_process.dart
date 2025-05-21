@@ -1,3 +1,5 @@
+import 'package:agunsa/core/router/app_router.dart';
+import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/filter_drop.dart';
@@ -31,6 +33,9 @@ class TransactionsOnProcess extends ConsumerWidget {
                       title: 'Transacciones en Proceso',
                       titleColor: uiUtils.whiteColor,
                       iconColor: uiUtils.whiteColor,
+                      onTap: () {
+                        ref.read(routerDelegateProvider).popRoute();
+                      },
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -171,32 +176,43 @@ class TransactionsOnProcess extends ConsumerWidget {
                             subtitle: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Container(
-                                  decoration:
-                                      BoxDecoration(color: uiUtils.orange),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 5,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SvgPicture.asset(
-                                        'assets/svg/pending.svg',
-                                        color: uiUtils.whiteColor,
-                                        height: 15,
-                                        width: 15,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        'PENDIENTE',
-                                        style: TextStyle(
+                                GestureDetector(
+                                  onTap: () {
+                                    setIsFromPendingTransaction(ref, true);
+                                    ref.read(routerDelegateProvider).push(
+                                      AppRoute.takeContainer,
+                                      args: {
+                                        'transaction': transaction,
+                                      },
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration:
+                                        BoxDecoration(color: uiUtils.orange),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SvgPicture.asset(
+                                          'assets/svg/pending.svg',
                                           color: uiUtils.whiteColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 11,
+                                          height: 15,
+                                          width: 15,
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          'PENDIENTE',
+                                          style: TextStyle(
+                                            color: uiUtils.whiteColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],

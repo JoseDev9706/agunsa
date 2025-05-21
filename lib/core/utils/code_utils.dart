@@ -2,8 +2,11 @@
 
 import 'dart:developer';
 
+import 'package:agunsa/core/router/app_router.dart';
+import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -77,6 +80,96 @@ class CodeUtils {
         SnackBar(content: Text('Error al abrir la cámara: ${e.toString()}')),
       );
       return null;
+    }
+  }
+
+  String getNextStepText({
+    required List<XFile?> aditionalImages,
+    required List<XFile?> precintsImage,
+    required XFile? placaImage,
+    required XFile? dniImage,
+    required bool isInOut,
+    required bool isFromPendingTransaction,
+  }) {
+    if (isInOut && isFromPendingTransaction) {
+      if (placaImage == null) {
+        return 'CAPTURA PLACA';
+      } else if (dniImage == null) {
+        return 'CAPTURA DNI';
+      } else {
+        return 'FINALIZAR';
+      }
+    } else {
+      if (aditionalImages.isNotEmpty && precintsImage.isEmpty) {
+        return 'CAPTURA PRECINTOS';
+      } else if (precintsImage.isNotEmpty && placaImage == null) {
+        return 'CAPTURA PLACA';
+      } else if (placaImage != null && dniImage == null) {
+        return 'CAPTURA DNI';
+      } else if (dniImage != null) {
+        return 'FINALIZAR';
+      } else {
+        return 'INICIAR';
+      }
+    }
+  }
+
+  void handleNextStep({
+    required WidgetRef ref,
+    required String stepText,
+    required Map<String, dynamic>? args,
+  }) {
+    log('Step: $stepText');
+    switch (stepText) {
+      case 'CAPTURA PRECINTOS':
+        ref.read(routerDelegateProvider).push(
+          AppRoute.takePrecint,
+          args: {
+            'images': args?['images'],
+            'isContainer': true,
+          },
+        );
+        break;
+
+      case 'CAPTURA PLACA':
+        ref.read(routerDelegateProvider).push(
+          AppRoute.talePlaca,
+          args: {
+            'images': args?['images'],
+            'isContainer': true,
+          },
+        );
+        break;
+
+      case 'CAPTURA DNI':
+        ref.read(routerDelegateProvider).push(
+          AppRoute.takeDni,
+          args: {
+            'images': args?['images'],
+            'isContainer': true,
+          },
+        );
+        break;
+
+      case 'FINALIZAR':
+        ref.read(routerDelegateProvider).push(
+          AppRoute.resumeTransaction,
+          args: {
+            'images': args?['images'],
+            'isContainer': true,
+          },
+        );
+        break;
+
+      default:
+        ref.read(routerDelegateProvider).push(
+          AppRoute.containerInfo,
+          args: {
+            'images': args?['images'],
+            'isContainer': true,
+          },
+        );
+        break;
     }
   }
 }

@@ -26,16 +26,20 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final images = ref.watch(imageProvider);
+    final image = ref.watch(dniImageProvider);
+    final isUploadingImage = ref.watch(uploadingImageProvider);
 
     return SafeArea(
       child: Scaffold(
         body: Column(
           children: [
             TransactionAppBar(
-              uiUtils: uiUtils,
-              title: '',
-            ),
+                uiUtils: uiUtils,
+                title: '',
+                onTap: () {
+                  ref.read(dniImageProvider.notifier).state = null;
+                  ref.read(routerDelegateProvider).popRoute();
+                }),
             Expanded(
               child: Column(
                 children: [
@@ -64,7 +68,7 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                       textAlign: TextAlign.center,
                       fileTaked != null
                           ? 'Confirmación'
-                          : 'Toma foto del Precindo',
+                          : 'Toma una foto de la Licencia del transportista',
                       style: TextStyle(
                           color: uiUtils.primaryColor,
                           fontSize: 25,
@@ -78,7 +82,7 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                       textAlign: TextAlign.center,
                       fileTaked != null
                           ? 'Confirma que la foto este bien tomada'
-                          : 'Asegúrate de que los números y letras del precinto se vean claramente antes de tomar la foto. Podras tomar hasta 4 fotos.',
+                          : 'Asegúrate de que los datos estén bien visibles y la imagen sea clara para poder extraer la información correctamente.',
                       style: TextStyle(
                         color: uiUtils.black,
                         fontSize: 16,
@@ -142,19 +146,27 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                               children: [
                                 GeneralBottom(
                                   width: uiUtils.screenWidth * 0.4,
-                                  color: uiUtils.primaryColor,
-                                  text: 'CONFIRMAR',
+                                  color: isUploadingImage
+                                      ? Colors.grey
+                                      : uiUtils.primaryColor,
+                                  text: isUploadingImage
+                                      ? 'SUBIENDO...'
+                                      : 'CONFIRMAR',
                                   onTap: () async {
-                                    ref.read(imageProvider.notifier).state =
-                                        images..add(fileTaked);
-                                    await getDniInfo(ref, fileTaked!);
-                                    ref.read(routerDelegateProvider).push(
-                                      AppRoute.containerInfo,
-                                      args: {
-                                        'images': images,
-                                        'isContainer': true,
-                                      },
-                                    );
+                                    if (!isUploadingImage) {
+                                      setUploadingImage(ref, true);
+                                      ref
+                                          .read(dniImageProvider.notifier)
+                                          .state = (fileTaked);
+                                      await getDniInfo(ref, fileTaked!);
+                                      ref.read(routerDelegateProvider).push(
+                                        AppRoute.containerInfo,
+                                        args: {
+                                          'isContainer': true,
+                                        },
+                                      );
+                                    }
+                                    setUploadingImage(ref, false);
                                   },
                                   textColor: uiUtils.whiteColor,
                                 ),
@@ -181,7 +193,7 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                         )
                       : GestureDetector(
                           onTap: () async {
-                            if (images.length < 6) {
+                            if (image == null) {
                               final capturedImage = await CodeUtils()
                                   .checkCameraPermission(context);
                               if (capturedImage != null) {

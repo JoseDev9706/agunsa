@@ -213,7 +213,11 @@ Future<Placa?> getPlacaInfo(WidgetRef ref, XFile placa, String idToken) async {
   );
 }
 
-final imageProvider = StateProvider<List<XFile?>>((ref) => []);
+final containerImageProvider = StateProvider<List<XFile?>>((ref) => []);
+final aditionalImagesProvider = StateProvider<List<XFile?>>((ref) => []);
+final precintsImageProvider = StateProvider<List<XFile?>>((ref) => []);
+final placaImageProvider = StateProvider<XFile?>((ref) => null);
+final dniImageProvider = StateProvider<XFile?>((ref) => null);
 final placaProvider = StateProvider<Placa?>((ref) => null);
 final dniProvider = StateProvider<Conductor?>((ref) => null);
 final precintProvider = StateProvider<Precinct?>((ref) => null);
@@ -222,13 +226,28 @@ final sendTransactionProvider = StateProvider<bool>((ref) => false);
 final transactionTypeSelectedProvider =
     StateProvider<TransactionType?>((ref) => null);
 final selectedFilterIdProvider = StateProvider<int?>((ref) => null);
+final uploadingImageProvider = StateProvider<bool>((ref) => false);
+final isFromPendingTransactionProvider = StateProvider<bool>((ref) => false);
+
+void setIsFromPendingTransaction(WidgetRef ref, bool isFromPendingTransaction) {
+  ref.read(isFromPendingTransactionProvider.notifier).state =
+      isFromPendingTransaction;
+}
 
 void seleteTransactionType(WidgetRef ref, TransactionType transactionType) {
   ref.read(transactionTypeSelectedProvider.notifier).state = transactionType;
 }
 
+void setUploadingImage(WidgetRef ref, bool value) {
+  ref.read(uploadingImageProvider.notifier).state = value;
+}
+
 void resetTransactionProviders(WidgetRef ref) {
-  ref.read(imageProvider.notifier).state = [];
+  ref.read(containerImageProvider.notifier).state = [];
+  ref.read(aditionalImagesProvider.notifier).state = [];
+  ref.read(precintsImageProvider.notifier).state = [];
+  ref.read(placaImageProvider.notifier).state = null;
+  ref.read(dniImageProvider.notifier).state = null;
   ref.read(placaProvider.notifier).state = null;
   ref.read(dniProvider.notifier).state = null;
   ref.read(precintProvider.notifier).state = null;

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
+import 'package:agunsa/core/utils/code_utils.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
@@ -11,6 +12,7 @@ import 'package:agunsa/features/transactions/domain/entities/photos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ContainerInfo extends ConsumerWidget {
   final Map<String, dynamic>? args;
@@ -22,6 +24,7 @@ class ContainerInfo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
+    CodeUtils codeUtils = CodeUtils();
     final isExpanded = ref.watch(expandedContainersProvider
         .select((state) => state['containerInfo'] ?? false));
     final isRegistroFotosExpanded = ref.watch(expandedContainersProvider
@@ -36,13 +39,30 @@ class ContainerInfo extends ConsumerWidget {
     final precintProviderInfo = ref.watch(precintProvider);
     final placaProviderInfo = ref.watch(placaProvider);
     final conductorProviderInfo = ref.watch(dniProvider);
-    final images = ref.watch(imageProvider);
-
+    final transactionType = ref.watch(transactionTypeSelectedProvider);
+    final precintsImage = ref.watch(precintsImageProvider);
+    final dniImage = ref.watch(dniImageProvider);
+    final placaImage = ref.watch(placaImageProvider);
+    final aditionalImges = ref.watch(aditionalImagesProvider);
+    final containerImage = ref.watch(containerImageProvider);
+    final stepText = codeUtils.getNextStepText(
+      aditionalImages: aditionalImges,
+      precintsImage: precintsImage,
+      placaImage: placaImage,
+      dniImage: dniImage,
+      isInOut: transactionType?.isInOut ?? false,
+      isFromPendingTransaction: ref.watch(isFromPendingTransactionProvider),
+    );
     return SafeArea(
       child: Scaffold(
         body: Column(
           children: [
-            TransactionAppBar(uiUtils: uiUtils, title: ''),
+            TransactionAppBar(
+                uiUtils: uiUtils,
+                title: '',
+                onTap: () {
+                  ref.read(routerDelegateProvider).popRoute();
+                }),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -52,46 +72,51 @@ class ContainerInfo extends ConsumerWidget {
                     children: [
                       _transactionHeader(ref),
                       const SizedBox(height: 20),
-                      _animatedSection(
-                        title: 'DATOS DEL CONTENEDOR',
-                        isExpanded: isExpanded,
-                        onTap: () {
-                          ref
-                              .read(expandedContainersProvider.notifier)
-                              .toggle('containerInfo');
-                        },
-                        content: fotoProviderInfo != null
-                            ? _containerInfo(fotoProviderInfo, ref)
-                            : Container(),
-                      ),
-                      Divider(color: uiUtils.grayLightColor, thickness: 1),
-                      _animatedSection(
-                        title: 'REGISTRO FOTOGRÁFICO',
-                        isExpanded: isRegistroFotosExpanded,
-                        onTap: () {
-                          ref
-                              .read(expandedContainersProvider.notifier)
-                              .toggle('registroFotos');
-                        },
-                        content: _imageGallery(ref,
-                            selectedIndexes: [1, 2], isPlaca: false),
-                      ),
-                      if (images.length >= 4) ...[
-                        // Sección de "DATOS PRECINTO" si hay 4 o más imágenes
-                        Divider(color: uiUtils.grayLightColor, thickness: 1),
+                      if (containerImage.isNotEmpty) ...[
                         _animatedSection(
-                          title: 'DATOS PRECINTO',
-                          isExpanded: isRegistroPrecintExpanded,
+                          title: 'DATOS DEL CONTENEDOR',
+                          isExpanded: isExpanded,
                           onTap: () {
                             ref
                                 .read(expandedContainersProvider.notifier)
-                                .toggle('registroPrecint');
+                                .toggle('containerInfo');
                           },
+                          content: fotoProviderInfo != null
+                              ? _containerInfo(fotoProviderInfo, ref)
+                              : Container(),
+                        ),
+                        if (aditionalImges.isNotEmpty) ...[
+                          Divider(color: uiUtils.grayLightColor, thickness: 1),
+                        ],
+                        _animatedSection(
+                          title: 'REGISTRO FOTOGRÁFICO',
+                          isExpanded: isRegistroFotosExpanded,
+                          onTap: () {
+                            ref
+                                .read(expandedContainersProvider.notifier)
+                                .toggle('registroFotos');
+                          },
+                          content: _imageGallery(ref,
+                              selectedIndexes: aditionalImges, isPlaca: false),
+                        ),
+                      ],
+                      if (precintsImage.isNotEmpty) ...[
+                        // Sección de "DATOS PRECINTO" si hay 4 o más imágenes
+                        Divider(color: uiUtils.grayLightColor, thickness: 1),
+                        _animatedSection(
+                            title: 'DATOS PRECINTO',
+                            isExpanded: isRegistroPrecintExpanded,
+                            onTap: () {
+                              ref
+                                  .read(expandedContainersProvider.notifier)
+                                  .toggle('registroPrecint');
+                            },
                             content: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _imageGallery(ref,
-                              selectedIndexes: [3], isPlaca: false),
+                                    selectedIndexes: precintsImage,
+                                    isPlaca: false),
                                 Expanded(
                                   flex: 6,
                                   child: Container(
@@ -140,7 +165,7 @@ class ContainerInfo extends ConsumerWidget {
                               ],
                             )),
                       ],
-                      if (images.length >= 5) ...[
+                      if (placaImage != null) ...[
                         Divider(color: uiUtils.grayLightColor, thickness: 1),
                         _animatedSection(
                           title: 'DATOS DE LA PLACA',
@@ -154,7 +179,7 @@ class ContainerInfo extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _imageGallery(ref,
-                                  selectedIndexes: [4], isPlaca: true),
+                                  selectedIndexes: [placaImage], isPlaca: true),
                               Expanded(
                                 flex: 4,
                                 child: Container(
@@ -201,7 +226,7 @@ class ContainerInfo extends ConsumerWidget {
                           ),
                         ),
                       ],
-                      if (images.length >= 6) ...[
+                      if (dniImage != null) ...[
                         Divider(color: uiUtils.grayLightColor, thickness: 1),
                         _animatedSection(
                           title: 'DATOS DEL CONDUCTOR',
@@ -216,7 +241,7 @@ class ContainerInfo extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               _imageGallery(ref,
-                                  selectedIndexes: [5],
+                                  selectedIndexes: [dniImage],
                                   isPlaca: false,
                                   isCond: true),
                               SizedBox(
@@ -225,7 +250,6 @@ class ContainerInfo extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Expanded(
-                                     
                                       child: Row(
                                         children: [
                                           Container(
@@ -424,63 +448,13 @@ class ContainerInfo extends ConsumerWidget {
                           GeneralBottom(
                             width: uiUtils.screenWidth * 0.5,
                             color: uiUtils.primaryColor,
-                            text: () {
-                              final imageCount = images.length ?? 0;
-
-                              if (imageCount > 5) {
-                                return 'FINALIZAR';
-                              } else if (imageCount > 4) {
-                                return 'CAPTURA DNI';
-                              } else if (imageCount > 3) {
-                                return 'CAPTURA PLACA';
-                              } else {
-                                return 'CAPTURA PRECINTOS';
-                              }
-                            }(),
+                            text: stepText,
                             onTap: () {
-                              final imageCount = images.length ?? 0;
-
-                              if (imageCount == 3) {
-                                ref.read(routerDelegateProvider).push(
-                                  AppRoute.takePrecint,
-                                  args: {
-                                    'images': args?['images'],
-                                    'isContainer': true,
-                                  },
-                                );
-                              } else if (imageCount == 4) {
-                                ref.read(routerDelegateProvider).push(
-                                  AppRoute.talePlaca,
-                                  args: {
-                                    'images': args?['images'],
-                                    'isContainer': true,
-                                  },
-                                );
-                              } else if (imageCount == 5) {
-                                ref.read(routerDelegateProvider).push(
-                                  AppRoute.takeDni,
-                                  args: {
-                                    'images': args?['images'],
-                                    'isContainer': true,
-                                  },
-                                );
-                              } else if (imageCount == 6) {
-                                ref.read(routerDelegateProvider).push(
-                                  AppRoute.resumeTransaction,
-                                  args: {
-                                    'images': args?['images'],
-                                    'isContainer': true,
-                                  },
-                                );
-                              } else {
-                                ref.read(routerDelegateProvider).push(
-                                  AppRoute.containerInfo,
-                                  args: {
-                                    'images': args?['images'],
-                                    'isContainer': true,
-                                  },
-                                );
-                              }
+                              codeUtils.handleNextStep(
+                                ref: ref,
+                                stepText: stepText,
+                                args: args,
+                              );
                             },
                             textColor: uiUtils.whiteColor,
                             icon: SvgPicture.asset(
@@ -489,7 +463,7 @@ class ContainerInfo extends ConsumerWidget {
                               height: 20,
                               width: 20,
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ],
@@ -580,17 +554,14 @@ class ContainerInfo extends ConsumerWidget {
   }
 
   Widget _imageGallery(WidgetRef ref,
-      {List<int> selectedIndexes = const [],
+      {List<XFile?> selectedIndexes = const [],
       bool? isPlaca = false,
       bool isCond = false}) {
-    final images = ref.watch(imageProvider);
-    if (images == null || selectedIndexes.isEmpty) return const SizedBox();
+    if (selectedIndexes.isEmpty) return const SizedBox();
 
     return Row(
       children: selectedIndexes.map<Widget>((index) {
-        if (index >= images.length)
-          return const SizedBox(); // Evita fuera de rango
-        final image = images[index];
+        final image = index;
 
         return Container(
           margin: const EdgeInsets.only(right: 8),
@@ -624,7 +595,7 @@ class ContainerInfo extends ConsumerWidget {
 
   _containerInfo(Foto foto, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
-    final images = ref.watch(imageProvider);
+    final images = ref.watch(containerImageProvider);
     return Column(
       children: [
         const SizedBox(height: 10),

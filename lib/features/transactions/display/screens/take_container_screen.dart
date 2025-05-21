@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:agunsa/core/router/app_router.dart';
@@ -25,7 +26,8 @@ class TakeContainerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
-    final images = ref.watch(imageProvider);
+    final images = ref.watch(containerImageProvider);
+    final isUploadingImage = ref.watch(uploadingImageProvider);
     
     return SafeArea(
       child: Scaffold(
@@ -34,6 +36,10 @@ class TakeContainerScreen extends ConsumerWidget {
             TransactionAppBar(
               uiUtils: uiUtils,
               title: '',
+                onTap: () {
+                  ref.read(containerImageProvider.notifier).state = [];
+                  ref.read(routerDelegateProvider).popRoute();
+                }
             ),
             Expanded(
               child: Container(
@@ -102,9 +108,15 @@ class TakeContainerScreen extends ConsumerWidget {
                         children: [
                           GeneralBottom(
                             width: uiUtils.screenWidth * 0.4,
-                            color: uiUtils.primaryColor,
-                            text: 'CONFIRMAR',
+                            color: isUploadingImage
+                                ? Colors.grey
+                                : uiUtils.primaryColor,
+                            text:
+                                isUploadingImage ? 'SUBIENDO...' : 'CONFIRMAR',
                             onTap: () async {
+                              log('uploading image: $isUploadingImage');
+                              if (!isUploadingImage) {
+                                setUploadingImage(ref, true);
                               final result = await uploadImageToServer(
                                 ref,
                                 images.first!,
@@ -125,6 +137,8 @@ class TakeContainerScreen extends ConsumerWidget {
                                           'Ocurrio un error al subir la imagen')),
                                 );
                               }
+                                setUploadingImage(ref, false);
+                              }
                             },
                             textColor: uiUtils.whiteColor,
                           ),
@@ -133,7 +147,9 @@ class TakeContainerScreen extends ConsumerWidget {
                             color: Colors.transparent,
                             text: 'REPETIR',
                             onTap: () =>
-                                ref.read(imageProvider.notifier).state = [],
+                                ref
+                                .read(containerImageProvider.notifier)
+                                .state = [],
                             textColor: uiUtils.primaryColor,
                           ),
                         ],
@@ -146,7 +162,7 @@ class TakeContainerScreen extends ConsumerWidget {
                           final capturedImage =
                               await CodeUtils().checkCameraPermission(context);
                           if (capturedImage != null) {
-                            ref.read(imageProvider.notifier).state =
+                            ref.read(containerImageProvider.notifier).state =
                                 [
                               capturedImage
                             ];

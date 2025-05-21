@@ -11,13 +11,15 @@ class TransactionAppBar extends ConsumerWidget {
       this.title,
       this.subtitle,
       this.titleColor,
-      this.iconColor});
+      this.iconColor,
+      required this.onTap});
 
   final UiUtils uiUtils;
   final String? title;
   final String? subtitle;
   final Color? titleColor;
   final Color? iconColor;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,13 +32,7 @@ class TransactionAppBar extends ConsumerWidget {
         children: [
           Row(children: [
             GestureDetector(
-              onTap: () {
-                ref.read(routerDelegateProvider).popRoute();
-                final images = ref.watch(imageProvider);
-                if (images.isNotEmpty && images.first != null) {
-                  ref.read(imageProvider.notifier).state = [];
-                }
-              },
+              onTap: onTap,
               child: Container(
                   height: 25,
                   width: 25,

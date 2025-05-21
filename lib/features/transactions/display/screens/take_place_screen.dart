@@ -26,8 +26,8 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final images = ref.watch(imageProvider);
-
+    final image = ref.watch(placaImageProvider);
+    final isUploadingImage = ref.watch(uploadingImageProvider);
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -35,6 +35,10 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
             TransactionAppBar(
               uiUtils: uiUtils,
               title: '',
+              onTap: () {
+                ref.read(placaImageProvider.notifier).state = null;
+                ref.read(routerDelegateProvider).popRoute();
+              },
             ),
             Expanded(
               child: Column(
@@ -129,16 +133,20 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                                   color: uiUtils.primaryColor,
                                   text: 'CONFIRMAR',
                                   onTap: () async {
-                                    ref.read(imageProvider.notifier).state =
-                                        images..add(fileTaked);
-                                    await getPlacaInfo(ref, fileTaked!, '');
-                                    ref.read(routerDelegateProvider).push(
-                                      AppRoute.containerInfo,
-                                      args: {
-                                        'images': images,
-                                        'isContainer': true,
-                                      },
-                                    );
+                                    if (!isUploadingImage) {
+                                      setUploadingImage(ref, true);
+                                      ref
+                                          .read(placaImageProvider.notifier)
+                                          .state = (fileTaked);
+                                      await getPlacaInfo(ref, fileTaked!, '');
+                                      ref.read(routerDelegateProvider).push(
+                                        AppRoute.containerInfo,
+                                        args: {
+                                          'isContainer': true,
+                                        },
+                                      );
+                                    }
+                                    setUploadingImage(ref, false);
                                   },
                                   textColor: uiUtils.whiteColor,
                                 ),
@@ -165,7 +173,7 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                         )
                       : GestureDetector(
                           onTap: () async {
-                            if (images.length < 5) {
+                            if (image == null) {
                               final capturedImage = await CodeUtils()
                                   .checkCameraPermission(context);
                               if (capturedImage != null) {

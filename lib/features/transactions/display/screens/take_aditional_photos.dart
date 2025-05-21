@@ -29,16 +29,21 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
   @override
   Widget build(BuildContext context) {
     UiUtils uiUtils = UiUtils();
-    final images = ref.watch(imageProvider);
+    final images = ref.watch(aditionalImagesProvider);
+    final isUploadingImage = ref.watch(uploadingImageProvider);
 
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
           child: Column(
-          children: [
-            TransactionAppBar(
-              uiUtils: uiUtils,
-              title: '',
+            children: [
+              TransactionAppBar(
+                  uiUtils: uiUtils,
+                  title: '',
+                  onTap: () {
+                    ref.read(aditionalImagesProvider.notifier).state = [];
+                    ref.read(routerDelegateProvider).popRoute();
+                  }
               ),
               const SizedBox(height: 10),
               SizedBox(
@@ -96,16 +101,21 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
               SizedBox(height: uiUtils.screenHeight * 0.05),
               GestureDetector(
                 onTap: () async {
-                  if (images.length < 3) {
+                  if (images.length < 2) {
                     final capturedImage =
                         await CodeUtils().checkCameraPermission(context);
                     if (capturedImage != null) {
                       setState(() {
-                        ref.read(imageProvider.notifier).state = images
-                          ..add(capturedImage);
+                        ref.read(aditionalImagesProvider.notifier).state =
+                            images..add(capturedImage);
                       });
                     }
                   } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content:
+                              Text('Ya se han tomado las fotos necesarias')),
+                    );
                     log('Ya se han tomado las fotos necesarias');
                   }
                 },
@@ -124,17 +134,13 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                 ),
               ),
               SizedBox(height: uiUtils.screenHeight * 0.03),
-              if (images.length >= 2) ...[
+              if (images.isNotEmpty) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      ...images
-                          .asMap()
-                          .entries
-                          .where((entry) => entry.key >= 1)
-                          .map(
+                      ...images.asMap().entries.map(
                         (entry) {
                           return Container(
                             margin: const EdgeInsets.only(right: 8),
@@ -154,24 +160,31 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                           );
                         },
                       ),
-                      if (images.length > 2)
-                      Expanded(
-                        child: GeneralBottom(
-                          width: uiUtils.screenWidth * 0.3,
-                          color: uiUtils.primaryColor,
-                          text: 'CONFIRMAR',
-                          onTap: () {
-                            ref.read(routerDelegateProvider).push(
-                              AppRoute.containerInfo,
-                              args: {
-                                'images': images,
-                                'isContainer': true,
-                              },
-                            );
-                          },
-                          textColor: uiUtils.whiteColor,
+                      if (images.length >= 2)
+                        Expanded(
+                          child: GeneralBottom(
+                            width: uiUtils.screenWidth * 0.3,
+                            color: isUploadingImage
+                                ? Colors.grey
+                                : uiUtils.primaryColor,
+                            text:
+                                isUploadingImage ? 'SUBIENDO...' : 'CONFIRMAR',
+                            onTap: () {
+                              if (!isUploadingImage) {
+                                setUploadingImage(ref, true);
+                                ref.read(routerDelegateProvider).push(
+                                  AppRoute.containerInfo,
+                                  args: {
+                                    'images': images,
+                                    'isContainer': true,
+                                  },
+                                );
+                              }
+                              setUploadingImage(ref, false);
+                            },
+                            textColor: uiUtils.whiteColor,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),

@@ -19,6 +19,7 @@ class ResumeTransaction extends ConsumerWidget {
     // final transactionNotifier = ref.read(transactionControllerProvider.notifier);
     final send = ref.watch(sendTransactionProvider);
     final transactionType = ref.watch(transactionTypeSelectedProvider);
+    final transactionState = ref.watch(isFromPendingTransactionProvider);
     return SafeArea(
         child: Scaffold(
       backgroundColor: uiUtils.modalColor,
@@ -29,6 +30,9 @@ class ResumeTransaction extends ConsumerWidget {
           TransactionAppBar(
             uiUtils: uiUtils,
             title: '',
+            onTap: () {
+              ref.read(routerDelegateProvider).popRoute();
+            },
           ),
           const SizedBox(
             height: 120,
@@ -61,13 +65,14 @@ class ResumeTransaction extends ConsumerWidget {
                       ),
                       Text(
                         textAlign: TextAlign.center,
-                        transactionType?.isInOut ?? false
+                        transactionType?.isInOut ?? false || transactionState
                             ? 'TRANSACCION EN ESTADO PENDIENTE'
                             : 'TRANSACCION COMPLETADA CON EXITO',
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: transactionType?.isInOut ?? false
+                            color: transactionType?.isInOut ??
+                                    false || transactionState
                                 ? uiUtils.orange
                                 : uiUtils.grayDarkColor),
                       ),
@@ -84,6 +89,7 @@ class ResumeTransaction extends ConsumerWidget {
                           text: 'HOME',
                           onTap: () {
                             resetTransactionProviders(ref);
+                            setIsFromPendingTransaction(ref, false);
                             ref
                                 .read(routerDelegateProvider)
                                 .pushReplacement(AppRoute.home);
@@ -102,6 +108,7 @@ class ResumeTransaction extends ConsumerWidget {
                           text: 'NUEVA TRANSACCION',
                           onTap: () {
                             resetTransactionProviders(ref);
+                            setIsFromPendingTransaction(ref, false);
                             ref
                                 .read(routerDelegateProvider)
                                 .pushReplacement(AppRoute.transactions);
@@ -213,11 +220,13 @@ class ResumeTransaction extends ConsumerWidget {
                               transactionTypeId: 1,
                               epochCreatedDatetime: 1747244000,
                               createdByUserId: 1,
-                              currentStatus: transactionType?.isInOut ?? false
+                              currentStatus: transactionType?.isInOut ??
+                                      false || transactionState
                                   ? true
                                   : false);
 
                           await createTransactionFuntion(ref, transaction);
+                          
                         },
                         textColor: uiUtils.whiteColor,
                       )

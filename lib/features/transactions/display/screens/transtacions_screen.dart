@@ -50,6 +50,9 @@ class TransactionsScreen extends ConsumerWidget {
                 TransactionAppBar(
                   uiUtils: uiUtils,
                   title: 'Transacciones',
+                  onTap: () {
+                    ref.read(routerDelegateProvider).popRoute();
+                  },
                 ),
                 Expanded(
                   child: Padding(
@@ -102,11 +105,19 @@ class TransactionsScreen extends ConsumerWidget {
                                         final router =
                                             ref.read(routerDelegateProvider);
                                         seleteTransactionType(ref, item);
-                                        router.push(AppRoute.takeContainer,
+                                        if (item.isInOut == true) {
+                                          router.push(AppRoute.talePlaca,
+                                              args: {
+                                                'user': user,
+                                                'transactionType': item
+                                              });
+                                        } else {
+                                          router.push(AppRoute.takeContainer,
                                             args: {
                                               'user': user,
                                               'transactionType': item
                                             });
+                                        }
                                         ref
                                             .read(searchQueryProvider.notifier)
                                             .state = '';

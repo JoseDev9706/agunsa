@@ -27,7 +27,8 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final images = ref.watch(imageProvider);
+    final images = ref.watch(precintsImageProvider);
+    final isUploadingImage = ref.watch(uploadingImageProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -36,6 +37,10 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
             TransactionAppBar(
               uiUtils: uiUtils,
               title: '',
+                onTap: () {
+                  ref.read(precintsImageProvider.notifier).state = [];
+                  ref.read(routerDelegateProvider).popRoute();
+                }
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -114,23 +119,35 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   GeneralBottom(
                                     width: uiUtils.screenWidth * 0.4,
-                                    color: uiUtils.primaryColor,
-                                    text: 'CONFIRMAR',
+                                    color: isUploadingImage
+                                        ? Colors.grey
+                                        : uiUtils.primaryColor,
+                                    text: isUploadingImage
+                                        ? 'SUBIENDO...'
+                                        : 'CONFIRMAR',
                                     onTap: () async {
-                                      ref.read(imageProvider.notifier).state =
-                                          images..add(fileTaked);
-                                      await uploadPrecint(ref, fileTaked!, '');
-                                      ref.read(routerDelegateProvider).push(
-                                        AppRoute.containerInfo,
-                                        args: {
-                                          'images': images,
-                                          'isContainer': true,
-                                        },
-                                      );
+                                      if (!isUploadingImage) {
+                                        setUploadingImage(ref, true);
+                                        ref
+                                            .read(
+                                                precintsImageProvider.notifier)
+                                            .state = images..add(fileTaked);
+                                        await uploadPrecint(
+                                            ref, fileTaked!, '');
+                                        ref.read(routerDelegateProvider).push(
+                                          AppRoute.containerInfo,
+                                          args: {
+                                            'images': images,
+                                            'isContainer': true,
+                                          },
+                                        );
+                                      }
+                                      setUploadingImage(ref, false);
                                     },
                                     textColor: uiUtils.whiteColor,
                                   ),

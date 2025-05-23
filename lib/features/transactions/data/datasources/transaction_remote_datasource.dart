@@ -18,15 +18,18 @@ import 'package:http/http.dart' as http;
 
 abstract class TransactionRemoteDatasource {
   Future<List<TransactionType>> getAllTransactions();
-  Future<Foto> uploadImageToServer(ImageParams image, String idToken);
+  Future<Foto?> uploadImageToServer(
+    ImageParams image,
+    String idToken,
+  );
   Future<Precinct> uploadPrecint(ImageParams precintParam, String idToken);
   Future<Placa> upLoadPlaca(ImageParams placaParams, String idToken);
   Future<Conductor> getDni(ImageParams dniParams, String idToken);
   Future<String?> createTransaction(TransactionModel transaction);
   Future<List<TransactionModel>> getTransactionById(String id);
   Future<List<PendingTransactionModel>> getPendingTransactions();
-  Future<String?> createPendingTransaction(TransactionModel transaction);
-  
+  Future<String?> createPendingTransaction(PendingTransactionModel transaction);
+  Future<String?> uploadLateralImages(String base64Image);
 }
 
 class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
@@ -82,6 +85,31 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     }
   }
 
+  Future<int> _sendImageToS3(String base64Image) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${baseUrl}presigned-url-images'),
+        body: jsonEncode({
+          "folder": "containerback",
+          'image_base64': base64Image,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+        return responseBody['statusCode'];
+      } else {
+        log('Error al subir la imagen. Código: ${response.statusCode}');
+        throw Exception(
+            'Error al subir la imagen. Código: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error en uploadImage to S3: $e');
+      throw Exception('Error al conectar con la API: $e');
+    }
+  }
+
   @override
   Future<List<TransactionType>> getAllTransactions() async {
     try {
@@ -111,17 +139,22 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   }
 
   @override
-  Future<FotoModel> uploadImageToServer(
-      ImageParams image, String idToken) async {
+  Future<FotoModel?> uploadImageToServer(
+    ImageParams image,
+    String idToken) async {
+    final statusCode = await _sendImageToS3(image.base64);
+    log('Status code de la imagen: $statusCode');
+    if (statusCode != 200) {
+      throw Exception('Error al subir la imagen a S3. Código: $statusCode');
+    }
+
     return _genericRequest<FotoModel>(
       url: _uploadImage,
       body: {
-        'filename': image.fileName,
         'image_base64': image.base64,
       },
       idToken: idToken,
       parseResponse: (json) {
-        // Procesar la respuesta anidada
         final bodyData =
             json['body'] is String ? jsonDecode(json['body']) : json['body'];
         log('bodyData: $bodyData');
@@ -134,10 +167,15 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   @override
   Future<PrecintModel> uploadPrecint(
       ImageParams precintParam, String idToken) async {
+    final statusCode = await _sendImageToS3(precintParam.base64);
+    log('Status code de la imagen: $statusCode');
+    if (statusCode != 200) {
+      throw Exception('Error al subir la imagen a S3. Código: $statusCode');
+    }
     return _genericRequest<PrecintModel>(
       url: _getprecinto,
       body: {
-        'filename': precintParam.fileName,
+        // 'filename': precintParam.fileName,
         'image_base64': precintParam.base64,
       },
       idToken: idToken,
@@ -250,23 +288,56 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   }
 
   @override
-  Future<String?> createPendingTransaction(TransactionModel transaction) async {
-    final response = await http.post(Uri.parse(_createPendingTransaction));
+  Future<String?> createPendingTransaction(
+      PendingTransactionModel transaction) async {
+    final response = await http.post(
+      Uri.parse(_createPendingTransaction),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(transaction.toJson()),
+    );
+
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
+      log('Respuesta de la API: $responseData');
+
       if (responseData.containsKey('statusCode')) {
         if (responseData['statusCode'] == 200) {
-          final List<dynamic> data = responseData['body'];
-          return data[0];
+          final responseBodyRaw = responseData['body'];
+          late Map<String, dynamic> responseBody;
+
+          if (responseBodyRaw is String) {
+            responseBody = jsonDecode(responseBodyRaw);
+          } else if (responseBodyRaw is Map<String, dynamic>) {
+            responseBody = responseBodyRaw;
+          } else {
+            throw Exception('Formato inesperado en body: $responseBodyRaw');
+          }
+
+          log('Transacción pendiente creada: ${responseBody['message']}');
+          return responseBody['message'];
         } else {
-          log('Error al obtener la transacción pendiente');
+          log('Error al crear la transacción pendiente');
           return null;
         }
       }
     } else {
-      log('Error al obtener la transacción pendiente. Código: ${response.statusCode}');
+      log('Error al crear la transacción pendiente. Código: ${response.statusCode}');
       return null;
     }
     return null;
+}
+
+  @override
+  Future<String?> uploadLateralImages(String base64Image) {
+    return _sendImageToS3(base64Image).then((statusCode) {
+      if (statusCode == 200) {
+        return 'Imagen subida correctamente';
+      } else {
+        return null;
+      }
+    }).catchError((error) {
+      log('Error al subir la imagen lateral: $error');
+      return null;
+    });
   }
 }

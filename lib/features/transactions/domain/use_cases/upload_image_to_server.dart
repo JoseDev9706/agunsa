@@ -11,7 +11,7 @@ class UploadImageToServer {
   final TransactionRepositories transactionRepositories;
 
   UploadImageToServer( this.transactionRepositories);
-  Future<Either<DomainExeptions, Foto>> call(
+  Future<Either<DomainExeptions, Foto?>> call(
       ImageParams image, String idToken) {
     return transactionRepositories.uploadImageToServer(image, idToken);
   }

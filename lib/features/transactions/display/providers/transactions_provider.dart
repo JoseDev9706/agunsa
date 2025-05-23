@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:agunsa/core/class/image_params.dart';
 import 'package:agunsa/core/class/svg_item.dart';
 import 'package:agunsa/features/transactions/data/datasources/transaction_remote_datasource.dart';
+import 'package:agunsa/features/transactions/data/models/pending_transaction.dart';
 import 'package:agunsa/features/transactions/data/models/transaction.dart';
 import 'package:agunsa/features/transactions/data/repository_impl/transaction_respositories_impl.dart';
 import 'package:agunsa/features/transactions/domain/entities/deliver.dart';
@@ -21,6 +22,7 @@ import 'package:agunsa/features/transactions/domain/use_cases/get_dni.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/get_pending_transactions.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/get_transaction_types.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/upload_image_to_server.dart';
+import 'package:agunsa/features/transactions/domain/use_cases/upload_lateral_images.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/upload_placa.dart';
 import 'package:agunsa/features/transactions/domain/use_cases/upload_precinto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -74,6 +76,11 @@ GetAllTransactions getTransactionAll(GetTransactionAllRef ref) {
 }
 
 @riverpod
+UploadLateralImages uploadLateralImages(UploadLateralImagesRef ref) {
+  return UploadLateralImages(ref.watch(transactionRepositoriesProvider));
+}
+
+@riverpod
 class TransactionsController extends _$TransactionsController {
   @override
   FutureOr<List<TransactionType>> build() async {
@@ -85,8 +92,6 @@ class TransactionsController extends _$TransactionsController {
     return transactionTypes;
   }
 }
-
-
 
 final transactionTypesProvider =
     FutureProvider<List<TransactionType>>((ref) async {
@@ -108,12 +113,14 @@ Future<String?> createTransactionFuntion(
 }
 
 Future<String?> createPendingTransactionFuntion(
-    WidgetRef ref, TransactionModel transaction) async {
+    WidgetRef ref, PendingTransactionModel transaction) async {
   final createTransactionUsecase = ref.read(createPendingTransactionProvider);
   final result = await createTransactionUsecase.call(transaction);
   return result.fold((failure) {
+    sendTransaction(ref, false);
     return failure.message;
   }, (message) {
+    sendTransaction(ref, true);
     return message;
   });
 }
@@ -134,15 +141,17 @@ Future<List<PendingTransaction>> getPendingTransactionsFunction(WidgetRef ref) {
 void sendTransaction(WidgetRef ref, bool value) {
   ref.read(sendTransactionProvider.notifier).state = value;
 }
-Future<Foto?> uploadImageToServer(
-    WidgetRef ref, XFile image, String idToken) async {
+
+Future<Foto?> uploadImageToServer(WidgetRef ref, XFile image, String idToken,
+) async {
   final uploadUsecase = ref.read(uploadImageToServerProvider);
   final bytes = await image.readAsBytes();
   final base64Image = base64Encode(bytes);
   final fileName = (image.path.split('/').last);
-  
+
   final result = await uploadUsecase.call(
-      ImageParams(fileName: fileName, base64: base64Image), idToken);
+      ImageParams(fileName: fileName, base64: base64Image), idToken,
+  );
 
   return result.fold(
     (failure) {
@@ -156,6 +165,15 @@ Future<Foto?> uploadImageToServer(
   );
 }
 
+Future<String> uploadLateralImagesFunction(WidgetRef ref, XFile image) async {
+  final uploadUsecase = ref.read(uploadLateralImagesProvider);
+
+  final bytes = await image.readAsBytes();
+  final base64Image = base64Encode(bytes);
+  final result = await uploadUsecase.call(base64Image);
+
+  return result.fold((failure) => failure.message, (message) => message);
+}
 
 Future<Precinct?> uploadPrecint(
     WidgetRef ref, XFile photoPrecint, String idToken) async {
@@ -228,6 +246,15 @@ final transactionTypeSelectedProvider =
 final selectedFilterIdProvider = StateProvider<int?>((ref) => null);
 final uploadingImageProvider = StateProvider<bool>((ref) => false);
 final isFromPendingTransactionProvider = StateProvider<bool>((ref) => false);
+final selectedPendingTransactionProvider =
+    StateProvider<PendingTransaction?>((ref) => null);
+
+void getSelectedPendingTransaction(
+    WidgetRef ref, PendingTransaction? transaction) {
+  if (transaction != null) {
+    ref.read(selectedPendingTransactionProvider.notifier).state = transaction;
+  }
+}
 
 void setIsFromPendingTransaction(WidgetRef ref, bool isFromPendingTransaction) {
   ref.read(isFromPendingTransactionProvider.notifier).state =
@@ -256,16 +283,17 @@ void resetTransactionProviders(WidgetRef ref) {
   ref.read(sendTransactionProvider.notifier).state = false;
 
   ref.invalidate(transactionsControllerProvider);
+
+  ref.read(transactionTypeSelectedProvider.notifier).state = null;
+  ref.read(selectedFilterIdProvider.notifier).state = null;
+  ref.read(selectedPendingTransactionProvider.notifier).state = null;
 }
-
-
 
 final expandedPendingTransactionsProvider = StateProvider<bool>((ref) => false);
 
 void toggleExpandedPendingTransactions(WidgetRef ref, bool value) {
   ref.read(expandedPendingTransactionsProvider.notifier).state = value;
 }
-
 
 final expandedContainersProvider =
     StateNotifierProvider<ExpandedContainersNotifier, Map<String, bool>>(
@@ -284,6 +312,7 @@ class ExpandedContainersNotifier extends StateNotifier<Map<String, bool>> {
 
   bool isExpanded(String id) => state[id] ?? false;
 }
+
 final currentPageProvider = StateProvider<int>((ref) => 1);
 
 final filteredTransactionTypesProvider =
@@ -300,7 +329,4 @@ final filteredTransactionTypesProvider =
   });
 });
 
-
 final searchQueryProvider = StateProvider<String>((ref) => '');
-
-

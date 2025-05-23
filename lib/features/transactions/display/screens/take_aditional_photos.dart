@@ -43,8 +43,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                   onTap: () {
                     ref.read(aditionalImagesProvider.notifier).state = [];
                     ref.read(routerDelegateProvider).popRoute();
-                  }
-              ),
+                  }),
               const SizedBox(height: 10),
               SizedBox(
                 width: uiUtils.screenWidth * 0.6,
@@ -142,21 +141,44 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                     children: [
                       ...images.asMap().entries.map(
                         (entry) {
-                          return Container(
-                            margin: const EdgeInsets.only(right: 8),
-                            height: uiUtils.screenHeight * 0.09,
-                            width: uiUtils.screenWidth * 0.2,
-                            decoration: BoxDecoration(
-                              color: uiUtils.labelColor,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              child: Image.file(
-                                File(entry.value!.path),
-                                fit: BoxFit.fill,
+                          return Stack(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 8),
+                                height: uiUtils.screenHeight * 0.09,
+                                width: uiUtils.screenWidth * 0.2,
+                                decoration: BoxDecoration(
+                                  color: uiUtils.labelColor,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(5),
+                                  child: Image.file(
+                                    File(entry.value!.path),
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
                               ),
-                            ),
+                              Positioned.fill(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    images.removeAt(entry.key);
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.transparent,
+                                    ),
+                                    padding: const EdgeInsets.all(2),
+                                    child: const Icon(
+                                      Icons.delete,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           );
                         },
                       ),
@@ -169,18 +191,44 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                                 : uiUtils.primaryColor,
                             text:
                                 isUploadingImage ? 'SUBIENDO...' : 'CONFIRMAR',
-                            onTap: () {
+                            onTap: () async {
                               if (!isUploadingImage) {
                                 setUploadingImage(ref, true);
-                                ref.read(routerDelegateProvider).push(
-                                  AppRoute.containerInfo,
-                                  args: {
-                                    'images': images,
-                                    'isContainer': true,
-                                  },
-                                );
+
+                                try {
+                                  for (var image in images) {
+                                    final result =
+                                        await uploadLateralImagesFunction(
+                                      ref,
+                                      image!,
+                                    );
+
+                                    if (result !=
+                                        'Imagen subida correctamente') {
+                                      throw Exception(
+                                          'Error al subir una de las imágenes');
+                                    }
+                                  }
+
+                                  ref.read(routerDelegateProvider).push(
+                                    AppRoute.containerInfo,
+                                    args: {
+                                      'images': images,
+                                      'isContainer': true,
+                                    },
+                                  );
+                                } catch (e) {
+                                  log('Error subiendo imágenes: $e');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Ocurrió un error al subir las imágenes'),
+                                    ),
+                                  );
+                                } finally {
+                                  setUploadingImage(ref, false);
+                                }
                               }
-                              setUploadingImage(ref, false);
                             },
                             textColor: uiUtils.whiteColor,
                           ),

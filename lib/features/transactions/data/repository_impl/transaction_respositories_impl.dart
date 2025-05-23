@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:agunsa/core/class/image_params.dart';
 import 'package:agunsa/core/exeptions/domain_exeptions.dart';
 import 'package:agunsa/features/transactions/data/datasources/transaction_remote_datasource.dart';
+import 'package:agunsa/features/transactions/data/models/pending_transaction.dart';
 import 'package:agunsa/features/transactions/data/models/transaction.dart';
 import 'package:agunsa/features/transactions/domain/entities/deliver.dart';
 import 'package:agunsa/features/transactions/domain/entities/peding_transaction.dart';
@@ -36,10 +37,12 @@ class TransactionRespositoriesImpl implements TransactionRepositories {
   }
 
   @override
-  Future<Either<DomainExeptions, Foto>> uploadImageToServer(
-      ImageParams image, String idToken) async {
+  Future<Either<DomainExeptions, Foto?>> uploadImageToServer(
+      ImageParams image, String idToken,
+  ) async {
     try {
-      final result = await remoteDataSource.uploadImageToServer(image, idToken);
+      final result = await remoteDataSource.uploadImageToServer(image, idToken,
+      );
       return right(result);
     } catch (e) {
       log('Error in uploadImageToServer: $e');
@@ -122,13 +125,25 @@ class TransactionRespositoriesImpl implements TransactionRepositories {
 
   @override
   Future<Either<DomainExeptions, String>> createPendingTransaction(
-      TransactionModel transaction) async {
+      PendingTransactionModel transaction) async {
     try {
       final result =
           await remoteDataSource.createPendingTransaction(transaction);
       return right(result!);
     } catch (e) {
       log('Error en createPendingTransaction: $e');
+      return left(DomainExeptions(e.toString()));
+    }
+  }
+  
+  @override
+  Future<Either<DomainExeptions, String>> uploadLateralImages(
+      String base64Image) async {
+    try {
+      final result = await remoteDataSource.uploadLateralImages(base64Image);
+      return right(result!);
+    } catch (e) {
+      log('Error en uploadLateralImages: $e');
       return left(DomainExeptions(e.toString()));
     }
   }

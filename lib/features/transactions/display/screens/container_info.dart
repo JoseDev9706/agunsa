@@ -8,7 +8,9 @@ import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
+import 'package:agunsa/features/transactions/domain/entities/peding_transaction.dart';
 import 'package:agunsa/features/transactions/domain/entities/photos.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -45,6 +47,7 @@ class ContainerInfo extends ConsumerWidget {
     final placaImage = ref.watch(placaImageProvider);
     final aditionalImges = ref.watch(aditionalImagesProvider);
     final containerImage = ref.watch(containerImageProvider);
+    final pendingTransaction = ref.watch(selectedPendingTransactionProvider);
     final stepText = codeUtils.getNextStepText(
       aditionalImages: aditionalImges,
       precintsImage: precintsImage,
@@ -70,7 +73,7 @@ class ContainerInfo extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _transactionHeader(ref),
+                      _transactionHeader(ref, pendingTransaction),
                       const SizedBox(height: 20),
                       if (containerImage.isNotEmpty) ...[
                         _animatedSection(
@@ -477,8 +480,30 @@ class ContainerInfo extends ConsumerWidget {
     );
   }
 
-  Widget _transactionHeader(WidgetRef ref) {
+  Widget _transactionHeader(
+      WidgetRef ref, PendingTransaction? pendingTransaction) {
     final transactionType = ref.watch(transactionTypeSelectedProvider);
+    final transactionTypesAsync = ref.watch(filteredTransactionTypesProvider);
+    final transactionTypes = transactionTypesAsync.when(
+      data: (transactionTypes) {
+        if (pendingTransaction != null) {
+          final matchedTransactionType = transactionTypes.firstWhereOrNull(
+            (type) => type.id == pendingTransaction.transactionTypeId,
+          );
+
+          if (matchedTransactionType != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              seleteTransactionType(ref, matchedTransactionType);
+            });
+          }
+        }
+      },
+      loading: () {},
+      error: (error, stack) {
+        debugPrint('Error cargando tipos de transacción: $error');
+      },
+    );
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [

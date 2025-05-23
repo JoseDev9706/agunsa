@@ -92,6 +92,9 @@ class CodeUtils {
     required bool isFromPendingTransaction,
   }) {
     if (isInOut && isFromPendingTransaction) {
+      if (precintsImage.isEmpty) {
+        return 'CAPTURA PRECINTOS';
+      }
       if (placaImage == null) {
         return 'CAPTURA PLACA';
       } else if (dniImage == null) {
@@ -171,5 +174,10 @@ class CodeUtils {
         );
         break;
     }
+  }
+
+  String formatDateToIso8601(String date) {
+    DateTime parsedDate = DateTime.parse(date);
+    return parsedDate.toIso8601String();
   }
 }

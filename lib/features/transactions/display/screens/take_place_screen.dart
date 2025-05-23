@@ -130,8 +130,12 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                               children: [
                                 GeneralBottom(
                                   width: uiUtils.screenWidth * 0.4,
-                                  color: uiUtils.primaryColor,
-                                  text: 'CONFIRMAR',
+                                  color: isUploadingImage
+                                      ? Colors.grey
+                                      : uiUtils.primaryColor,
+                                  text: isUploadingImage
+                                      ? 'SUBIENDO...'
+                                      : 'CONFIRMAR',
                                   onTap: () async {
                                     if (!isUploadingImage) {
                                       setUploadingImage(ref, true);

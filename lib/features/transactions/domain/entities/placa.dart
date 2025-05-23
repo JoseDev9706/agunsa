@@ -8,10 +8,10 @@ class Placa {
   });
 
   factory Placa.fromJson(Map<String, dynamic> json) => Placa(
-        codigo: json['cod_plate'],
+        codigo: json['Placa'],
       );
 
   Map<String, dynamic> toJson() => {
-        'cod_plate': codigo,
+        'Placa': codigo,
       };
 }

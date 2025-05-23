@@ -136,7 +136,7 @@ final getPendingTransactionsProvider =
 // ignore: unused_element
 typedef GetPendingTransactionsRef
     = AutoDisposeProviderRef<GetPendingTransactions>;
-String _$getTransactionAllHash() => r'3fa88f50999825dd7c228db3176c70f3ef4c941f';
+String _$getTransactionAllHash() => r'd1b8b0197299441b52fb38c9e063d0a90ff943d7';
 
 /// See also [getTransactionAll].
 @ProviderFor(getTransactionAll)
@@ -154,6 +154,25 @@ final getTransactionAllProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GetTransactionAllRef = AutoDisposeProviderRef<GetAllTransactions>;
+String _$uploadLateralImagesHash() =>
+    r'e8ecba54bd95a999971671034f97a9037d05f8d7';
+
+/// See also [uploadLateralImages].
+@ProviderFor(uploadLateralImages)
+final uploadLateralImagesProvider =
+    AutoDisposeProvider<UploadLateralImages>.internal(
+  uploadLateralImages,
+  name: r'uploadLateralImagesProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$uploadLateralImagesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UploadLateralImagesRef = AutoDisposeProviderRef<UploadLateralImages>;
 String _$transactionsControllerHash() =>
     r'6831bddbc7f324b7a04423122e59121a6f8cd714';
 

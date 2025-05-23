@@ -3,12 +3,12 @@ class Foto {
   final String numSerie;
   final String numControl;
   final String tipoContenedor;
-  final int maxGrossKg;
-  final int maxGrossLbs;
-  final int taraKg;
-  final int taraLbs;
-  final int payloadKg;
-  final int payloadLbs;
+  final String maxGrossKg;
+  final String maxGrossLbs;
+  final String taraKg;
+  final String taraLbs;
+  final String payloadKg;
+  final String payloadLbs;
 
   Foto({
     required this.codPropietario,

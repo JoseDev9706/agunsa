@@ -292,18 +292,25 @@ class ResumeTransaction extends ConsumerWidget {
                                   currentStatus: false,
                                 );
 
-                                final resultPendingTransaction =
-                                    await createPendingTransactionFuntion(
-                                        ref, newPendingTransaction);
                                 if (resultTransaction ==
-                                        'Item registered successfully' &&
-                                    resultPendingTransaction ==
-                                        'Item registered successfully') {
-                                  uiUtils.showSnackBar(context,
-                                      'Transacción creada exitosamente');
-                                  getSelectedPendingTransaction(ref, null);
+                                    'Item registered successfully') {
+                                  final resultPendingTransaction =
+                                      await createPendingTransactionFuntion(
+                                          ref, newPendingTransaction);
+                                  if (resultPendingTransaction ==
+                                      'Item registered successfully') {
+                                    log('creo la transaccion pendiente');
+                                    uiUtils.showSnackBar(context,
+                                        'Transacción creada exitosamente');
+                                    getSelectedPendingTransaction(ref, null);
+                                  }
+                                  log('creo las dos transacciones');
+                                } else {
+                                  log('Error al crear la transacción');
+                                  uiUtils.showSnackBar(
+                                      context, 'Error al crear la transacción');
                                 }
-                                log('creo las dos transacciones');
+                                
                               } else if (transactionType?.isInOut ??
                                   false || transactionState) {
                                 PendingTransactionModel pendingTransaction =

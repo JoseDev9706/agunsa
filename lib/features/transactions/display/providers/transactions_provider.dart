@@ -95,6 +95,7 @@ class TransactionsController extends _$TransactionsController {
 
 final transactionTypesProvider =
     FutureProvider<List<TransactionType>>((ref) async {
+  log('🔃 Cargando transactionTypesProvider...');
   return await ref
       .read(transactionsControllerProvider.notifier)
       .fetchTransactionTypes();
@@ -287,13 +288,12 @@ void resetTransactionProviders(WidgetRef ref) {
 
   ref.read(sendTransactionProvider.notifier).state = false;
 
-  // ref.invalidate(transactionsControllerProvider);
+  ref.invalidate(transactionsControllerProvider);
 
   ref.read(transactionTypeSelectedProvider.notifier).state = null;
   ref.read(selectedFilterIdProvider.notifier).state = null;
   ref.read(selectedPendingTransactionProvider.notifier).state = null;
-
-  ref.read(isFromPendingTransactionProvider.notifier).state = false;
+  ref.invalidate(transactionTypesProvider);
 }
 
 final expandedPendingTransactionsProvider = StateProvider<bool>((ref) => false);
@@ -324,6 +324,7 @@ final currentPageProvider = StateProvider<int>((ref) => 1);
 
 final filteredTransactionTypesProvider =
     Provider<AsyncValue<List<TransactionType>>>((ref) {
+      
   final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
   final transactionTypesAsync = ref.watch(transactionTypesProvider);
 

@@ -176,6 +176,8 @@ class TransactionsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     log('SVG Path card: $svgPath');
+    final uri = Uri.tryParse(svgPath);
+    final isValidUrl = uri != null && uri.isAbsolute;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -194,12 +196,20 @@ class TransactionsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.network(
-              svgPath,
-              width: 73,
-              height: 58,
-              color: uiUtils.primaryColor,
-            ),
+            if (isValidUrl)
+              SvgPicture.network(
+                svgPath,
+                width: 73,
+                height: 58,
+                color: uiUtils.primaryColor,
+                placeholderBuilder: (_) => const CircularProgressIndicator(),
+              )
+            else
+              SvgPicture.asset(
+                'assets/svg/primary-logo.svg',
+                height: 25,
+                width: 25,
+              ),
             const SizedBox(height: 5),
             Text(
               textAlign: TextAlign.center,

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:agunsa/core/router/app_router.dart';
@@ -365,7 +366,6 @@ class ContainerInfo extends ConsumerWidget {
                                                 conductorProviderInfo
                                                         ?.fullLastName ??
                                                     '',
-                                                       
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
@@ -490,6 +490,7 @@ class ContainerInfo extends ConsumerWidget {
   Widget _transactionHeader(
       WidgetRef ref, PendingTransaction? pendingTransaction) {
     final transactionType = ref.watch(transactionTypeSelectedProvider);
+    log('Transaction Type: ${transactionType?.imageUrl}');
     final transactionTypesAsync = ref.watch(filteredTransactionTypesProvider);
     final transactionTypes = transactionTypesAsync.when(
       data: (transactionTypes) {
@@ -527,12 +528,18 @@ class ContainerInfo extends ConsumerWidget {
               Text(transactionType?.name ?? '',
                   style: TextStyle(color: UiUtils().whiteColor)),
               const SizedBox(width: 15),
-              SvgPicture.network(
-                transactionType?.imageUrl ?? '',
-                color: UiUtils().whiteColor,
-                height: 25,
-                width: 25,
-              ),
+              transactionType?.imageUrl != null
+                  ? SvgPicture.network(
+                      transactionType?.imageUrl ?? '',
+                      color: UiUtils().whiteColor,
+                      height: 25,
+                      width: 25,
+                    )
+                  : SvgPicture.asset(
+                      'assets/svg/primary-logo.svg',
+                      height: 25,
+                      width: 25,
+                    ),
             ],
           ),
         ),

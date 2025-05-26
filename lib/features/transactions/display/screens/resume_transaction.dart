@@ -23,11 +23,11 @@ class ResumeTransaction extends ConsumerWidget {
     UiUtils uiUtils = UiUtils();
     CodeUtils codeUtils = CodeUtils();
     TextEditingController transactionNumberController = TextEditingController();
-    // final transactionState = ref.watch(transactionControllerProvider);
+    // final isfromPending = ref.watch(transactionControllerProvider);
     // final transactionNotifier = ref.read(transactionControllerProvider.notifier);
     final send = ref.watch(sendTransactionProvider);
     final transactionType = ref.watch(transactionTypeSelectedProvider);
-    final transactionState = ref.watch(isFromPendingTransactionProvider);
+    final isfromPending = ref.watch(isFromPendingTransactionProvider);
     final containerInfo = ref.watch(fotoProvider);
     final pendingTransaction = ref.watch(selectedPendingTransactionProvider);
     final user = ref.watch(userProvider);
@@ -36,6 +36,12 @@ class ResumeTransaction extends ConsumerWidget {
       transactionNumberController.text = pendingTransaction.transactionNumber;
     }
 
+    final isPending = transactionType?.isInOut == true &&
+        isfromPending &&
+        pendingTransaction != null;
+
+    log("isInOut: ${transactionType?.isInOut}, isfromPending: $isfromPending, pendingTransaction: $pendingTransaction");
+    log("isPending: $isPending");
     return SafeArea(
         child: Scaffold(
       resizeToAvoidBottomInset: true,
@@ -71,10 +77,7 @@ class ResumeTransaction extends ConsumerWidget {
                 child: send
                     ? Column(
                         children: [
-                          (transactionType!.isInOut != null &&
-                                  transactionType.isInOut == true &&
-                                  transactionState &&
-                                  pendingTransaction != null)
+                          !isPending
                               ? SvgPicture.asset(
                                   'assets/svg/pending.svg',
                                   width: 46,
@@ -94,19 +97,13 @@ class ResumeTransaction extends ConsumerWidget {
                           ),
                           Text(
                             textAlign: TextAlign.center,
-                            (transactionType.isInOut != null &&
-                                    transactionType.isInOut == true &&
-                                    transactionState &&
-                                    pendingTransaction != null)
+                            !isPending
                                 ? 'TRANSACCION EN ESTADO PENDIENTE'
                                 : 'TRANSACCION COMPLETADA CON EXITO',
                             style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: (transactionType.isInOut != null &&
-                                        transactionType.isInOut == true &&
-                                        transactionState &&
-                                        pendingTransaction != null)
+                                color: !isPending
                                     ? uiUtils.orange
                                     : uiUtils.grayDarkColor),
                           ),
@@ -338,10 +335,10 @@ class ResumeTransaction extends ConsumerWidget {
                                           uiUtils.showSnackBar(context,
                                               'Transacción creada exitosamente');
                                           log('resultPendingTransaction: $resultPendingTransaction');
-                                          setIsFromPendingTransaction(
-                                              ref, false);
-                                          getSelectedPendingTransaction(
-                                              ref, null);
+                                          // setIsFromPendingTransaction(
+                                          //     ref, false);
+                                          // getSelectedPendingTransaction(
+                                          //     ref, null);
                                         }
                                         log('creo las dos transacciones');
                                         setUploadingImage(ref, false);
@@ -353,7 +350,7 @@ class ResumeTransaction extends ConsumerWidget {
                                         return;
                                       }
                                     } else if (transactionType?.isInOut ??
-                                        false || transactionState) {
+                                        false || isfromPending) {
                                       PendingTransactionModel
                                           pendingTransaction =
                                           PendingTransactionModel(

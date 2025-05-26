@@ -143,7 +143,10 @@ void sendTransaction(WidgetRef ref, bool value) {
   ref.read(sendTransactionProvider.notifier).state = value;
 }
 
-Future<Foto?> uploadImageToServer(WidgetRef ref, XFile image, String idToken,
+Future<Foto?> uploadImageToServer(
+  WidgetRef ref,
+  XFile image,
+  String idToken,
 ) async {
   final uploadUsecase = ref.read(uploadImageToServerProvider);
   final bytes = await image.readAsBytes();
@@ -151,7 +154,8 @@ Future<Foto?> uploadImageToServer(WidgetRef ref, XFile image, String idToken,
   final fileName = (image.path.split('/').last);
 
   final result = await uploadUsecase.call(
-      ImageParams(fileName: fileName, base64: base64Image), idToken,
+    ImageParams(fileName: fileName, base64: base64Image),
+    idToken,
   );
 
   return result.fold(
@@ -288,6 +292,8 @@ void resetTransactionProviders(WidgetRef ref) {
   ref.read(transactionTypeSelectedProvider.notifier).state = null;
   ref.read(selectedFilterIdProvider.notifier).state = null;
   ref.read(selectedPendingTransactionProvider.notifier).state = null;
+
+  ref.read(isFromPendingTransactionProvider.notifier).state = false;
 }
 
 final expandedPendingTransactionsProvider = StateProvider<bool>((ref) => false);

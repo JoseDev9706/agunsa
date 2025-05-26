@@ -45,7 +45,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
               cognitoSession.userPoolTokensResult.value.accessToken.raw;
 
           return AuthSuccess(
-            UserModel(email: email, token: accessToken),
+            UserModel(email: email, token: accessToken, id: user.userId),
           );
         } else {
           return AuthFailure({"message": "Sesión no iniciada correctamente."});
@@ -70,7 +70,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> getCurrentUserEmail() async {
     final user = await Amplify.Auth.getCurrentUser();
-    return UserModel(email: user.username, token: user.userId);
+    return UserModel(email: user.username, token: user.userId, id: user.userId);
   }
 
   @override

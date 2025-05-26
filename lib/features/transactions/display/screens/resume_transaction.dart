@@ -4,6 +4,7 @@ import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/utils/code_utils.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
+import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
 import 'package:agunsa/features/transactions/data/models/pending_transaction.dart';
 import 'package:agunsa/features/transactions/data/models/transaction.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
@@ -29,7 +30,8 @@ class ResumeTransaction extends ConsumerWidget {
     final transactionState = ref.watch(isFromPendingTransactionProvider);
     final containerInfo = ref.watch(fotoProvider);
     final pendingTransaction = ref.watch(selectedPendingTransactionProvider);
-
+    final user = ref.watch(userProvider);
+    final isUploadingTransaction = ref.watch(uploadingImageProvider);
     if (pendingTransaction != null) {
       transactionNumberController.text = pendingTransaction.transactionNumber;
     }
@@ -69,7 +71,10 @@ class ResumeTransaction extends ConsumerWidget {
                 child: send
                     ? Column(
                         children: [
-                          transactionType?.isInOut ?? false
+                          (transactionType!.isInOut != null &&
+                                  transactionType.isInOut == true &&
+                                  transactionState &&
+                                  pendingTransaction != null)
                               ? SvgPicture.asset(
                                   'assets/svg/pending.svg',
                                   width: 46,
@@ -89,17 +94,19 @@ class ResumeTransaction extends ConsumerWidget {
                           ),
                           Text(
                             textAlign: TextAlign.center,
-                            (transactionType?.isInOut ??
-                                        false || transactionState) &&
-                                    pendingTransaction != null
+                            (transactionType.isInOut != null &&
+                                    transactionType.isInOut == true &&
+                                    transactionState &&
+                                    pendingTransaction != null)
                                 ? 'TRANSACCION EN ESTADO PENDIENTE'
                                 : 'TRANSACCION COMPLETADA CON EXITO',
                             style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: (transactionType?.isInOut ??
-                                            false || transactionState) &&
-                                        pendingTransaction != null
+                                color: (transactionType.isInOut != null &&
+                                        transactionType.isInOut == true &&
+                                        transactionState &&
+                                        pendingTransaction != null)
                                     ? uiUtils.orange
                                     : uiUtils.grayDarkColor),
                           ),
@@ -224,153 +231,205 @@ class ResumeTransaction extends ConsumerWidget {
                           ),
                           GeneralBottom(
                             width: double.infinity,
-                            color: uiUtils.primaryColor,
-                            text: 'GUARDAR TRANSACCION',
-                            onTap: () async {
-                              if (transactionNumberController.text.isEmpty) {
-                                uiUtils.showSnackBar(context,
-                                    'Ingrese el número de transacción');
-                                return;
-                              }
-
-                              if (pendingTransaction != null) {
-                                TransactionModel transaction = TransactionModel(
-                                  containerNumber: containerInfo?.numSerie,
-                                  containerTransportLine: "MSC",
-                                  containerIso: containerInfo?.codPropietario,
-                                  containerType: containerInfo?.tipoContenedor,
-                                  containerTara: containerInfo?.taraKg ?? '0.0',
-                                  containerPayload:
-                                      containerInfo?.payloadKg ?? '0.0',
-                                  createdDataContainer:
-                                      codeUtils.formatDateToIso8601(
-                                          DateTime.now().toString()),
-                                  updatedDataContainer:
-                                      codeUtils.formatDateToIso8601(
-                                          DateTime.now().toString()),
-                                  driverDni: "12345678-9",
-                                  driverName: "Carlos",
-                                  driverLastName: "González",
-                                  createdDataDriver: "2025-05-14T12:00:00Z",
-                                  updatedDataDriver: "2025-05-14T12:00:00Z",
-                                  plate: "XY-1234",
-                                  createdDataPlate: "2025-05-14T12:00:00Z",
-                                  updatedDataPlate: "2025-05-14T12:00:00Z",
-                                  sealCode: "SEAL7890",
-                                  createdDataSeal: "2025-05-14T12:00:00Z",
-                                  updatedDataSeal: "2025-05-14T12:00:00Z",
-                                  transactionNumber:
-                                      pendingTransaction.transactionNumber,
-                                  initialTransactionId:
-                                      pendingTransaction.initialTransactionId,
-                                  transactionTypeId:
-                                      pendingTransaction.transactionTypeId,
-                                  epochCreatedDatetime:
-                                      pendingTransaction.epochCreatedDatetime,
-                                  createdByUserId:
-                                      pendingTransaction.createdByUserId,
-                                  currentStatus: false,
-                                );
-
-                                final resultTransaction =
-                                    await createTransactionFuntion(
-                                        ref, transaction);
-
-                                // 2️⃣ Crear nueva PendingTransactionModel ajustada
-                                PendingTransactionModel newPendingTransaction =
-                                    PendingTransactionModel(
-                                  transactionNumber:
-                                      pendingTransaction.transactionNumber,
-                                  transactionTypeId:
-                                      pendingTransaction.transactionTypeId,
-                                  initialTransactionId:
-                                      pendingTransaction.initialTransactionId,
-                                  epochCreatedDatetime:
-                                      pendingTransaction.epochCreatedDatetime,
-                                  createdByUserId:
-                                      pendingTransaction.createdByUserId,
-                                  currentStatus: false,
-                                );
-
-                                if (resultTransaction ==
-                                    'Item registered successfully') {
-                                  final resultPendingTransaction =
-                                      await createPendingTransactionFuntion(
-                                          ref, newPendingTransaction);
-                                  if (resultPendingTransaction ==
-                                      'Item registered successfully') {
-                                    log('creo la transaccion pendiente');
+                            color: isUploadingTransaction
+                                ? Colors.grey
+                                : uiUtils.primaryColor,
+                            text: isUploadingTransaction
+                                ? 'GUARDANDO...'
+                                : 'GUARDAR TRANSACCION',
+                            onTap: isUploadingTransaction
+                                ? () {
                                     uiUtils.showSnackBar(context,
-                                        'Transacción creada exitosamente');
-                                    getSelectedPendingTransaction(ref, null);
+                                        'Espere a que se complete la transacción');
                                   }
-                                  log('creo las dos transacciones');
-                                } else {
-                                  log('Error al crear la transacción');
-                                  uiUtils.showSnackBar(
-                                      context, 'Error al crear la transacción');
-                                }
-                                
-                              } else if (transactionType?.isInOut ??
-                                  false || transactionState) {
-                                PendingTransactionModel pendingTransaction =
-                                    PendingTransactionModel(
-                                  transactionNumber:
-                                      transactionNumberController.text,
-                                  transactionTypeId: transactionType?.id ?? 0,
-                                  initialTransactionId:
-                                      DateTime.now().millisecondsSinceEpoch,
-                                  epochCreatedDatetime:
-                                      DateTime.now().millisecondsSinceEpoch,
-                                  createdByUserId: 1,
-                                  currentStatus: true,
-                                );
+                                : () async {
+                                    setUploadingImage(ref, true);
+                                    if (transactionNumberController
+                                        .text.isEmpty) {
+                                      uiUtils.showSnackBar(context,
+                                          'Ingrese el número de transacción');
+                                      setUploadingImage(ref, false);
+                                      return;
+                                    }
 
-                                await createPendingTransactionFuntion(
-                                    ref, pendingTransaction);
-                                log('creo la transaccion pendiente');
-                              } else {
-                                TransactionModel transaction = TransactionModel(
-                                  containerNumber: containerInfo?.numSerie,
-                                  containerTransportLine: "MSC",
-                                  containerIso: containerInfo?.codPropietario,
-                                  containerType: containerInfo?.tipoContenedor,
-                                  containerTara: containerInfo?.taraKg ?? '0.0',
-                                  containerPayload:
-                                      containerInfo?.payloadKg ?? '0.0',
-                                  createdDataContainer:
-                                      codeUtils.formatDateToIso8601(
-                                          DateTime.now().toString()),
-                                  updatedDataContainer:
-                                      codeUtils.formatDateToIso8601(
-                                          DateTime.now().toString()),
-                                  driverDni: "12345678-9",
-                                  driverName: "Carlos",
-                                  driverLastName: "González",
-                                  createdDataDriver: "2025-05-14T12:00:00Z",
-                                  updatedDataDriver: "2025-05-14T12:00:00Z",
-                                  plate: "XY-1234",
-                                  createdDataPlate: "2025-05-14T12:00:00Z",
-                                  updatedDataPlate: "2025-05-14T12:00:00Z",
-                                  sealCode: "SEAL7890",
-                                  createdDataSeal: "2025-05-14T12:00:00Z",
-                                  updatedDataSeal: "2025-05-14T12:00:00Z",
-                                  transactionNumber:
-                                      transactionNumberController.text,
-                                  initialTransactionId:
-                                      DateTime.now().millisecondsSinceEpoch,
-                                  transactionTypeId: transactionType?.id ?? 0,
-                                  epochCreatedDatetime:
-                                      DateTime.now().millisecondsSinceEpoch,
-                                  createdByUserId: 1,
-                                  currentStatus: false,
-                                );
+                                    if (pendingTransaction != null) {
+                                      TransactionModel transaction =
+                                          TransactionModel(
+                                        containerNumber:
+                                            containerInfo?.numSerie,
+                                        containerTransportLine: "MSC",
+                                        containerIso:
+                                            containerInfo?.codPropietario,
+                                        containerType:
+                                            containerInfo?.tipoContenedor,
+                                        containerTara:
+                                            containerInfo?.taraKg ?? '0.0',
+                                        containerPayload:
+                                            containerInfo?.payloadKg ?? '0.0',
+                                        createdDataContainer:
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                        updatedDataContainer:
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                        driverDni: "12345678-9",
+                                        driverName: "Carlos",
+                                        driverLastName: "González",
+                                        createdDataDriver:
+                                            "2025-05-14T12:00:00Z",
+                                        updatedDataDriver:
+                                            "2025-05-14T12:00:00Z",
+                                        plate: "XY-1234",
+                                        createdDataPlate:
+                                            "2025-05-14T12:00:00Z",
+                                        updatedDataPlate:
+                                            "2025-05-14T12:00:00Z",
+                                        sealCode: "SEAL7890",
+                                        createdDataSeal:
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                        updatedDataSeal:
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                        transactionNumber: pendingTransaction
+                                            .transactionNumber,
+                                        initialTransactionId: pendingTransaction
+                                            .initialTransactionId,
+                                        transactionTypeId: pendingTransaction
+                                            .transactionTypeId,
+                                        epochCreatedDatetime: pendingTransaction
+                                            .epochCreatedDatetime,
+                                        createdByUserId:
+                                            pendingTransaction.createdByUserId,
+                                        currentStatus: false,
+                                      );
 
-                                await createTransactionFuntion(
-                                    ref, transaction);
-                                log('creo la transaccion completa');
-                              }
-                            },
+                                      final resultTransaction =
+                                          await createTransactionFuntion(
+                                              ref, transaction);
+
+                                      if (resultTransaction ==
+                                          'Item registered successfully') {
+                                        log('resultTransaction1: $resultTransaction');
+                                        // 2️⃣ Crear nueva PendingTransactionModel ajustada
+                                        PendingTransactionModel
+                                            newPendingTransaction =
+                                            PendingTransactionModel(
+                                          transactionNumber: pendingTransaction
+                                              .transactionNumber,
+                                          transactionTypeId: pendingTransaction
+                                              .transactionTypeId,
+                                          initialTransactionId:
+                                              pendingTransaction
+                                                  .initialTransactionId,
+                                          epochCreatedDatetime:
+                                              pendingTransaction
+                                                  .epochCreatedDatetime,
+                                          createdByUserId: pendingTransaction
+                                              .createdByUserId,
+                                          currentStatus: false,
+                                        );
+                                        final resultPendingTransaction =
+                                            await createPendingTransactionFuntion(
+                                                ref, newPendingTransaction);
+                                        if (resultPendingTransaction ==
+                                            'Item registered successfully') {
+                                          log('creo la transaccion pendiente');
+                                          uiUtils.showSnackBar(context,
+                                              'Transacción creada exitosamente');
+                                          log('resultPendingTransaction: $resultPendingTransaction');
+                                          setIsFromPendingTransaction(
+                                              ref, false);
+                                          getSelectedPendingTransaction(
+                                              ref, null);
+                                        }
+                                        log('creo las dos transacciones');
+                                        setUploadingImage(ref, false);
+                                      } else {
+                                        log('Error al crear la transacción');
+                                        uiUtils.showSnackBar(context,
+                                            'Error al crear la transacción');
+                                        setUploadingImage(ref, false);
+                                        return;
+                                      }
+                                    } else if (transactionType?.isInOut ??
+                                        false || transactionState) {
+                                      PendingTransactionModel
+                                          pendingTransaction =
+                                          PendingTransactionModel(
+                                        transactionNumber:
+                                            transactionNumberController.text,
+                                        transactionTypeId:
+                                            transactionType?.id ?? 0,
+                                        initialTransactionId: DateTime.now()
+                                            .millisecondsSinceEpoch,
+                                        epochCreatedDatetime: DateTime.now()
+                                            .millisecondsSinceEpoch,
+                                        createdByUserId: user?.id.hashCode ?? 1,
+                                        currentStatus: true,
+                                      );
+
+                                      await createPendingTransactionFuntion(
+                                          ref, pendingTransaction);
+                                      log('creo la transaccion pendiente');
+                                      setUploadingImage(ref, false);
+                                      uiUtils.showSnackBar(context,
+                                          'Transacción pendiente creada exitosamente');
+                                    } else {
+                                      TransactionModel transaction =
+                                          TransactionModel(
+                                        containerNumber:
+                                            containerInfo?.numSerie,
+                                        containerTransportLine: "MSC",
+                                        containerIso:
+                                            containerInfo?.codPropietario,
+                                        containerType:
+                                            containerInfo?.tipoContenedor,
+                                        containerTara:
+                                            containerInfo?.taraKg ?? '0.0',
+                                        containerPayload:
+                                            containerInfo?.payloadKg ?? '0.0',
+                                        createdDataContainer:
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                        updatedDataContainer:
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                        driverDni: "12345678-9",
+                                        driverName: "Carlos",
+                                        driverLastName: "González",
+                                        createdDataDriver:
+                                            "2025-05-14T12:00:00Z",
+                                        updatedDataDriver:
+                                            "2025-05-14T12:00:00Z",
+                                        plate: "XY-1234",
+                                        createdDataPlate:
+                                            "2025-05-14T12:00:00Z",
+                                        updatedDataPlate:
+                                            "2025-05-14T12:00:00Z",
+                                        sealCode: "SEAL7890",
+                                        createdDataSeal: "2025-05-14T12:00:00Z",
+                                        updatedDataSeal: "2025-05-14T12:00:00Z",
+                                        transactionNumber:
+                                            transactionNumberController.text,
+                                        initialTransactionId: DateTime.now()
+                                            .millisecondsSinceEpoch,
+                                        transactionTypeId:
+                                            transactionType?.id ?? 0,
+                                        epochCreatedDatetime: DateTime.now()
+                                            .millisecondsSinceEpoch,
+                                        createdByUserId: user?.id.hashCode ?? 1,
+                                        currentStatus: false,
+                                      );
+
+                                      await createTransactionFuntion(
+                                          ref, transaction);
+                                      setUploadingImage(ref, false);
+                                      uiUtils.showSnackBar(context,
+                                          'Transacción creada exitosamente');
+                                      log('creo la transaccion completa');
+                                    }
+                                  },
                             textColor: uiUtils.whiteColor,
                           )
                         ],

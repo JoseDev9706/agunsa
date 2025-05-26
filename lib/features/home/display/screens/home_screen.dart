@@ -1,6 +1,7 @@
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
+import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
 import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
 import 'package:agunsa/features/profile/display/widgets/log_out_widget.dart';
 import 'package:agunsa/features/home/display/widgets/change_password_adv.dart';
@@ -24,6 +25,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
+    final user = ref.watch(userProvider);
     if (isNeedPasswordConfirmation?.nextStep.signInStep.name ==
         'signInWithPassword') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -83,12 +85,15 @@ class HomeScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Text(
-                          "Hola Agunsa",
-                          style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700,
-                              color: uiUtils.whiteColor),
+                        Expanded(
+                          child: Text(
+                            overflow: TextOverflow.ellipsis,
+                            "Hola ${'Agunsa'}",
+                            style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w700,
+                                color: uiUtils.whiteColor),
+                          ),
                         ),
                       ],
                     ),

@@ -8,8 +8,9 @@ class GetPendingTransactions {
   final TransactionRepositories transactionRepositories;
   GetPendingTransactions(this.transactionRepositories);
 
-  Future<Either<DomainExeptions, List<PendingTransaction>>> call() {
-    return transactionRepositories.getPendingTransactions();
+  Future<Either<DomainExeptions, List<PendingTransaction>>> call(
+      int userId) async {
+    return transactionRepositories.getPendingTransactions(userId);
   }
   
 }

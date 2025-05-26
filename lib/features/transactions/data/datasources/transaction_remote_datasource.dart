@@ -27,7 +27,7 @@ abstract class TransactionRemoteDatasource {
   Future<Conductor> getDni(ImageParams dniParams, String idToken);
   Future<String?> createTransaction(TransactionModel transaction);
   Future<List<TransactionModel>> getTransactionById(String id);
-  Future<List<PendingTransactionModel>> getPendingTransactions();
+  Future<List<PendingTransactionModel>> getPendingTransactions(int userId);
   Future<String?> createPendingTransaction(PendingTransactionModel transaction);
   Future<String?> uploadLateralImages(String base64Image);
 }
@@ -243,7 +243,8 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   }
 
   @override
-  Future<List<PendingTransactionModel>> getPendingTransactions() async {
+  Future<List<PendingTransactionModel>> getPendingTransactions(
+      int userId) async {
     final response = await http.get(Uri.parse(_getPendingTransactions));
 
     if (response.statusCode == 200) {

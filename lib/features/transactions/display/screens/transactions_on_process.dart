@@ -1,6 +1,7 @@
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
+import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/filter_drop.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
@@ -18,14 +19,15 @@ class TransactionsOnProcess extends ConsumerWidget {
     UiUtils uiUtils = UiUtils();
     final isExpanded =
         ref.watch(expandedPendingTransactionsProvider.select((state) => state));
+    final user = ref.watch(userProvider);
 
     return SafeArea(
       child: Scaffold(
         body: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
-            child: Container(
-              decoration: BoxDecoration(color: uiUtils.grayLightColor),
+              child: Container(
+                decoration: BoxDecoration(color: uiUtils.grayLightColor),
                 child: Column(
                   children: [
                     TransactionAppBar(
@@ -116,7 +118,8 @@ class TransactionsOnProcess extends ConsumerWidget {
             if (isExpanded)
               SliverToBoxAdapter(
                 child: FutureBuilder<List<PendingTransaction>>(
-                  future: getPendingTransactionsFunction(ref),
+                  future: getPendingTransactionsFunction(
+                      ref, user?.id.hashCode ?? 0),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
@@ -128,7 +131,15 @@ class TransactionsOnProcess extends ConsumerWidget {
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(child: Text('Sin transacciones'));
                     } else {
-                      final transactions = snapshot.data!;
+                      final transactions = snapshot.data!
+                          .where((transaction) =>
+                              transaction.createdByUserId == user?.id.hashCode)
+                          .toList();
+
+                      if (transactions.isEmpty) {
+                        return const Center(child: Text('Sin transacciones'));
+                      }
+
                       return ListView.separated(
                         separatorBuilder: (context, index) => const Divider(),
                         shrinkWrap: true,
@@ -183,9 +194,7 @@ class TransactionsOnProcess extends ConsumerWidget {
                                         ref, transaction);
                                     ref.read(routerDelegateProvider).push(
                                       AppRoute.takeContainer,
-                                      args: {
-                                        'transaction': transaction,
-                                      },
+                                      args: {'transaction': transaction},
                                     );
                                   },
                                   child: Container(
@@ -231,5 +240,4 @@ class TransactionsOnProcess extends ConsumerWidget {
       ),
     );
   }
-
 }

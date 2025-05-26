@@ -31,7 +31,7 @@ abstract class TransactionRepositories {
   Future<Either<DomainExeptions, List<Transaction>>> getTransactionById(
       String id);
   Future<Either<DomainExeptions, List<PendingTransaction>>>
-      getPendingTransactions();
+      getPendingTransactions(int userId);
 
   Future<Either<DomainExeptions, String>> createPendingTransaction(
       PendingTransactionModel transaction);

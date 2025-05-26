@@ -130,10 +130,11 @@ Future<List<Transaction>> getAllTransactions(WidgetRef ref) => ref
     .call('1')
     .then((value) => value.fold((l) => [], (r) => r));
 
-Future<List<PendingTransaction>> getPendingTransactionsFunction(WidgetRef ref) {
+Future<List<PendingTransaction>> getPendingTransactionsFunction(
+    WidgetRef ref, int userId) {
   final getPendingTransactionsUsecase =
       ref.read(getPendingTransactionsProvider);
-  final result = getPendingTransactionsUsecase.call();
+  final result = getPendingTransactionsUsecase.call(userId);
 
   return result.then((value) => value.fold((l) => [], (r) => r));
 }

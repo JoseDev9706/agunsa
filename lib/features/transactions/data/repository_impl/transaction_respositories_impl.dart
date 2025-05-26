@@ -101,9 +101,9 @@ class TransactionRespositoriesImpl implements TransactionRepositories {
 
   @override
   Future<Either<DomainExeptions, List<PendingTransaction>>>
-      getPendingTransactions() async {
+      getPendingTransactions(int userId) async {
     try {
-      final result = await remoteDataSource.getPendingTransactions();
+      final result = await remoteDataSource.getPendingTransactions(userId);
       return right(result);
     } catch (e) {
       log('Error en getPendingTransactions: $e');

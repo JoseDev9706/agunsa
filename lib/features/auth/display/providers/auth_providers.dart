@@ -1,9 +1,11 @@
 import 'package:agunsa/core/class/auth_result.dart';
 import 'package:agunsa/features/auth/data/datasources/remote_datasources/auth_remote_datasources.dart';
 import 'package:agunsa/features/auth/data/repository_impl/auth_repository_impl.dart';
+import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
 import 'package:agunsa/features/auth/domain/respositories/auth_repository.dart';
 import 'package:agunsa/features/auth/domain/use_cases/login_usecase.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_providers.g.dart';
@@ -84,6 +86,10 @@ class LoginController extends _$LoginController {
     }
   }
 }
+
+final userProvider = StateProvider<UserEntity?>((ref) => null);
+void setUser(UserEntity user, WidgetRef ref) =>
+    ref.read(userProvider.notifier).state = user;
 
 class LoginFormData {
   final String email;

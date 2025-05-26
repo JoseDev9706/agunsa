@@ -31,6 +31,8 @@ class ResumeTransaction extends ConsumerWidget {
     final containerInfo = ref.watch(fotoProvider);
     final pendingTransaction = ref.watch(selectedPendingTransactionProvider);
     final user = ref.watch(userProvider);
+    final driverInfo = ref.watch(dniProvider);
+    final placaInfo = ref.watch(placaProvider);
     final isUploadingTransaction = ref.watch(uploadingImageProvider);
     if (pendingTransaction != null) {
       transactionNumberController.text = pendingTransaction.transactionNumber;
@@ -119,11 +121,15 @@ class ResumeTransaction extends ConsumerWidget {
                               color: uiUtils.primaryColor,
                               text: 'HOME',
                               onTap: () {
-                                resetTransactionProviders(ref);
-                                setIsFromPendingTransaction(ref, false);
-                                ref
-                                    .read(routerDelegateProvider)
-                                    .pushReplacement(AppRoute.home);
+                                try {
+                                  resetTransactionProviders(ref);
+                                  ref
+                                      .read(routerDelegateProvider)
+                                      .pushReplacement(AppRoute.home);
+                                } catch (e, stackTrace) {
+                                  log("Error durante navegación: $e",
+                                      stackTrace: stackTrace);
+                                }
                               },
                               textColor: uiUtils.whiteColor),
                           const SizedBox(
@@ -269,14 +275,17 @@ class ResumeTransaction extends ConsumerWidget {
                                         updatedDataContainer:
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        driverDni: "12345678-9",
-                                        driverName: "Carlos",
-                                        driverLastName: "González",
+                                        driverDni: driverInfo?.codLicence ??
+                                            "12345678-9",
+                                        driverName:
+                                            driverInfo?.name1 ?? "Carlos",
+                                        driverLastName:
+                                            driverInfo?.lastName1 ?? "González",
                                         createdDataDriver:
                                             "2025-05-14T12:00:00Z",
                                         updatedDataDriver:
                                             "2025-05-14T12:00:00Z",
-                                        plate: "XY-1234",
+                                        plate: placaInfo?.codigo ?? "XY-1234",
                                         createdDataPlate:
                                             "2025-05-14T12:00:00Z",
                                         updatedDataPlate:
@@ -392,14 +401,17 @@ class ResumeTransaction extends ConsumerWidget {
                                         updatedDataContainer:
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        driverDni: "12345678-9",
-                                        driverName: "Carlos",
-                                        driverLastName: "González",
+                                        driverDni: driverInfo?.codLicence ??
+                                            "12345678-9",
+                                        driverName:
+                                            driverInfo?.name1 ?? "Carlos",
+                                        driverLastName:
+                                            driverInfo?.lastName1 ?? "González",
                                         createdDataDriver:
                                             "2025-05-14T12:00:00Z",
                                         updatedDataDriver:
                                             "2025-05-14T12:00:00Z",
-                                        plate: "XY-1234",
+                                        plate: placaInfo?.codigo ?? "XY-1234",
                                         createdDataPlate:
                                             "2025-05-14T12:00:00Z",
                                         updatedDataPlate:

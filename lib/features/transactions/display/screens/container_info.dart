@@ -298,7 +298,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 color: Colors.transparent),
                                             child: Center(
                                               child: Text(
-                                                'Carlos Mario',
+                                                conductorProviderInfo
+                                                        ?.fullName ??
+                                                    '',
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
@@ -360,7 +362,10 @@ class ContainerInfo extends ConsumerWidget {
                                                 color: Colors.transparent),
                                             child: Center(
                                               child: Text(
-                                                'Sanchez Sanchez',
+                                                conductorProviderInfo
+                                                        ?.fullLastName ??
+                                                    '',
+                                                       
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,
@@ -422,7 +427,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 color: Colors.transparent),
                                             child: Center(
                                               child: Text(
-                                                '70074390-9',
+                                                conductorProviderInfo
+                                                        ?.codLicence ??
+                                                    '',
                                                 style: TextStyle(
                                                     color:
                                                         uiUtils.grayLightColor,

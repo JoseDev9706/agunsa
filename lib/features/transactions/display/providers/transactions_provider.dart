@@ -287,7 +287,7 @@ void resetTransactionProviders(WidgetRef ref) {
 
   ref.read(sendTransactionProvider.notifier).state = false;
 
-  ref.invalidate(transactionsControllerProvider);
+  // ref.invalidate(transactionsControllerProvider);
 
   ref.read(transactionTypeSelectedProvider.notifier).state = null;
   ref.read(selectedFilterIdProvider.notifier).state = null;

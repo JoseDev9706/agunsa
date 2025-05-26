@@ -1,4 +1,6 @@
-# Miscellaneous
+# ===================================
+# 📦 Miscellaneous
+# ===================================
 *.class
 *.log
 *.pyc
@@ -10,59 +12,64 @@
 .svn/
 migrate_working_dir/
 
-# IntelliJ related
+# ===================================
+# 📦 IDE Settings
+# ===================================
+
+# IntelliJ / Android Studio
 *.iml
 *.ipr
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# VS Code
+# La carpeta .vscode contiene configuraciones locales que podrías querer ignorar.
+# Descomenta si quieres ignorarla:
+# .vscode/
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# ===================================
+# 📦 Flutter / Dart / Pub
+# ===================================
+
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+.flutter-versions
+.packages
 .pub-cache/
 .pub/
+.melos_tool/
+**/doc/api/
 **/build/
 
-# Gradle
+# iOS
+**/ios/Flutter/.last_build_id
+ios/Pods/
+
+# Web
+web/.dart_tool/
+web/build/
+
+# ===================================
+# 📦 Android / Gradle
+# ===================================
+
 .gradle/
 local.properties
 
-# Symbolication related
-app.*.symbols
+# Android build outputs
+android/.gradle/
+android/app/build/
+android/app/debug/
+android/app/profile/
+android/app/release/
 
-# Obfuscation related
+# Symbolication / Obfuscation
+app.*.symbols
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
+# ===================================
+# 📦 Amplify (auto-managed)
 #amplify-do-not-edit-begin
-amplify/\#current-cloud-backend
-amplify/.config/local-*
-amplify/logs
-amplify/mock-data
-amplify/mock-api-resources
-amplify/backend/amplify-meta.json
-amplify/backend/.temp
-dist/
-node_modules/
-aws-exports.js
-awsconfiguration.json
-amplifyconfiguration.json
-amplifyconfiguration.dart
-amplify-build-config.json
-amplify-gradle-config.json
-amplifytools.xcconfig
-.secret-*
-**.sample
-#amplify-do-not-edit-end
+amplify/#current-cloud-backend
+amplif

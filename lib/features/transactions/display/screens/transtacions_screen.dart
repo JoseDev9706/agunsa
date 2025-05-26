@@ -26,9 +26,6 @@ class TransactionsScreen extends ConsumerWidget {
     UiUtils uiUtils = UiUtils();
     final currentPage = ref.watch(currentPageProvider);
     final transactionTypesAsync = ref.watch(filteredTransactionTypesProvider);
-    final searchController = TextEditingController();
-
-
 
     const itemsPerPage = 6;
 
@@ -100,7 +97,8 @@ class TransactionsScreen extends ConsumerWidget {
                                 .map((item) => TransactionsCard(
                                       uiUtils: uiUtils,
                                       name: item.name ?? 'Sin nombre',
-                                      svgPath: item.imageUrl ?? '',
+                                      svgPath: item.imageUrl ??
+                                          'https://thenounproject.com/icon/default-image-4595376/',
                                       onTap: () {
                                         final router =
                                             ref.read(routerDelegateProvider);
@@ -113,10 +111,10 @@ class TransactionsScreen extends ConsumerWidget {
                                               });
                                         } else {
                                           router.push(AppRoute.takeContainer,
-                                            args: {
-                                              'user': user,
-                                              'transactionType': item
-                                            });
+                                              args: {
+                                                'user': user,
+                                                'transactionType': item
+                                              });
                                         }
                                         ref
                                             .read(searchQueryProvider.notifier)
@@ -177,7 +175,7 @@ class TransactionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('SVG Path: $svgPath');
+    log('SVG Path card: $svgPath');
     return GestureDetector(
       onTap: onTap,
       child: Container(

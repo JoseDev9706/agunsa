@@ -1,35 +1,38 @@
 class Conductor {
-  final int id;
-  final int transactionId;
-  final String names;
-  final String lastNames;
-  final String dni;
-  final DateTime fechaHora;
+  final String name1;
+  final String name2;
+  final String lastName1;
+  final String lastName2;
+  final String codLicence;
 
   Conductor({
-    required this.id,
-    required this.transactionId,
-    required this.names,
-    required this.lastNames,
-    required this.dni,
-    required this.fechaHora,
+    required this.name1,
+    required this.name2,
+    required this.lastName1,
+    required this.lastName2,
+    required this.codLicence,
   });
 
   factory Conductor.fromJson(Map<String, dynamic> json) => Conductor(
-        id: json['id'],
-        transactionId: json['transaction_id'],
-        names: json['names'],
-        lastNames: json['lastNames'],
-        dni: json['dni'],
-        fechaHora: DateTime.parse(json['fecha_hora']),
+        name1: json['Nombre_1'],
+        name2: json['Nombre_2'],
+        lastName1: json['Apellido_1'],
+        lastName2: json['Apellido_2'],
+        codLicence: json['cod_licencia'],
       );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'transaction_id': transactionId,
-        'names': names,
-        'lastNames': lastNames,
-        'dni': dni,
-        'fecha_hora': fechaHora.toIso8601String(),
+        'Nombre_1': name1,
+        'Nombre_2': name2,
+        'Apellido_1': lastName1,
+        'Apellido_2': lastName2,
+        'cod_licencia': codLicence,
       };
+
+  String get fullName {
+    return '$name1 $name2';
+  }
+  String get fullLastName {
+    return '$lastName1 $lastName2';
+  }
 }

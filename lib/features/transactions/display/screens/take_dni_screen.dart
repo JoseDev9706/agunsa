@@ -158,13 +158,29 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                                       ref
                                           .read(dniImageProvider.notifier)
                                           .state = (fileTaked);
-                                      await getDniInfo(ref, fileTaked!);
-                                      ref.read(routerDelegateProvider).push(
-                                        AppRoute.containerInfo,
-                                        args: {
-                                          'isContainer': true,
-                                        },
-                                      );
+                                      final result =
+                                          await getDniInfo(ref, fileTaked!);
+                                      if (result != null) {
+                                        ref.read(routerDelegateProvider).push(
+                                          AppRoute.containerInfo,
+                                          args: {
+                                            'isContainer': true,
+                                          },
+                                        );
+                                      } else {
+                                        fileTaked = null;
+                                        ref
+                                            .read(dniImageProvider.notifier)
+                                            .state = null;
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Ocurrió un error al obtener la información del DNI'),
+                                          ),
+                                        );
+                                        log('Error al obtener la información del DNI');
+                                      }
                                     }
                                     setUploadingImage(ref, false);
                                   },

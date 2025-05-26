@@ -37,7 +37,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   static const String _getTransactionTypes = '${baseUrl}transaction-type';
   static const String _getprecinto = '${baseUrl}precinto';
   static const String _getplaca = '${baseUrl}placa-camion';
-  static const String _getdni = '${baseUrl}dni_conductor';
+  static const String _getdni = '${baseUrl}licencia';
   static const String _createTransaction = '${baseUrl}transaction';
   static const String _getTransactionById = '${baseUrl}transaction';
   static const String _getPendingTransactions = '${baseUrl}pending-transaction';
@@ -193,7 +193,6 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     return _genericRequest<Conductor>(
       url: _getdni,
       body: {
-        'filename': dniParams.fileName,
         'image_base64': dniParams.base64,
       },
       idToken: idToken,

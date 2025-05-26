@@ -142,13 +142,29 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                                       ref
                                           .read(placaImageProvider.notifier)
                                           .state = (fileTaked);
-                                      await getPlacaInfo(ref, fileTaked!, '');
-                                      ref.read(routerDelegateProvider).push(
-                                        AppRoute.containerInfo,
-                                        args: {
-                                          'isContainer': true,
-                                        },
-                                      );
+                                      final result = await getPlacaInfo(
+                                          ref, fileTaked!, '');
+                                      if (result != null) {
+                                        ref.read(routerDelegateProvider).push(
+                                          AppRoute.containerInfo,
+                                          args: {
+                                            'isContainer': true,
+                                          },
+                                        );
+                                      } else if (result == null) {
+                                        log('No se pudo obtener la información de la placa');
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'No se pudo obtener la información de la placa. Por favor, inténtalo de nuevo.',
+                                            ),
+                                          ),
+                                        );
+                                        setUploadingImage(ref, false);
+                                      } else {
+                                        log('Error al obtener la información de la placa');
+                                      }
                                     }
                                     setUploadingImage(ref, false);
                                   },

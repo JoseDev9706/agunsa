@@ -20,7 +20,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
         isNeedPasswordConfirmation: isNeedPasswordConfirmation,
       );
     } catch (e) {
-      rethrow;
+      
+      throw Exception('Failed to change password: $e');
     }
   }
   

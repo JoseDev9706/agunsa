@@ -29,7 +29,7 @@ class HomeScreen extends ConsumerWidget {
     UiUtils uiUtils = UiUtils();
     final user = ref.watch(userProvider);
     final router = ref.read(routerDelegateProvider);
-    log(isNeedPasswordConfirmation?.nextStep.signInStep.name.toString() ?? '');
+    log('nesessary ${isNeedPasswordConfirmation?.nextStep.signInStep.name.toString() ?? ''}');
     if (isNeedPasswordConfirmation?.nextStep.signInStep.name ==
             'confirmSignInWithNewPassword' &&
         router.currentRoute == AppRoute.home) {

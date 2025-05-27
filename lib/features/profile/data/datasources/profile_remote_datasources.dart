@@ -24,18 +24,10 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
    final result = await Amplify.Auth.confirmSignIn(
       confirmationValue: newPassword,
     );
-      // if (result.isSignedIn) {
-      //   await Amplify.Auth.updatePassword(
-      //     newPassword: newPassword,
-      //     oldPassword: oldPassword,
-      //   );
-      // } else {
-      //   log('User is not signed in');
-      //   return;
-      // }
+      
     log('Password updated successfully: $result');
   } on AuthException catch (e) {
-    safePrint('Error updating password: ${e.message}');
+      log('Error updating password: ${e.message}');
   }
   }
   

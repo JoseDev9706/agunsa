@@ -1,23 +1,24 @@
+import 'dart:developer';
+
 import 'package:agunsa/features/profile/data/datasources/profile_remote_datasources.dart';
 import 'package:agunsa/features/profile/domain/respositories/profile_repository.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/repository_impl/profile_repository_impl.dart';
 part 'profile_provider.g.dart';
 
-
-
-
-  @riverpod
-ProfileRemoteDatasource profileRemoteDataSource(ProfileRemoteDataSourceRef ref) {
+@riverpod
+ProfileRemoteDatasource profileRemoteDataSource(
+    ProfileRemoteDataSourceRef ref) {
   return ProfileRemoteDatasourceImpl();
 }
 
-  @riverpod
-  ProfileRepository profileRepository(ProfileRepositoryRef ref) {
-    return ProfileRepositoryImpl(ref.watch(profileRemoteDataSourceProvider));
-  }
+@riverpod
+ProfileRepository profileRepository(ProfileRepositoryRef ref) {
+  return ProfileRepositoryImpl(ref.watch(profileRemoteDataSourceProvider));
+}
 
 @riverpod
 class ChangePasswordFormState extends _$ChangePasswordFormState {
@@ -25,8 +26,6 @@ class ChangePasswordFormState extends _$ChangePasswordFormState {
   ChangePasswordData build() {
     return const ChangePasswordData();
   }
-
- 
 
   void updateCurrentPassword(String value) {
     state = state.copyWith(currentPassword: value);
@@ -84,31 +83,27 @@ class ChangePasswordFormState extends _$ChangePasswordFormState {
   }
 }
 
+final isNeedPasswordConfirmationProvider =
+    StateProvider<SignInResult?>((ref) => null);
+
 @riverpod
 class ChangePasswordController extends _$ChangePasswordController {
   @override
   FutureOr<void> build() {}
 
-  Future<void> changePassword(String currentPassword, String newPassword, SignInResult isNeedPasswordConfirmation) async {
+  Future<void> changePassword(String currentPassword, String newPassword,
+      SignInResult isNeedPasswordConfirmation) async {
     try {
-      state = const AsyncLoading();
-
       await ref.read(profileRepositoryProvider).changePassword(
             oldPassword: currentPassword,
             newPassword: newPassword,
             isNeedPasswordConfirmation: isNeedPasswordConfirmation,
           );
-
-      state = const AsyncData(null);
     } catch (error, stackTrace) {
-      state = AsyncError(error, stackTrace);
+      log(error.toString(), stackTrace: stackTrace);
     }
   }
 }
-
-
-
-
 
 class ChangePasswordData {
   final String currentPassword;
@@ -116,21 +111,20 @@ class ChangePasswordData {
   final String confirmNewPassword;
   final bool obscurePassword;
   final bool isValid;
-  
+
   final String? currentPasswordError;
   final String? newPasswordError;
   final String? confirmPasswordError;
 
-  const ChangePasswordData({
-    this.currentPassword = '',
-    this.newPassword = '',
-    this.confirmNewPassword = '',
-    this.obscurePassword = true,
-    this.isValid = false,
-    this.currentPasswordError,
-    this.newPasswordError,
-    this.confirmPasswordError
-  });
+  const ChangePasswordData(
+      {this.currentPassword = '',
+      this.newPassword = '',
+      this.confirmNewPassword = '',
+      this.obscurePassword = true,
+      this.isValid = false,
+      this.currentPasswordError,
+      this.newPasswordError,
+      this.confirmPasswordError});
 
   ChangePasswordData copyWith({
     String? currentPassword,
@@ -144,14 +138,14 @@ class ChangePasswordData {
     String? currentPasswordError,
   }) {
     return ChangePasswordData(
-      currentPassword: currentPassword ?? this.currentPassword,
-      newPassword: newPassword ?? this.newPassword,
-      confirmNewPassword: confirmNewPassword ?? this.confirmNewPassword,
-      obscurePassword: obscurePassword ?? this.obscurePassword,
-      isValid: isValid ?? this.isValid,
-      currentPasswordError: currentPasswordError ?? this.currentPasswordError,
-      newPasswordError: newPasswordError ?? this.newPasswordError,
-      confirmPasswordError: confirmPasswordError ?? this.confirmPasswordError
-    );
+        currentPassword: currentPassword ?? this.currentPassword,
+        newPassword: newPassword ?? this.newPassword,
+        confirmNewPassword: confirmNewPassword ?? this.confirmNewPassword,
+        obscurePassword: obscurePassword ?? this.obscurePassword,
+        isValid: isValid ?? this.isValid,
+        currentPasswordError: currentPasswordError ?? this.currentPasswordError,
+        newPasswordError: newPasswordError ?? this.newPasswordError,
+        confirmPasswordError:
+            confirmPasswordError ?? this.confirmPasswordError);
   }
 }

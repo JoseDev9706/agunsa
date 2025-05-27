@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/profile/display/providers/profile_provider.dart';
@@ -72,6 +75,8 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
   Widget build(BuildContext context) {
     final formState = ref.watch(changePasswordFormStateProvider);
     final formNotifier = ref.read(changePasswordFormStateProvider.notifier);
+    final requirePasswordChange = ref.watch(isNeedPasswordConfirmationProvider);
+    log('requirePasswordChange: $requirePasswordChange');
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -151,7 +156,7 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
                                     .changePassword(
                                       passwordController.text,
                                       newPasswordController.text,
-                                      widget.isNeedPasswordConfirmation!,
+                                      requirePasswordChange!,
                                     );
                                 // Limpiar los campos después de cambiar la contraseña
                                 formNotifier.clearFields();
@@ -163,6 +168,9 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
                                       backgroundColor: Colors.green,
                                     ),
                                   );
+                                  final router =
+                                      ref.read(routerDelegateProvider);
+                                  router.push(AppRoute.home);
                                 }
                               } catch (e) {
                                 if (context.mounted) {

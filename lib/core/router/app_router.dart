@@ -111,6 +111,9 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
       case AuthState.signedOut:
         _routeStack.add(AppRoute.login);
         break;
+      case AuthState.requirePasswordChange:
+        _routeStack.add(AppRoute.changePassword);
+        break;
     }
     notifyListeners();
   }
@@ -159,7 +162,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
             if (_routeStack.isNotEmpty) {
               _routeStack.removeLast();
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                notifyListeners(); // ← Notificación segura
+                notifyListeners(); 
               });
             }
             return true;

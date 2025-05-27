@@ -7,6 +7,7 @@ import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
+import 'package:agunsa/features/profile/display/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -223,6 +224,11 @@ class LoginForm extends ConsumerWidget {
                         }
                       } else if (result is RequirePasswordChange) {
                         log('Cambio de contraseña requerido: ${result.nextStep}');
+                        ref.read(authStateProvider.notifier).state =
+                            AuthState.requirePasswordChange;
+                        ref
+                            .read(isNeedPasswordConfirmationProvider.notifier)
+                            .state = result.nextStep;
                         final router = ref.read(routerDelegateProvider);
                         router.pushReplacement(AppRoute.home, args: {
                           'nextStep': result.nextStep,

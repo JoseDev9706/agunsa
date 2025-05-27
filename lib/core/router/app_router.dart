@@ -125,12 +125,10 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
           (failure) {
             log('Verificación de sesión fallida: $failure');
             _routeStack.first = AppRoute.login;
-            ref.read(authStateProvider.notifier).state =
-                AuthState.signedOut; // Asegura el estado
+            ref.read(authStateProvider.notifier).state = AuthState.signedOut;
           },
           (success) {
             if (success is AuthFailure) {
-              // ← ¡Comprobación adicional!
               log('Error inesperado: Sesión marcada como éxito pero es AuthFailure');
               _routeStack.first = AppRoute.login;
               ref.read(authStateProvider.notifier).state = AuthState.signedOut;
@@ -146,19 +144,25 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
     }
     return LayoutBuilder(
       builder: (context, constraints) {
-        UiUtils().getDeviceSize(context,
-            height: constraints.maxHeight, width: constraints.maxWidth);
+        UiUtils().getDeviceSize(
+          context,
+          height: constraints.maxHeight,
+          width: constraints.maxWidth,
+        );
         return Navigator(
           key: navigatorKey,
           pages: _routeStack
               .map((route) => MaterialPage(child: _buildPage(route)))
               .toList(),
-          onDidRemovePage: (page) {
+          onPopPage: (route, result) {
+            if (!route.didPop(result)) return false;
             if (_routeStack.isNotEmpty) {
               _routeStack.removeLast();
-              currentRoute = _routeStack.last;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                notifyListeners(); // ← Notificación segura
+              });
             }
-            notifyListeners();
+            return true;
           },
         );
       },

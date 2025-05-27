@@ -192,6 +192,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                             text:
                                 isUploadingImage ? 'SUBIENDO...' : 'CONFIRMAR',
                             onTap: () async {
+                              List<String> succesResults = [];
                               if (!isUploadingImage) {
                                 setUploadingImage(ref, true);
 
@@ -207,16 +208,28 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                                         'Imagen subida correctamente') {
                                       throw Exception(
                                           'Error al subir una de las imágenes');
-                                    }
-                                  }
-
-                                  ref.read(routerDelegateProvider).push(
+                                    } else {
+                                      succesResults.add(result);
+                                      if (succesResults.length ==
+                                          images.length) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Imágenes subidas correctamente'),
+                                          ),
+                                        );
+                                        ref.read(routerDelegateProvider).push(
                                     AppRoute.containerInfo,
                                     args: {
                                       'images': images,
                                       'isContainer': true,
                                     },
                                   );
+                                      }
+                                    }
+                                  }
+
                                 } catch (e) {
                                   log('Error subiendo imágenes: $e');
                                   ScaffoldMessenger.of(context).showSnackBar(

@@ -1,8 +1,8 @@
 class Conductor {
   final String name1;
-  final String name2;
+  final String? name2;
   final String lastName1;
-  final String lastName2;
+  final String? lastName2;
   final String codLicence;
 
   Conductor({
@@ -15,9 +15,9 @@ class Conductor {
 
   factory Conductor.fromJson(Map<String, dynamic> json) => Conductor(
         name1: json['Nombre_1'],
-        name2: json['Nombre_2'],
+        name2: json['Nombre_2'] ?? '',
         lastName1: json['Apellido_1'],
-        lastName2: json['Apellido_2'],
+        lastName2: json['Apellido_2'] ?? '',
         codLicence: json['cod_licencia'],
       );
 

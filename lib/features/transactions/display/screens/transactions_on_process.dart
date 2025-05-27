@@ -131,14 +131,7 @@ class TransactionsOnProcess extends ConsumerWidget {
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(child: Text('Sin transacciones'));
                     } else {
-                      final transactions = snapshot.data!
-                          .where((transaction) =>
-                              transaction.createdByUserId == user?.id.hashCode)
-                          .toList();
-
-                      if (transactions.isEmpty) {
-                        return const Center(child: Text('Sin transacciones'));
-                      }
+                      final transactions = snapshot.data!;
 
                       return ListView.separated(
                         separatorBuilder: (context, index) => const Divider(),

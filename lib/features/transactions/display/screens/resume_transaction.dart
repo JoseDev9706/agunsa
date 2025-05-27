@@ -41,6 +41,7 @@ class ResumeTransaction extends ConsumerWidget {
     final isPending = transactionType?.isInOut == true &&
         isfromPending &&
         pendingTransaction != null;
+    final isOutTransaction = ref.watch(isCompleteTransactionProvider);
 
     log("isInOut: ${transactionType?.isInOut}, isfromPending: $isfromPending, pendingTransaction: $pendingTransaction");
     log("isPending: $isPending");
@@ -79,7 +80,7 @@ class ResumeTransaction extends ConsumerWidget {
                 child: send
                     ? Column(
                         children: [
-                          !isPending
+                          !isPending && isOutTransaction
                               ? SvgPicture.asset(
                                   'assets/svg/pending.svg',
                                   width: 46,
@@ -99,13 +100,13 @@ class ResumeTransaction extends ConsumerWidget {
                           ),
                           Text(
                             textAlign: TextAlign.center,
-                            !isPending
+                            !isPending && isOutTransaction
                                 ? 'TRANSACCION EN ESTADO PENDIENTE'
                                 : 'TRANSACCION COMPLETADA CON EXITO',
                             style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: !isPending
+                                color: !isPending && isOutTransaction
                                     ? uiUtils.orange
                                     : uiUtils.grayDarkColor),
                           ),
@@ -146,6 +147,7 @@ class ResumeTransaction extends ConsumerWidget {
                               onTap: () {
                                 resetTransactionProviders(ref);
                                 setIsFromPendingTransaction(ref, false);
+                                setIsCompleteTransaction(ref, false);
                                 ref
                                     .read(routerDelegateProvider)
                                     .pushReplacement(AppRoute.transactions);
@@ -382,6 +384,7 @@ class ResumeTransaction extends ConsumerWidget {
                                       uiUtils.showSnackBar(context,
                                           'Transacción pendiente creada exitosamente');
                                     } else {
+                                      log('user : ${user?.id.hashCode}');
                                       TransactionModel transaction =
                                           TransactionModel(
                                         containerNumber:
@@ -430,13 +433,26 @@ class ResumeTransaction extends ConsumerWidget {
                                         createdByUserId: user?.id.hashCode ?? 1,
                                         currentStatus: false,
                                       );
-
-                                      await createTransactionFuntion(
-                                          ref, transaction);
-                                      setUploadingImage(ref, false);
-                                      uiUtils.showSnackBar(context,
-                                          'Transacción creada exitosamente');
-                                      log('creo la transaccion completa');
+                                      log('transaction: ${transaction.toJson()}');
+                                      final result =
+                                          await createTransactionFuntion(
+                                              ref, transaction);
+                                      if (result ==
+                                          'Item registered successfully') {
+                                        setUploadingImage(ref, false);
+                                        getSelectedPendingTransaction(
+                                            ref, null);
+                                        setIsCompleteTransaction(ref, true);
+                                        uiUtils.showSnackBar(context,
+                                            'Transacción creada exitosamente');
+                                        log('creo la transaccion completa');
+                                      } else {
+                                        log('Error al crear la transacción');
+                                        uiUtils.showSnackBar(context,
+                                            'Error al crear la transacción');
+                                        setUploadingImage(ref, false);
+                                        return;
+                                      }
                                     }
                                   },
                             textColor: uiUtils.whiteColor,

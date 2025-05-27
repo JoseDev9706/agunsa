@@ -197,7 +197,7 @@ Future<Precinct?> uploadPrecint(
       return null;
     },
     (precinct) {
-      ref.read(precintProvider.notifier).state = precinct;
+      ref.read(precintProvider.notifier).state = [precinct];
       return precinct;
     },
   );
@@ -244,7 +244,7 @@ final placaImageProvider = StateProvider<XFile?>((ref) => null);
 final dniImageProvider = StateProvider<XFile?>((ref) => null);
 final placaProvider = StateProvider<Placa?>((ref) => null);
 final dniProvider = StateProvider<Conductor?>((ref) => null);
-final precintProvider = StateProvider<Precinct?>((ref) => null);
+final precintProvider = StateProvider<List<Precinct>?>((ref) => []);
 final fotoProvider = StateProvider<Foto?>((ref) => null);
 final sendTransactionProvider = StateProvider<bool>((ref) => false);
 final transactionTypeSelectedProvider =
@@ -255,6 +255,11 @@ final isFromPendingTransactionProvider = StateProvider<bool>((ref) => false);
 final selectedPendingTransactionProvider =
     StateProvider<PendingTransaction?>((ref) => null);
 
+final isCompleteTransactionProvider = StateProvider<bool>((ref) => false);
+
+void setIsCompleteTransaction(WidgetRef ref, bool isComplete) {
+  ref.read(isCompleteTransactionProvider.notifier).state = isComplete;
+}
 void getSelectedPendingTransaction(
     WidgetRef ref, PendingTransaction? transaction) {
   if (transaction != null) {

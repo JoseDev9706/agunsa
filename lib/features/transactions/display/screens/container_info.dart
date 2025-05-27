@@ -39,7 +39,7 @@ class ContainerInfo extends ConsumerWidget {
     final isRegistroConductorExpanded = ref.watch(expandedContainersProvider
         .select((state) => state['registroConductor'] ?? false));
     final fotoProviderInfo = ref.watch(fotoProvider);
-    final precintProviderInfo = ref.watch(precintProvider);
+    final precintList = ref.watch(precintProvider) ?? []; 
     final placaProviderInfo = ref.watch(placaProvider);
     final conductorProviderInfo = ref.watch(dniProvider);
     final transactionType = ref.watch(transactionTypeSelectedProvider);
@@ -115,59 +115,89 @@ class ContainerInfo extends ConsumerWidget {
                                   .read(expandedContainersProvider.notifier)
                                   .toggle('registroPrecint');
                             },
-                            content: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _imageGallery(ref,
-                                    selectedIndexes: precintsImage,
-                                    isPlaca: false),
-                                Expanded(
-                                  flex: 6,
-                                  child: Container(
-                                    margin: const EdgeInsets.only(left: 0),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 5),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(2),
-                                        border: Border.all(
+                          content: Column(
+                            children:
+                                precintsImage.asMap().entries.map((entry) {
+                              final index = entry.key; // Índice de la imagen
+                              final image = entry.value; // Imagen actual
+                              final precinct = index < precintList.length
+                                  ? precintList[index]
+                                  : null; // Obtiene el precinto correspondiente
+
+                              return Column(
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _imageGallery(ref,
+                                          selectedIndexes: [image],
+                                          isPlaca:
+                                              false), // Muestra solo esta imagen
+                                      Expanded(
+                                        flex: 6,
+                                        child: Container(
+                                          margin:
+                                              const EdgeInsets.only(left: 0),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                            border: Border.all(
+                                                color: uiUtils.labelColor,
+                                                width: 1),
                                             color: uiUtils.labelColor,
-                                            width: 1),
-                                        color: uiUtils.labelColor),
-                                    child: Text(
-                                      'CÓDIGO PRECINTO ADUANA',
-                                      style: TextStyle(
-                                          color: uiUtils.grayDarkColor,
-                                          fontSize: uiUtils.screenWidth * 0.03,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 4,
-                                  child: Container(
-                                    margin: const EdgeInsets.only(left: 0),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 5),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(2),
-                                        border: Border.all(
-                                            color: uiUtils.labelColor,
-                                            width: 1),
-                                        color: Colors.transparent),
-                                    child: Center(
-                                      child: Text(
-                                        precintProviderInfo?.codPrecinto ?? '',
-                                        style: TextStyle(
-                                            color: uiUtils.grayLightColor,
-                                            fontSize:
-                                                uiUtils.screenWidth * 0.03,
-                                            fontWeight: FontWeight.normal),
+                                          ),
+                                          child: Text(
+                                            'CÓDIGO PRECINTO ADUANA',
+                                            style: TextStyle(
+                                              color: uiUtils.grayDarkColor,
+                                              fontSize:
+                                                  uiUtils.screenWidth * 0.03,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      Expanded(
+                                        flex: 4,
+                                        child: Container(
+                                          margin:
+                                              const EdgeInsets.only(left: 0),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                            border: Border.all(
+                                                color: uiUtils.labelColor,
+                                                width: 1),
+                                            color: Colors.transparent,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              precinct?.codPrecinto ??
+                                                  'N/A', // Código del precinto correspondiente
+                                              style: TextStyle(
+                                                color: uiUtils.grayLightColor,
+                                                fontSize:
+                                                    uiUtils.screenWidth * 0.03,
+                                                fontWeight: FontWeight.normal,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            )),
+                                  const SizedBox(
+                                      height: 10), // Espacio entre elementos
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
                       ],
                       if (placaImage != null) ...[
                         Divider(color: uiUtils.grayLightColor, thickness: 1),

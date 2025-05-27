@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:agunsa/core/class/auth_result.dart';
+import 'package:agunsa/core/enum/auth_state.dart';
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
@@ -191,7 +192,8 @@ class LoginForm extends ConsumerWidget {
                     if (result != null) {
                       log('Login result: ${result.toString()}');
                       if (result is AuthSuccess) {
-
+                        ref.read(authStateProvider.notifier).state =
+                            AuthState.signedIn;
                         log('Login exitoso: ${result.user.email}, ${result.user.token}');
                         setUser(result.user, ref);
                         final router = ref.read(routerDelegateProvider);

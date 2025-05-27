@@ -1,5 +1,11 @@
+import 'dart:developer';
+
+import 'package:agunsa/core/class/auth_result.dart';
+import 'package:agunsa/core/enum/auth_state.dart';
+import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
 import 'package:agunsa/features/auth/display/screens/login_screen.dart';
 import 'package:agunsa/features/auth/display/screens/register_screen.dart';
+import 'package:agunsa/features/auth/domain/use_cases/check_session.dart';
 import 'package:agunsa/features/general_info/display/screens/splash_screen.dart';
 import 'package:agunsa/features/profile/display/screens/change_password.dart';
 import 'package:agunsa/features/profile/display/screens/profile_screen.dart';
@@ -16,6 +22,7 @@ import 'package:agunsa/features/transactions/display/screens/transtacions_screen
 import 'package:agunsa/features/home/display/screens/home_screen.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AppRoute {
   splash,
@@ -42,8 +49,15 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
   final GlobalKey<NavigatorState> navigatorKey;
   final List<AppRoute> _routeStack = [AppRoute.splash];
   Map<String, dynamic>? _args;
-
-  AppRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>();
+  final CheckSession checkSessionUseCase;
+  bool _hasCheckedSession = false;
+  final Ref ref;
+  AppRouterDelegate(this.checkSessionUseCase, this.ref)
+      : navigatorKey = GlobalKey<NavigatorState>() {
+    ref.listen<AuthState>(authStateProvider, (_, state) {
+      _updateRouteStack(state);
+    });
+  }
 
   void push(AppRoute route, {dynamic args}) {
     if (_routeStack.isNotEmpty && _routeStack.last == route) {
@@ -76,13 +90,48 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
     return false;
   }
 
+  void _updateRouteStack(AuthState state) {
+    _routeStack.clear();
+    switch (state) {
+      case AuthState.unknown:
+        _routeStack.add(AppRoute.splash);
+        break;
+      case AuthState.signedIn:
+        _routeStack.add(AppRoute.home);
+        break;
+      case AuthState.signedOut:
+        _routeStack.add(AppRoute.login);
+        break;
+    }
+    notifyListeners();
+  }
+
   @override
   Widget build(BuildContext context) {
-   
+    if (_routeStack.first == AppRoute.splash && !_hasCheckedSession) {
+      _hasCheckedSession = true;
 
-    if (_routeStack.first == AppRoute.splash) {
-      Future.delayed(const Duration(seconds: 6), () {
-        _routeStack.first = AppRoute.login;
+      checkSessionUseCase().then((result) {
+        result.fold(
+          (failure) {
+            log('Verificación de sesión fallida: $failure');
+            _routeStack.first = AppRoute.login;
+            ref.read(authStateProvider.notifier).state =
+                AuthState.signedOut; // Asegura el estado
+          },
+          (success) {
+            if (success is AuthFailure) {
+              // ← ¡Comprobación adicional!
+              log('Error inesperado: Sesión marcada como éxito pero es AuthFailure');
+              _routeStack.first = AppRoute.login;
+              ref.read(authStateProvider.notifier).state = AuthState.signedOut;
+            } else {
+              log('Inicio sesión verificado correctamente: ${success}');
+              _routeStack.first = AppRoute.home;
+              ref.read(authStateProvider.notifier).state = AuthState.signedIn;
+            }
+          },
+        );
         notifyListeners();
       });
     }
@@ -95,10 +144,11 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
           pages: _routeStack
               .map((route) => MaterialPage(child: _buildPage(route)))
               .toList(),
-          onPopPage: (route, result) {
-            if (!route.didPop(result)) return false;
-            popRoute();
-            return true;
+          onDidRemovePage: (page) {
+            if (_routeStack.isNotEmpty) {
+              _routeStack.removeLast();
+            }
+            notifyListeners();
           },
         );
       },

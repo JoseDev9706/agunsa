@@ -6,11 +6,13 @@ import 'package:amplify_auth_cognito/amplify_auth_cognito.dart'
     show CognitoAuthSession, CognitoFetchAuthSessionPluginOptions;
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:dio/dio.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResult> login(String email, String password);
   Future<UserModel> getCurrentUserEmail();
   Future<void> logout();
+  Future<AuthResult> checkSession();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -81,5 +83,40 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<bool> isSignedIn() async {
     final session = await Amplify.Auth.fetchAuthSession();
     return session.isSignedIn;
+  }
+  
+  @override
+  Future<AuthResult> checkSession() async {
+    try {
+      final session = await Amplify.Auth.fetchAuthSession(
+          options: const FetchAuthSessionOptions(
+              pluginOptions: CognitoFetchAuthSessionPluginOptions()));
+
+      if (session.isSignedIn) {
+        final cognitoSession = session as CognitoAuthSession;
+
+        final user = await Amplify.Auth.getCurrentUser();
+        final accessToken =
+            cognitoSession.userPoolTokensResult.value.accessToken.raw;
+
+        log('Inicio sesion verificado: ${user.username}');
+        if (Jwt.isExpired(accessToken)) {
+          log('Sesión expirada para el usuario');
+          return AuthFailure({"message": "Sesión expirada."});
+        }
+        return AuthSuccess(
+          UserModel(email: user.username, token: accessToken, id: user.userId),
+        );
+      } else {
+        return AuthFailure({"message": "Sesión no iniciada."});
+      }
+    } on AuthException catch (e) {
+      return AuthFailure({
+        "message": e.message,
+        "underlyingException": e.underlyingException?.toString()
+      });
+    } catch (e) {
+      return AuthFailure({"message": e.toString()});
+    }
   }
 }

@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:agunsa/core/class/auth_result.dart';
+import 'package:agunsa/core/enum/auth_state.dart';
 import 'package:agunsa/features/auth/data/datasources/remote_datasources/auth_remote_datasources.dart';
 import 'package:agunsa/features/auth/data/repository_impl/auth_repository_impl.dart';
 import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
 import 'package:agunsa/features/auth/domain/respositories/auth_repository.dart';
+import 'package:agunsa/features/auth/domain/use_cases/check_session.dart';
 import 'package:agunsa/features/auth/domain/use_cases/login_usecase.dart';
+import 'package:agunsa/features/auth/domain/use_cases/logout_usecase.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -19,6 +24,16 @@ AuthRemoteDataSource authRemoteDataSource(AuthRemoteDataSourceRef ref) {
 @riverpod
 AuthRepository authRepository(AuthRepositoryRef ref) {
   return AuthRepositoryImpl(ref.watch(authRemoteDataSourceProvider));
+}
+
+@riverpod
+CheckSession checkSessionUseCase(AutoDisposeProviderRef<CheckSession> ref) {
+  return CheckSession(ref.watch(authRepositoryProvider));
+}
+
+@riverpod
+LogoutUsecase logoutUsecase(AutoDisposeProviderRef<LogoutUsecase> ref) {
+  return LogoutUsecase(ref.watch(authRepositoryProvider));
 }
 
 // Estado del formulario de login
@@ -66,6 +81,8 @@ class LoginFormState extends _$LoginFormState {
   }
 }
 
+final authStateProvider = StateProvider<AuthState>((ref) => AuthState.unknown);
+
 @riverpod
 class LoginController extends _$LoginController {
   @override
@@ -83,6 +100,19 @@ class LoginController extends _$LoginController {
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
       return null;
+    }
+  }
+
+  Future<bool> logout() async {
+    try {
+      await ref.read(logoutUsecaseProvider).call();
+
+      ref.read(userProvider.notifier).state = null;
+      ref.read(authStateProvider.notifier).state = AuthState.signedOut;
+      return true;
+    } catch (error, stackTrace) {
+      log(error.toString(), stackTrace: stackTrace);
+      return false;
     }
   }
 }

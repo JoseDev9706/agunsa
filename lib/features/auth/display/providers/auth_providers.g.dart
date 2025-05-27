@@ -42,6 +42,41 @@ final authRepositoryProvider = AutoDisposeProvider<AuthRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthRepositoryRef = AutoDisposeProviderRef<AuthRepository>;
+String _$checkSessionUseCaseHash() =>
+    r'6aeea886c8e396250356b4f2e71d931fc615997d';
+
+/// See also [checkSessionUseCase].
+@ProviderFor(checkSessionUseCase)
+final checkSessionUseCaseProvider = AutoDisposeProvider<CheckSession>.internal(
+  checkSessionUseCase,
+  name: r'checkSessionUseCaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$checkSessionUseCaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CheckSessionUseCaseRef = AutoDisposeProviderRef<CheckSession>;
+String _$logoutUsecaseHash() => r'454fe19963a86df829aaa198fac7fc2049b66831';
+
+/// See also [logoutUsecase].
+@ProviderFor(logoutUsecase)
+final logoutUsecaseProvider = AutoDisposeProvider<LogoutUsecase>.internal(
+  logoutUsecase,
+  name: r'logoutUsecaseProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$logoutUsecaseHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef LogoutUsecaseRef = AutoDisposeProviderRef<LogoutUsecase>;
 String _$loginFormStateHash() => r'3d19c77776e77a79b2113450df7a5ccd746d2920';
 
 /// See also [LoginFormState].

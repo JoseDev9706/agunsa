@@ -60,12 +60,9 @@ class HomeScreen extends ConsumerWidget {
                     children: [
                       IconButton(
                           onPressed: () {
-                            Clipboard.setData(
-                                ClipboardData(text: '${user?.token}'));
-                            uiUtils.showSnackBar(
-                                context, "Token copiado al portapapeles");
-                            // uiUtils.showModalDialog(
-                            //     context, LogoutWidget(uiUtils: uiUtils), true);
+                          
+                            uiUtils.showModalDialog(
+                                context, LogoutWidget(uiUtils: uiUtils), true);
                           },  
                           icon: Icon(
                             Icons.logout,

@@ -10,7 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChangePassword extends ConsumerStatefulWidget {
   final SignInResult? isNeedPasswordConfirmation;
-  const ChangePassword(this.isNeedPasswordConfirmation, {super.key});
+  final bool? isfromChangePassword;
+  const ChangePassword(this.isNeedPasswordConfirmation,
+      {super.key, this.isfromChangePassword});
 
   @override
   ConsumerState<ChangePassword> createState() => _ChangePasswordState();
@@ -70,7 +72,6 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
   Widget build(BuildContext context) {
     final formState = ref.watch(changePasswordFormStateProvider);
     final formNotifier = ref.read(changePasswordFormStateProvider.notifier);
-
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
@@ -80,6 +81,7 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
               uiUtils: uiUtils,
               title: 'CAMBIO DE CONTRASEÑA',
               subtitle: 'Completa los campos',
+              isFromChangerPassword: true,
             ),
             SizedBox(height: uiUtils.screenHeight * 0.07),
             Expanded(
@@ -160,9 +162,7 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
                                           'Contraseña actualizada correctamente'),
                                       backgroundColor: Colors.green,
                                     ),
-
                                   );
-                                 
                                 }
                               } catch (e) {
                                 if (context.mounted) {
@@ -177,7 +177,6 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
                               }
                             }
                           : null,
-
                       textColor: uiUtils.whiteColor,
                     ),
                     const SizedBox(height: 20),

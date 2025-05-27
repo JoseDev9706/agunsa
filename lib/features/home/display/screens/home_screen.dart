@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
@@ -26,18 +28,25 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
     final user = ref.watch(userProvider);
+    final router = ref.read(routerDelegateProvider);
+    log(isNeedPasswordConfirmation?.nextStep.signInStep.name.toString() ?? '');
     if (isNeedPasswordConfirmation?.nextStep.signInStep.name ==
-        'signInWithPassword') {
+            'confirmSignInWithNewPassword' &&
+        router.currentRoute == AppRoute.home) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         uiUtils.showModalDialog(
           context,
           ChangePasswordAdv(
             uiUtils: uiUtils,
-            onChangePassword: () {
-              uiUtils.hideModalDialog(context);
-              final router = ref.read(routerDelegateProvider);
+            onChangePassword: () async {
+              uiUtils.hideModalDialog(context, ref);
+
               router.push(AppRoute.changePassword,
-                  args: {'nextStep': isNeedPasswordConfirmation});
+                    args: {
+                'nextStep': isNeedPasswordConfirmation,
+                'isfromChangePassword': true
+              });
+             
             },
           ),
           false,
@@ -60,10 +69,9 @@ class HomeScreen extends ConsumerWidget {
                     children: [
                       IconButton(
                           onPressed: () {
-                          
                             uiUtils.showModalDialog(
                                 context, LogoutWidget(uiUtils: uiUtils), true);
-                          },  
+                          },
                           icon: Icon(
                             Icons.logout,
                             color: uiUtils.whiteColor,

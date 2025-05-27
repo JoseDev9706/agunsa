@@ -58,13 +58,21 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
       _updateRouteStack(state);
     });
   }
+  AppRoute _currentRoute = AppRoute.splash;
+  AppRoute get currentRoute => _currentRoute;
+  set currentRoute(AppRoute route) {
+    _currentRoute = route;
+    notifyListeners();
+  }
 
   void push(AppRoute route, {dynamic args}) {
     if (_routeStack.isNotEmpty && _routeStack.last == route) {
       return;
     }
+    log('Pushing route: $route with args: $args');
     _routeStack.add(route);
     _args = args;
+    currentRoute = route;
     notifyListeners();
   }
 
@@ -77,6 +85,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
     }
     _routeStack.add(route);
     _args = args;
+    currentRoute = route;
     notifyListeners();
   }
 
@@ -147,6 +156,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
           onDidRemovePage: (page) {
             if (_routeStack.isNotEmpty) {
               _routeStack.removeLast();
+              currentRoute = _routeStack.last;
             }
             notifyListeners();
           },
@@ -172,7 +182,8 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
       case AppRoute.security:
         return const SecurityScreen();
       case AppRoute.changePassword:
-        return ChangePassword(_args?['nextStep']);
+        return ChangePassword(_args?['nextStep'],
+            isfromChangePassword: _args?['isfromChangePassword']);
       case AppRoute.transactions:
         return TransactionsScreen(
           user: _args?['user'],

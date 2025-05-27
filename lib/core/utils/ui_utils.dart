@@ -1,6 +1,9 @@
 import 'dart:developer';
 
+import 'package:agunsa/core/router/app_router.dart';
+import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UiUtils {
   UiUtils._privateConstructor();
@@ -36,6 +39,7 @@ class UiUtils {
       BuildContext context, Widget child, bool isDismissible) async {
     return await showModalBottomSheet(
         isDismissible: isDismissible,
+        enableDrag: isDismissible,
         context: context,
         builder: (context) {
           return Container(
@@ -47,8 +51,9 @@ class UiUtils {
         });
   }
 
-  void hideModalDialog(BuildContext context) {
-    Navigator.pop(context);
+  void hideModalDialog(BuildContext context, WidgetRef ref) {
+    final router = ref.read(routerDelegateProvider);
+    router.push(AppRoute.changePassword);
   }
 
   void showSnackBar(BuildContext context, String message) {

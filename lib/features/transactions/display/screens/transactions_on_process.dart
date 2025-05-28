@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
@@ -6,10 +8,13 @@ import 'package:agunsa/features/transactions/display/providers/transactions_prov
 import 'package:agunsa/features/transactions/display/widgets/filter_drop.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/features/transactions/domain/entities/peding_transaction.dart';
+import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
 import 'package:agunsa/features/transactions/domain/entities/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collection/collection.dart';
+
 
 class TransactionsOnProcess extends ConsumerWidget {
   const TransactionsOnProcess({super.key});
@@ -132,102 +137,121 @@ class TransactionsOnProcess extends ConsumerWidget {
                       return const Center(child: Text('Sin transacciones'));
                     } else {
                       final transactions = snapshot.data!;
+                      final transactionTypesAsync =
+                          ref.watch(filteredTransactionTypesProvider);
 
-                      return ListView.separated(
-                        separatorBuilder: (context, index) => const Divider(),
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: transactions.length,
-                        itemBuilder: (context, index) {
-                          final transaction = transactions[index];
-                          return ListTile(
-                            title: Column(
-                              children: [
-                                Row(
+                      return transactionTypesAsync.when(
+                        data: (transactionTypes) {
+                          return ListView.separated(
+                            separatorBuilder: (context, index) =>
+                                const Divider(),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: transactions.length,
+                            itemBuilder: (context, index) {
+                              final transaction = transactions[index];
+                              final transactionType =
+                                  transactionTypes.firstWhereOrNull(
+                                (type) =>
+                                    type.id == transaction.transactionTypeId,
+                              );
+
+                              return ListTile(
+                                title: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'NÚMERO DE CONTENEDOR: ',
-                                      style: TextStyle(
-                                        color: uiUtils.grayLightColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      transaction.transactionNumber,
-                                      style: TextStyle(
-                                          color: uiUtils.grayLightColor),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      'TRANSACCIÓN: ',
-                                      style: TextStyle(
-                                        color: uiUtils.grayLightColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      transaction.transactionNumber,
-                                      style: TextStyle(
-                                          color: uiUtils.grayLightColor),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            subtitle: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    setIsFromPendingTransaction(ref, true);
-                                    getSelectedPendingTransaction(
-                                        ref, transaction);
-                                    ref.read(routerDelegateProvider).push(
-                                      AppRoute.takeContainer,
-                                      args: {'transaction': transaction},
-                                    );
-                                  },
-                                  child: Container(
-                                    decoration:
-                                        BoxDecoration(color: uiUtils.orange),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 5,
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
+                                    Row(
                                       children: [
-                                        SvgPicture.asset(
-                                          'assets/svg/pending.svg',
-                                          color: uiUtils.whiteColor,
-                                          height: 15,
-                                          width: 15,
-                                        ),
-                                        const SizedBox(width: 5),
                                         Text(
-                                          'PENDIENTE',
+                                          'NÚMERO DE CONTENEDOR: ',
                                           style: TextStyle(
-                                            color: uiUtils.whiteColor,
+                                            color: uiUtils.grayLightColor,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 11,
                                           ),
+                                        ),
+                                        Text(
+                                          transaction.transactionNumber,
+                                          style: TextStyle(
+                                              color: uiUtils.grayLightColor),
                                         ),
                                       ],
                                     ),
-                                  ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'TRANSACCIÓN: ',
+                                          style: TextStyle(
+                                            color: uiUtils.grayLightColor,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          transactionType?.name ?? '',
+                                          style: TextStyle(
+                                              color: uiUtils.grayLightColor),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                                subtitle: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        setIsFromPendingTransaction(ref, true);
+                                        getSelectedPendingTransaction(
+                                            ref, transaction);
+                                        ref.read(routerDelegateProvider).push(
+                                          AppRoute.takeContainer,
+                                          args: {'transaction': transaction},
+                                        );
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color: uiUtils.orange),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 5,
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            SvgPicture.asset(
+                                              'assets/svg/pending.svg',
+                                              color: uiUtils.whiteColor,
+                                              height: 15,
+                                              width: 15,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              'PENDIENTE',
+                                              style: TextStyle(
+                                                color: uiUtils.whiteColor,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 11,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           );
                         },
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (error, stack) =>
+                            const Center(child: Text('Error cargando tipos')),
                       );
                     }
                   },
                 ),
-              ),
+)
+
           ],
         ),
       ),

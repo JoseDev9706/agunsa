@@ -120,6 +120,7 @@ class LoginController extends _$LoginController {
 final userProvider = StateProvider<UserEntity?>((ref) => null);
 void setUser(UserEntity user, WidgetRef ref) =>
     ref.read(userProvider.notifier).state = user;
+    
 
 class LoginFormData {
   final String email;
@@ -155,4 +156,6 @@ class LoginFormData {
       passwordError: passwordError ?? this.passwordError,
     );
   }
+
+  
 }

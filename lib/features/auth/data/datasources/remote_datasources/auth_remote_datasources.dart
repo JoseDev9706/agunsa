@@ -3,7 +3,10 @@ import 'dart:developer';
 import 'package:agunsa/core/class/auth_result.dart';
 import 'package:agunsa/features/auth/data/models/user_model.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart'
-    show CognitoAuthSession, CognitoFetchAuthSessionPluginOptions;
+    show
+        CognitoAuthSession,
+        CognitoFetchAuthSessionPluginOptions,
+        CognitoSignInDetailsApiBased;
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:jwt_decode/jwt_decode.dart';
@@ -84,36 +87,59 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final session = await Amplify.Auth.fetchAuthSession();
     return session.isSignedIn;
   }
-  
+
   @override
   Future<AuthResult> checkSession() async {
     try {
       final session = await Amplify.Auth.fetchAuthSession(
-          options: const FetchAuthSessionOptions(
-              pluginOptions: CognitoFetchAuthSessionPluginOptions()));
+        options: const FetchAuthSessionOptions(
+          pluginOptions: CognitoFetchAuthSessionPluginOptions(),
+        ),
+      );
 
       if (session.isSignedIn) {
         final cognitoSession = session as CognitoAuthSession;
-
         final user = await Amplify.Auth.getCurrentUser();
         final accessToken =
             cognitoSession.userPoolTokensResult.value.accessToken.raw;
 
         log('Inicio sesion verificado: ${user.username}');
+
         if (Jwt.isExpired(accessToken)) {
           log('Sesión expirada para el usuario');
           return AuthFailure({"message": "Sesión expirada."});
         }
-        return AuthSuccess(
-          UserModel(email: user.username, token: accessToken, id: user.userId),
+
+        // Extracción segura del email/username
+        String email = '';
+        if (user.signInDetails is CognitoSignInDetailsApiBased) {
+          email = (user.signInDetails as CognitoSignInDetailsApiBased).username;
+        } else {
+          try {
+            email = user.username;
+          } catch (e) {
+            log('Error al obtener email: $e');
+            email = user.username;
+          }
+        }
+
+        log('Email obtenido: $email');
+
+        UserModel userModel = UserModel(
+          email: email,
+          token: accessToken,
+          id: user.userId,
         );
+
+        log('UserModel: ${userModel.userToJson()}');
+        return AuthSuccess(userModel);
       } else {
         return AuthFailure({"message": "Sesión no iniciada."});
       }
     } on AuthException catch (e) {
       return AuthFailure({
         "message": e.message,
-        "underlyingException": e.underlyingException?.toString()
+        "underlyingException": e.underlyingException?.toString(),
       });
     } catch (e) {
       return AuthFailure({"message": e.toString()});

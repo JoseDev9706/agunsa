@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:agunsa/core/class/auth_result.dart';
 import 'package:agunsa/core/enum/auth_state.dart';
+import 'package:agunsa/features/auth/display/providers/auth_cheking_provider.dart';
 import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
 import 'package:agunsa/features/auth/display/screens/login_screen.dart';
 import 'package:agunsa/features/auth/display/screens/register_screen.dart';
@@ -122,26 +123,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
   Widget build(BuildContext context) {
     if (_routeStack.first == AppRoute.splash && !_hasCheckedSession) {
       _hasCheckedSession = true;
-
-      checkSessionUseCase().then((result) {
-        result.fold(
-          (failure) {
-            log('Verificación de sesión fallida: $failure');
-            _routeStack.first = AppRoute.login;
-            ref.read(authStateProvider.notifier).state = AuthState.signedOut;
-          },
-          (success) {
-            if (success is AuthFailure) {
-              log('Error inesperado: Sesión marcada como éxito pero es AuthFailure');
-              _routeStack.first = AppRoute.login;
-              ref.read(authStateProvider.notifier).state = AuthState.signedOut;
-            } else {
-              log('Inicio sesión verificado correctamente: ${success}');
-              _routeStack.first = AppRoute.home;
-              ref.read(authStateProvider.notifier).state = AuthState.signedIn;
-            }
-          },
-        );
+      ref.read(authManagerProvider).checkAndUpdateSession().then((_) {
         notifyListeners();
       });
     }

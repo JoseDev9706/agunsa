@@ -11,7 +11,7 @@ class UserModel extends UserEntity {
     );
   }
   
-
+  userToJson() => {"email": email, "token": token, "id": id};
  
 
  

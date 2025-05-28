@@ -27,7 +27,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
-    final user = ref.watch(userProvider);
+    final userlog = ref.watch(userProvider);
     final router = ref.read(routerDelegateProvider);
     log('nesessary ${isNeedPasswordConfirmation?.nextStep.signInStep.name.toString() ?? ''}');
     if (isNeedPasswordConfirmation?.nextStep.signInStep.name ==
@@ -93,9 +93,9 @@ class HomeScreen extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             overflow: TextOverflow.ellipsis,
-                            "Hola ${'Agunsa'}",
+                            "Hola! ${userlog?.email ?? ''}",
                             style: TextStyle(
-                                fontSize: 28,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w700,
                                 color: uiUtils.whiteColor),
                           ),

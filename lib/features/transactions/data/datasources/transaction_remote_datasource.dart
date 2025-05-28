@@ -234,7 +234,8 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
       final bodyDecoded = jsonDecode(responseBody['body']);
-      log('Respuesta de la API: ${bodyDecoded['message']}');
+      log('Respuesta de la API transaccion: ${bodyDecoded['message']}');
+      log('Transacción creada: ${bodyDecoded}');
       return bodyDecoded['message'];
     }
 

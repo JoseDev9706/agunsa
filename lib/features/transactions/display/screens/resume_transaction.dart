@@ -38,13 +38,12 @@ class ResumeTransaction extends ConsumerWidget {
       transactionNumberController.text = pendingTransaction.transactionNumber;
     }
 
-    final isPending = transactionType?.isInOut == true &&
-        isfromPending &&
-        pendingTransaction != null;
-    final isOutTransaction = ref.watch(isCompleteTransactionProvider);
-
+    final isPendingFromCreated = isfromPending && pendingTransaction != null;
+    final isPendingTransaction = transactionType?.isInOut == true;
+    final shouldShowAsPending = isPendingTransaction && !isPendingFromCreated;
     log("isInOut: ${transactionType?.isInOut}, isfromPending: $isfromPending, pendingTransaction: $pendingTransaction");
-    log("isPending: $isPending");
+    log("isPending from created: $isPendingFromCreated");
+    log("isPending: $isPendingTransaction");
     return SafeArea(
         child: Scaffold(
       resizeToAvoidBottomInset: true,
@@ -80,7 +79,7 @@ class ResumeTransaction extends ConsumerWidget {
                 child: send
                     ? Column(
                         children: [
-                          !isPending && isOutTransaction
+                          shouldShowAsPending
                               ? SvgPicture.asset(
                                   'assets/svg/pending.svg',
                                   width: 46,
@@ -100,13 +99,13 @@ class ResumeTransaction extends ConsumerWidget {
                           ),
                           Text(
                             textAlign: TextAlign.center,
-                            !isPending && isOutTransaction
+                            shouldShowAsPending
                                 ? 'TRANSACCION EN ESTADO PENDIENTE'
                                 : 'TRANSACCION COMPLETADA CON EXITO',
                             style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: !isPending && isOutTransaction
+                                color: shouldShowAsPending
                                     ? uiUtils.orange
                                     : uiUtils.grayDarkColor),
                           ),
@@ -267,10 +266,16 @@ class ResumeTransaction extends ConsumerWidget {
                                             containerInfo?.codPropietario,
                                         containerType:
                                             containerInfo?.tipoContenedor,
-                                        containerTara:
-                                            containerInfo?.taraKg ?? '0.0',
-                                        containerPayload:
-                                            containerInfo?.payloadKg ?? '0.0',
+                                        containerTara: double.tryParse(
+                                                containerInfo?.taraKg
+                                                        .replaceAll(',', '.') ??
+                                                    '0.0') ??
+                                            0.0,
+                                        containerPayload: double.tryParse(
+                                                containerInfo?.payloadKg
+                                                        .replaceAll(',', '.') ??
+                                                    '0.0') ??
+                                            0.0,
                                         createdDataContainer:
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
@@ -309,9 +314,8 @@ class ResumeTransaction extends ConsumerWidget {
                                             .epochCreatedDatetime,
                                         createdByUserId:
                                             pendingTransaction.createdByUserId,
-                                        currentStatus: false,
                                       );
-
+                                      log('transaction: ${transaction.toJson()}');
                                       final resultTransaction =
                                           await createTransactionFuntion(
                                               ref, transaction);
@@ -394,10 +398,16 @@ class ResumeTransaction extends ConsumerWidget {
                                             containerInfo?.codPropietario,
                                         containerType:
                                             containerInfo?.tipoContenedor,
-                                        containerTara:
-                                            containerInfo?.taraKg ?? '0.0',
-                                        containerPayload:
-                                            containerInfo?.payloadKg ?? '0.0',
+                                        containerTara: double.tryParse(
+                                                containerInfo?.taraKg
+                                                        .replaceAll(',', '.') ??
+                                                    '0.0') ??
+                                            0.0,
+                                        containerPayload: double.tryParse(
+                                                containerInfo?.payloadKg
+                                                        .replaceAll(',', '.') ??
+                                                    '0.0') ??
+                                            0.0,
                                         createdDataContainer:
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
@@ -440,16 +450,15 @@ class ResumeTransaction extends ConsumerWidget {
                                       if (result ==
                                           'Item registered successfully') {
                                         setUploadingImage(ref, false);
-                                        getSelectedPendingTransaction(
-                                            ref, null);
                                         setIsCompleteTransaction(ref, true);
+
                                         uiUtils.showSnackBar(context,
                                             'Transacción creada exitosamente');
                                         log('creo la transaccion completa');
                                       } else {
                                         log('Error al crear la transacción');
                                         uiUtils.showSnackBar(context,
-                                            'Error al crear la transacción');
+                                            'Error al crear la transacción sola');
                                         setUploadingImage(ref, false);
                                         return;
                                       }

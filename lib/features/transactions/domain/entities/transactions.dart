@@ -3,8 +3,8 @@ class Transaction {
   final String? containerTransportLine;
   final String? containerIso;
   final String? containerType;
-  final String? containerTara;
-  final String? containerPayload;
+  final double? containerTara;
+  final double? containerPayload;
   final String? createdDataContainer;
   final String? updatedDataContainer;
   final String? driverDni;

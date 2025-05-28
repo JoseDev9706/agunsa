@@ -16,7 +16,13 @@ class AuthManager {
     final result = await _ref.read(checkSessionUseCaseProvider)();
     result.fold(
       (failure) => _handleFailure(failure as AuthFailure),
-      (success) => _handleSuccess(success as AuthSuccess),
+      (success) {
+      if (success is AuthSuccess) {
+        _handleSuccess(success);
+      } else {
+        _handleFailure(success as AuthFailure);
+      }
+    }
     );
   }
 

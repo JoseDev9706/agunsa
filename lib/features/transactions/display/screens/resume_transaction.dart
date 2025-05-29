@@ -289,14 +289,18 @@ class ResumeTransaction extends ConsumerWidget {
                                         driverLastName:
                                             driverInfo?.lastName1 ?? "",
                                         createdDataDriver:
-                                            "2025-05-14T12:00:00Z",
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
                                         updatedDataDriver:
-                                            "2025-05-14T12:00:00Z",
-                                        plate: placaInfo?.codigo ?? "",
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                        plate: placaInfo?.codigo ?? "XY-1234",
                                         createdDataPlate:
-                                            "2025-05-14T12:00:00Z",
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
                                         updatedDataPlate:
-                                            "2025-05-14T12:00:00Z",
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
                                         sealCode: "SEAL7890",
                                         createdDataSeal:
                                             codeUtils.formatDateToIso8601(

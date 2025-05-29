@@ -737,10 +737,10 @@ class ContainerInfo extends ConsumerWidget {
           label: 'CODIGO ISO',
           subLabel: foto.codPropietario,
         ),
-        Text(
-          'Este código indica que es un contenedor High Cube de 40 pies con altura adicional.',
-          style: TextStyle(fontSize: 12, color: uiUtils.optionsColor),
-        ),
+        // Text(
+        //   'Este código indica que es un contenedor High Cube de 40 pies con altura adicional.',
+        //   style: TextStyle(fontSize: 12, color: uiUtils.optionsColor),
+        // ),
         const SizedBox(height: 10),
         LabelInfo2(
           uiUtils: uiUtils,

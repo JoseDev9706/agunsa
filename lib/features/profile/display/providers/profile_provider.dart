@@ -91,18 +91,24 @@ class ChangePasswordController extends _$ChangePasswordController {
   @override
   FutureOr<void> build() {}
 
-  Future<void> changePassword(String currentPassword, String newPassword,
-      SignInResult isNeedPasswordConfirmation) async {
+Future<bool> changePassword(
+    String currentPassword,
+    String newPassword,
+    SignInResult? isNeedPasswordConfirmation,
+  ) async {
     try {
       await ref.read(profileRepositoryProvider).changePassword(
             oldPassword: currentPassword,
             newPassword: newPassword,
             isNeedPasswordConfirmation: isNeedPasswordConfirmation,
           );
+      return true;
     } catch (error, stackTrace) {
       log(error.toString(), stackTrace: stackTrace);
+      return false;
     }
   }
+
 }
 
 class ChangePasswordData {

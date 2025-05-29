@@ -75,7 +75,8 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
   Widget build(BuildContext context) {
     final formState = ref.watch(changePasswordFormStateProvider);
     final formNotifier = ref.read(changePasswordFormStateProvider.notifier);
-    final requirePasswordChange = ref.watch(isNeedPasswordConfirmationProvider);
+    final SignInResult? requirePasswordChange =
+        ref.watch(isNeedPasswordConfirmationProvider);
     log('requirePasswordChange: $requirePasswordChange');
     return SafeArea(
       child: Scaffold(
@@ -150,27 +151,39 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
                       onTap: formState.isValid
                           ? () async {
                               try {
-                                await ref
+                                final success = await ref
                                     .read(changePasswordControllerProvider
                                         .notifier)
                                     .changePassword(
                                       passwordController.text,
                                       newPasswordController.text,
-                                      requirePasswordChange!,
+                                      requirePasswordChange,
                                     );
-                                // Limpiar los campos después de cambiar la contraseña
-                                formNotifier.clearFields();
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Contraseña actualizada correctamente'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                  final router =
-                                      ref.read(routerDelegateProvider);
-                                  router.push(AppRoute.home);
+
+                                if (success) {
+                                  formNotifier.clearFields();
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'Contraseña actualizada correctamente'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                    final router =
+                                        ref.read(routerDelegateProvider);
+                                    router.push(AppRoute.home);
+                                  }
+                                } else {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'No se pudo actualizar la contraseña.'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 }
                               } catch (e) {
                                 if (context.mounted) {

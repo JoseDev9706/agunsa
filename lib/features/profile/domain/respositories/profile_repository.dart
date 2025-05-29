@@ -11,7 +11,7 @@ abstract class ProfileRepository {
   Future<void> changePassword({
     required String oldPassword,
     required String newPassword,
-    required SignInResult isNeedPasswordConfirmation,
+    required SignInResult? isNeedPasswordConfirmation,
   });
 
   Future<void> deleteAccount();

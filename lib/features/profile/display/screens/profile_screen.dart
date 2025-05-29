@@ -54,27 +54,27 @@ class ProfileScreen extends ConsumerWidget {
                   shrinkWrap: true,
                   scrollDirection: Axis.vertical,
                   children: [
-                    CustomListTile(
-                      leading: SvgPicture.asset("assets/svg/no-profile.svg",
-                          height: uiUtils.screenHeight * 0.03,
-                          color: uiUtils.primaryColor),
-                      title: Text(
-                        'Datos Personales',
-                        style: TextStyle(
-                            color: uiUtils.grayLightColor,
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      onTap: () {},
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        size: 20,
-                        color: uiUtils.grayLightColor,
-                      ),
-                    ),
-                    Divider(
-                      color: uiUtils.grayLightColor,
-                    ),
+                    // CustomListTile(
+                    //   leading: SvgPicture.asset("assets/svg/no-profile.svg",
+                    //       height: uiUtils.screenHeight * 0.03,
+                    //       color: uiUtils.primaryColor),
+                    //   title: Text(
+                    //     'Datos Personales',
+                    //     style: TextStyle(
+                    //         color: uiUtils.grayLightColor,
+                    //         fontSize: 17,
+                    //         fontWeight: FontWeight.bold),
+                    //   ),
+                    //   onTap: () {},
+                    //   trailing: Icon(
+                    //     Icons.arrow_forward_ios,
+                    //     size: 20,
+                    //     color: uiUtils.grayLightColor,
+                    //   ),
+                    // ),
+                    // Divider(
+                    //   color: uiUtils.grayLightColor,
+                    // ),
                     CustomListTile(
                       leading: SvgPicture.asset("assets/svg/guard.svg",
                           height: uiUtils.screenHeight * 0.03,

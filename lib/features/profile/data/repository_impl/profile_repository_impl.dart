@@ -12,7 +12,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
   );
   
   @override
-  Future<void> changePassword({required String oldPassword, required String newPassword, required SignInResult isNeedPasswordConfirmation,})async {
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required SignInResult? isNeedPasswordConfirmation,
+  }) async {
     try {
       return await remoteDataSource.changePassword(
         oldPassword: oldPassword,

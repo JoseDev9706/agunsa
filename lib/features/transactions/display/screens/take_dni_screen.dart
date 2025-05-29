@@ -176,10 +176,10 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                                             .showSnackBar(
                                           const SnackBar(
                                             content: Text(
-                                                'Ocurrió un error al obtener la información del DNI'),
+                                                'Ocurrió un error al obtener la información de la Licencia'),
                                           ),
                                         );
-                                        log('Error al obtener la información del DNI');
+                                        log('Error al obtener la información de la Licencia');
                                       }
                                     }
                                     setUploadingImage(ref, false);

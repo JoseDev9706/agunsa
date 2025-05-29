@@ -1,8 +1,14 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
+//
+//import 'dart:typed_data';
+import 'package:image/image.dart' as img;
+//import 'package:path/path.dart' as path;
+import 'package:flutter/foundation.dart';
 
 import 'package:agunsa/core/class/image_params.dart';
-import 'package:agunsa/core/class/svg_item.dart';
+//import 'package:agunsa/core/class/svg_item.dart';
 import 'package:agunsa/features/transactions/data/datasources/transaction_remote_datasource.dart';
 import 'package:agunsa/features/transactions/data/models/pending_transaction.dart';
 import 'package:agunsa/features/transactions/data/models/transaction.dart';
@@ -144,15 +150,47 @@ void sendTransaction(WidgetRef ref, bool value) {
   ref.read(sendTransactionProvider.notifier).state = value;
 }
 
+
+Future<String?> processAndEncodeImage(String imagePath,
+    {int maxWidth = 400, int maxHeight = 400, int quality = 70}) async {
+  try {
+    final file = File(imagePath);
+    if (!await file.exists()) return null;
+
+    final bytes = await file.readAsBytes();
+    final image = img.decodeImage(bytes);
+    if (image == null) return null;
+
+    debugPrint('Dimensiones originales: ${image.width}x${image.height}');
+
+    final resized = img.copyResize(image, 
+        width: maxWidth, height: maxHeight, 
+        interpolation: img.Interpolation.average);
+
+    debugPrint('Dimensiones redimensionadas: ${resized.width}x${resized.height}');
+
+    final jpg = img.encodeJpg(resized, quality: quality);
+    return base64Encode(jpg);
+  } catch (e) {
+    debugPrint('Error al procesar imagen: $e');
+    return null;
+  }
+}
+
 Future<Foto?> uploadImageToServer(
   WidgetRef ref,
   XFile image,
   String idToken,
 ) async {
   final uploadUsecase = ref.read(uploadImageToServerProvider);
-  final bytes = await image.readAsBytes();
-  final base64Image = base64Encode(bytes);
-  final fileName = (image.path.split('/').last);
+
+  final base64Image = await processAndEncodeImage(image.path);
+  if (base64Image == null) {
+    ref.read(fotoProvider.notifier).state = null;
+    return null;
+  }
+
+  final fileName = image.path.split('/').last;
 
   final result = await uploadUsecase.call(
     ImageParams(fileName: fileName, base64: base64Image),
@@ -170,6 +208,34 @@ Future<Foto?> uploadImageToServer(
     },
   );
 }
+
+
+// Future<Foto?> uploadImageToServer(
+//   WidgetRef ref,
+//   XFile image,
+//   String idToken,
+// ) async {
+//   final uploadUsecase = ref.read(uploadImageToServerProvider);
+//   final bytes = await image.readAsBytes();
+//   final base64Image = base64Encode(bytes);
+//   final fileName = (image.path.split('/').last);
+
+//   final result = await uploadUsecase.call(
+//     ImageParams(fileName: fileName, base64: base64Image),
+//     idToken,
+//   );
+
+//   return result.fold(
+//     (failure) {
+//       ref.read(fotoProvider.notifier).state = null;
+//       return null;
+//     },
+//     (foto) {
+//       ref.read(fotoProvider.notifier).state = foto;
+//       return foto;
+//     },
+//   );
+// }
 
 Future<String> uploadLateralImagesFunction(WidgetRef ref, XFile image) async {
   final uploadUsecase = ref.read(uploadLateralImagesProvider);

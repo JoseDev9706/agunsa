@@ -283,16 +283,16 @@ class ResumeTransaction extends ConsumerWidget {
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
                                         driverDni: driverInfo?.codLicence ??
-                                            "12345678-9",
+                                            "",
                                         driverName:
-                                            driverInfo?.name1 ?? "Carlos",
+                                            driverInfo?.name1 ?? "",
                                         driverLastName:
-                                            driverInfo?.lastName1 ?? "González",
+                                            driverInfo?.lastName1 ?? "",
                                         createdDataDriver:
                                             "2025-05-14T12:00:00Z",
                                         updatedDataDriver:
                                             "2025-05-14T12:00:00Z",
-                                        plate: placaInfo?.codigo ?? "XY-1234",
+                                        plate: placaInfo?.codigo ?? "",
                                         createdDataPlate:
                                             "2025-05-14T12:00:00Z",
                                         updatedDataPlate:
@@ -415,21 +415,21 @@ class ResumeTransaction extends ConsumerWidget {
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
                                         driverDni: driverInfo?.codLicence ??
-                                            "12345678-9",
+                                            "",
                                         driverName:
-                                            driverInfo?.name1 ?? "Carlos",
+                                            driverInfo?.name1 ?? "",
                                         driverLastName:
-                                            driverInfo?.lastName1 ?? "González",
+                                            driverInfo?.lastName1 ?? "",
                                         createdDataDriver:
                                             "2025-05-14T12:00:00Z",
                                         updatedDataDriver:
                                             "2025-05-14T12:00:00Z",
-                                        plate: placaInfo?.codigo ?? "XY-1234",
+                                        plate: placaInfo?.codigo ?? "",
                                         createdDataPlate:
                                             "2025-05-14T12:00:00Z",
                                         updatedDataPlate:
                                             "2025-05-14T12:00:00Z",
-                                        sealCode: "SEAL7890",
+                                        sealCode: "",
                                         createdDataSeal: "2025-05-14T12:00:00Z",
                                         updatedDataSeal: "2025-05-14T12:00:00Z",
                                         transactionNumber:

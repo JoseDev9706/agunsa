@@ -12,12 +12,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../auth/display/providers/auth_providers.dart';
+
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
+    final userlog = ref.watch(userProvider);
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -31,8 +34,9 @@ class ProfileScreen extends ConsumerWidget {
               child: SvgPicture.asset("assets/svg/no-profile.svg",
                   height: uiUtils.screenHeight * 0.04),
             ),
-            const Text(
-              'Carlos Mario',
+            Text(
+              //'Carlos Mario',
+              "${userlog?.email ?? ''}",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 27),
             ),
             SizedBox(height: uiUtils.screenHeight * 0.05),

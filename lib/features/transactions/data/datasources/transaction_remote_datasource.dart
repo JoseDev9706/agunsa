@@ -33,7 +33,9 @@ abstract class TransactionRemoteDatasource {
 }
 
 class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
-  static const String _uploadImage = '${baseUrl}container-back';
+  //static const String _uploadImage = '${baseUrl}container-back';
+  static const String _uploadImage = '${baseUrl}container-back-2';
+
   static const String _getTransactionTypes = '${baseUrl}transaction-type';
   static const String _getprecinto = '${baseUrl}precinto';
   static const String _getplaca = '${baseUrl}placa-camion';
@@ -85,30 +87,62 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     }
   }
 
-  Future<int> _sendImageToS3(String base64Image) async {
-    try {
-      final response = await http.post(
-        Uri.parse('${baseUrl}presigned-url-images'),
-        body: jsonEncode({
-          "folder": "containerback",
-          'image_base64': base64Image,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
+  // Future<int> _sendImageToS3(String base64Image) async {
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse('${baseUrl}presigned-url-images'),
+  //       body: jsonEncode({
+  //         "folder": "containerback",
+  //         'image_base64': base64Image,
+  //       }),
+  //       headers: {'Content-Type': 'application/json'},
+  //     );
 
-      if (response.statusCode == 200) {
-        final responseBody = jsonDecode(response.body);
-        return responseBody['statusCode'];
-      } else {
-        log('Error al subir la imagen. Código: ${response.statusCode}');
-        throw Exception(
-            'Error al subir la imagen. Código: ${response.statusCode}');
-      }
-    } catch (e) {
-      log('Error en uploadImage to S3: $e');
-      throw Exception('Error al conectar con la API: $e');
+  //     if (response.statusCode == 200) {
+  //       final responseBody = jsonDecode(response.body);
+  //       return responseBody['statusCode'];
+  //     } else {
+  //       log('Error al subir la imagen. Código: ${response.statusCode}');
+  //       throw Exception(
+  //           'Error al subir la imagen. Código: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     log('Error en uploadImage to S3: $e');
+  //     throw Exception('Error al conectar con la API: $e');
+  //   }
+  // }
+
+Future<int> _sendImageToS3(String base64Image) async {
+  try {
+    final startTime = DateTime.now(); // ⏱️ Inicio
+
+    final response = await http.post(
+      Uri.parse('${baseUrl}presigned-url-images'),
+      body: jsonEncode({
+        "folder": "containerback",
+        'image_base64': base64Image,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    final endTime = DateTime.now(); // ⏱️ Fin
+    final elapsedMs = endTime.difference(startTime).inMilliseconds;
+    log('📤 Tiempo de subida a S3: $elapsedMs ms (${(elapsedMs / 1000).toStringAsFixed(2)} s)');
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['statusCode'];
+    } else {
+      log('Error al subir la imagen. Código: ${response.statusCode}');
+      throw Exception(
+          'Error al subir la imagen. Código: ${response.statusCode}');
     }
+  } catch (e) {
+    log('Error en uploadImage to S3: $e');
+    throw Exception('Error al conectar con la API: $e');
   }
+}
+
 
   @override
   Future<List<TransactionType>> getAllTransactions() async {
@@ -137,31 +171,64 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       throw Exception('Error al conectar con la API: $e');
     }
   }
-
-  @override
-  Future<FotoModel?> uploadImageToServer(
-    ImageParams image,
-    String idToken) async {
-    final statusCode = await _sendImageToS3(image.base64);
-    log('Status code de la imagen: $statusCode');
-    if (statusCode != 200) {
-      throw Exception('Error al subir la imagen a S3. Código: $statusCode');
-    }
-
-    return _genericRequest<FotoModel>(
-      url: _uploadImage,
-      body: {
-        'image_base64': image.base64,
-      },
-      idToken: idToken,
-      parseResponse: (json) {
-        final bodyData =
-            json['body'] is String ? jsonDecode(json['body']) : json['body'];
-        log('bodyData: $bodyData');
-        return FotoModel.fromJson(bodyData);
-      },
-    );
+@override
+Future<FotoModel?> uploadImageToServer(
+  ImageParams image,
+  String idToken,
+) async {
+  final statusCode = await _sendImageToS3(image.base64);
+  log('Status code de la imagen: $statusCode');
+  if (statusCode != 200) {
+    throw Exception('Error al subir la imagen a S3. Código: $statusCode');
   }
+
+  // Medir tiempo de respuesta
+  final stopwatch = Stopwatch()..start();
+
+  final result = await _genericRequest<FotoModel>(
+    url: _uploadImage,
+    body: {
+      'image_base64': image.base64,
+    },
+    idToken: idToken,
+    parseResponse: (json) {
+      final bodyData =
+          json['body'] is String ? jsonDecode(json['body']) : json['body'];
+      log('bodyData: $bodyData');
+      return FotoModel.fromJson(bodyData);
+    },
+  );
+
+  stopwatch.stop();
+  log('Tiempo de respuesta de la API: ${stopwatch.elapsedMilliseconds} ms');
+
+  return result;
+}
+
+  // @override
+  // Future<FotoModel?> uploadImageToServer(
+  //   ImageParams image,
+  //   String idToken) async {
+  //   final statusCode = await _sendImageToS3(image.base64);
+  //   log('Status code de la imagen: $statusCode');
+  //   if (statusCode != 200) {
+  //     throw Exception('Error al subir la imagen a S3. Código: $statusCode');
+  //   }
+
+  //   return _genericRequest<FotoModel>(
+  //     url: _uploadImage,
+  //     body: {
+  //       'image_base64': image.base64,
+  //     },
+  //     idToken: idToken,
+  //     parseResponse: (json) {
+  //       final bodyData =
+  //           json['body'] is String ? jsonDecode(json['body']) : json['body'];
+  //       log('bodyData: $bodyData');
+  //       return FotoModel.fromJson(bodyData);
+  //     },
+  //   );
+  // }
 
 // Implementación para PrecintModel
   @override

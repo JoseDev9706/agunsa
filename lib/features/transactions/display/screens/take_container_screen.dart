@@ -18,17 +18,15 @@ import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 class TakeContainerScreen extends ConsumerWidget {
-  // final UserEntity user;
   final TransactionType? transactionType;
-  const TakeContainerScreen(
-      {super.key, this.transactionType});
+  const TakeContainerScreen({super.key, this.transactionType});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
     final images = ref.watch(containerImageProvider);
     final isUploadingImage = ref.watch(uploadingImageProvider);
-    
+
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -36,10 +34,10 @@ class TakeContainerScreen extends ConsumerWidget {
             TransactionAppBar(
               uiUtils: uiUtils,
               title: '',
-                onTap: () {
-                  ref.read(containerImageProvider.notifier).state = [];
-                  ref.read(routerDelegateProvider).popRoute();
-                }
+              onTap: () {
+                ref.read(containerImageProvider.notifier).state = [];
+                ref.read(routerDelegateProvider).popRoute();
+              },
             ),
             Expanded(
               child: Container(
@@ -56,12 +54,12 @@ class TakeContainerScreen extends ConsumerWidget {
                               color: Colors.white,
                             )
                           : Text(
-                        '1',
-                        style: TextStyle(
-                            color: uiUtils.whiteColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
+                              '1',
+                              style: TextStyle(
+                                  color: uiUtils.whiteColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            ),
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -81,7 +79,7 @@ class TakeContainerScreen extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      'Asegurate de que la imagen sea clara y enfocada.',
+                      'Asegúrate de que la imagen sea clara y enfocada.',
                       style: TextStyle(
                         color: uiUtils.black,
                         fontSize: uiUtils.screenWidth * 0.045,
@@ -97,10 +95,9 @@ class TakeContainerScreen extends ConsumerWidget {
                             color: uiUtils.labelColor,
                             borderRadius: BorderRadius.circular(10)),
                         child: Image.file(
-                            File(
-                              images.first!.path,
-                            ),
-                            fit: BoxFit.fill),
+                          File(images.first!.path),
+                          fit: BoxFit.fill,
+                        ),
                       ),
                       const Spacer(),
                       Row(
@@ -111,32 +108,51 @@ class TakeContainerScreen extends ConsumerWidget {
                             color: isUploadingImage
                                 ? Colors.grey
                                 : uiUtils.primaryColor,
-                            text:
-                                isUploadingImage ? 'SUBIENDO...' : 'CONFIRMAR',
+                            text: isUploadingImage ? 'SUBIENDO...' : 'CONFIRMAR',
                             onTap: () async {
                               log('uploading image: $isUploadingImage');
                               if (!isUploadingImage) {
                                 setUploadingImage(ref, true);
-                              final result = await uploadImageToServer(
-                                ref,
-                                images.first!,
-                               ''
-                              );
-                              if (result != null) {
-                                ref.read(routerDelegateProvider).push(
-                                  AppRoute.takeAditionalPhotos,
-                                  args: {
-                                    'images': images,
-                                    'isContainer': true,
-                                  },
+                                final result = await uploadImageToServer(
+                                  ref,
+                                  images.first!,
+                                  ''
                                 );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'Ocurrio un error al subir la imagen')),
-                                );
-                              }
+                                if (result != null) {
+                                  ref.read(routerDelegateProvider).push(
+                                    AppRoute.takeAditionalPhotos,
+                                    args: {
+                                      'images': images,
+                                      'isContainer': true,
+                                    },
+                                  );
+                                } else {
+                                  // Mostrar SnackBar en la parte superior
+                                  final snackBar = SnackBar(
+                                    content: Text(
+                                      'Ocurrió un error, por favor vuelve a tomar la imagen. ' +
+                                      'Asegúrate de que sea clara y los valores sean legibles.',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    behavior: SnackBarBehavior.floating,
+                                    margin: EdgeInsets.only(
+                                      top: MediaQuery.of(context).padding.top + 8,
+                                      left: 16,
+                                      right: 16,
+                                    ),
+                                    backgroundColor: Colors.red.shade600,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    duration: const Duration(seconds: 4),
+                                  );
+
+                                  ScaffoldMessenger.of(context)
+                                    ..hideCurrentSnackBar()
+                                    ..showSnackBar(snackBar);
+                                }
                                 setUploadingImage(ref, false);
                               }
                             },
@@ -146,8 +162,7 @@ class TakeContainerScreen extends ConsumerWidget {
                             width: uiUtils.screenWidth * 0.4,
                             color: Colors.transparent,
                             text: 'REPETIR',
-                            onTap: () =>
-                                ref
+                            onTap: () => ref
                                 .read(containerImageProvider.notifier)
                                 .state = [],
                             textColor: uiUtils.primaryColor,
@@ -162,8 +177,7 @@ class TakeContainerScreen extends ConsumerWidget {
                           final capturedImage =
                               await CodeUtils().checkCameraPermission(context);
                           if (capturedImage != null) {
-                            ref.read(containerImageProvider.notifier).state =
-                                [
+                            ref.read(containerImageProvider.notifier).state = [
                               capturedImage
                             ];
                           }
@@ -184,12 +198,10 @@ class TakeContainerScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
 }
-
-

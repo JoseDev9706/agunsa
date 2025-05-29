@@ -1,0 +1,2 @@
+C:/Users/llore/Flutter_Proyect/agunsa/android/app/.cxx/Debug/3m6a6k1m/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/llore/Flutter_Proyect/agunsa/android/app/.cxx/Debug/3m6a6k1m/arm64-v8a/CMakeFiles/rebuild_cache.dir

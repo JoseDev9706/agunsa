@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 import 'dart:io';
 
@@ -11,6 +13,7 @@ import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:agunsa/features/transactions/domain/entities/peding_transaction.dart';
 import 'package:agunsa/features/transactions/domain/entities/photos.dart';
+import 'package:agunsa/features/transactions/domain/entities/precint.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,7 +42,7 @@ class ContainerInfo extends ConsumerWidget {
     final isRegistroConductorExpanded = ref.watch(expandedContainersProvider
         .select((state) => state['registroConductor'] ?? false));
     final fotoProviderInfo = ref.watch(fotoProvider);
-    final precintList = ref.watch(precintProvider) ?? []; 
+    final precintList = ref.watch(precintProvider) ?? [];
     final placaProviderInfo = ref.watch(placaProvider);
     final conductorProviderInfo = ref.watch(dniProvider);
     final transactionType = ref.watch(transactionTypeSelectedProvider);
@@ -57,6 +60,7 @@ class ContainerInfo extends ConsumerWidget {
       isInOut: transactionType?.isInOut ?? false,
       isFromPendingTransaction: ref.watch(isFromPendingTransactionProvider),
     );
+    final uploadUpdateImage = ref.watch(uploadingImageProvider);
     return SafeArea(
       child: Scaffold(
         body: Column(
@@ -86,7 +90,7 @@ class ContainerInfo extends ConsumerWidget {
                                 .toggle('containerInfo');
                           },
                           content: fotoProviderInfo != null
-                              ? _containerInfo(fotoProviderInfo, ref)
+                              ? _containerInfo(context, fotoProviderInfo, ref)
                               : Container(),
                         ),
                         if (aditionalImges.isNotEmpty) ...[
@@ -108,13 +112,13 @@ class ContainerInfo extends ConsumerWidget {
                         // Sección de "DATOS PRECINTO" si hay 4 o más imágenes
                         Divider(color: uiUtils.grayLightColor, thickness: 1),
                         _animatedSection(
-                            title: 'DATOS PRECINTO',
-                            isExpanded: isRegistroPrecintExpanded,
-                            onTap: () {
-                              ref
-                                  .read(expandedContainersProvider.notifier)
-                                  .toggle('registroPrecint');
-                            },
+                          title: 'DATOS PRECINTO',
+                          isExpanded: isRegistroPrecintExpanded,
+                          onTap: () {
+                            ref
+                                .read(expandedContainersProvider.notifier)
+                                .toggle('registroPrecint');
+                          },
                           content: Column(
                             children:
                                 precintsImage.asMap().entries.map((entry) {
@@ -122,73 +126,154 @@ class ContainerInfo extends ConsumerWidget {
                               final image = entry.value; // Imagen actual
                               final precinct = index < precintList.length
                                   ? precintList[index]
-                                  : null; // Obtiene el precinto correspondiente
+                                  : null;
 
                               return Column(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      _imageGallery(ref,
-                                          selectedIndexes: [image],
-                                          isPlaca:
-                                              false), // Muestra solo esta imagen
-                                      Expanded(
-                                        flex: 6,
-                                        child: Container(
-                                          margin:
-                                              const EdgeInsets.only(left: 0),
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 5),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            border: Border.all(
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _imageGallery(ref,
+                                              selectedIndexes: [image],
+                                              isPlaca:
+                                                  false), // Muestra solo esta imagen
+                                          Expanded(
+                                            flex: 6,
+                                            child: Container(
+                                              margin: const EdgeInsets.only(
+                                                  left: 0),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 5),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                border: Border.all(
+                                                    color: uiUtils.labelColor,
+                                                    width: 1),
                                                 color: uiUtils.labelColor,
-                                                width: 1),
-                                            color: uiUtils.labelColor,
-                                          ),
-                                          child: Text(
-                                            'CÓDIGO PRECINTO ADUANA',
-                                            style: TextStyle(
-                                              color: uiUtils.grayDarkColor,
-                                              fontSize:
-                                                  uiUtils.screenWidth * 0.03,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 4,
-                                        child: Container(
-                                          margin:
-                                              const EdgeInsets.only(left: 0),
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 5),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(2),
-                                            border: Border.all(
-                                                color: uiUtils.labelColor,
-                                                width: 1),
-                                            color: Colors.transparent,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              precinct?.codPrecinto ??
-                                                  'N/A', // Código del precinto correspondiente
-                                              style: TextStyle(
-                                                color: uiUtils.grayLightColor,
-                                                fontSize:
-                                                    uiUtils.screenWidth * 0.03,
-                                                fontWeight: FontWeight.normal,
+                                              ),
+                                              child: Text(
+                                                'CÓDIGO PRECINTO ADUANA',
+                                                style: TextStyle(
+                                                  color: uiUtils.grayDarkColor,
+                                                  fontSize:
+                                                      uiUtils.screenWidth *
+                                                          0.03,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
+                                          Expanded(
+                                            flex: 4,
+                                            child: Container(
+                                              margin: const EdgeInsets.only(
+                                                  left: 0),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 5),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(2),
+                                                border: Border.all(
+                                                    color: uiUtils.labelColor,
+                                                    width: 1),
+                                                color: Colors.transparent,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  precinct?.codPrecinto ??
+                                                      'N/A', // Código del precinto correspondiente
+                                                  style: TextStyle(
+                                                    color:
+                                                        uiUtils.grayLightColor,
+                                                    fontSize:
+                                                        uiUtils.screenWidth *
+                                                            0.03,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
+                                      GeneralBottom(
+                                        width: uiUtils.screenWidth * 0.3,
+                                        color: uploadUpdateImage
+                                            ? uiUtils.grayDarkColor
+                                            : uiUtils.primaryColor,
+                                        text: uploadUpdateImage
+                                            ? 'ACTUALIZANDO...'
+                                            : 'ACTUALIZAR',
+                                        onTap: uploadUpdateImage
+                                            ? null
+                                            : () async {
+                                                final capturedImage =
+                                                    await CodeUtils()
+                                                        .checkCameraPermission(
+                                                            context);
+                                                if (capturedImage != null) {
+                                                  if (!uploadUpdateImage) {
+                                                    setUploadingImage(
+                                                        ref, true);
+                                                    final result =
+                                                        await uploadPrecint(ref,
+                                                            capturedImage, '');
+                                                    if (result != null) {
+                                                      final updatedPrecintList =
+                                                          [...precintList];
+                                                      log('precintList: $precintList');
+                                                      log('updatedPrecintList: $updatedPrecintList');
+                                                      if (index <
+                                                          updatedPrecintList
+                                                              .length) {
+                                                        updatedPrecintList[
+                                                            index] = result;
+                                                      }
+                                                      ref
+                                                              .read(
+                                                                  precintProvider
+                                                                      .notifier)
+                                                              .state =
+                                                          updatedPrecintList;
+
+                                                      final updatedList = [
+                                                        ...precintsImage
+                                                      ];
+                                                      log('precintsImage: $precintsImage');
+                                                      log('updatedList: $updatedList');
+
+                                                      if (index <
+                                                          updatedList.length) {
+                                                        updatedList[index] =
+                                                            capturedImage;
+                                                      }
+                                                      ref
+                                                          .read(
+                                                              precintsImageProvider
+                                                                  .notifier)
+                                                          .state = updatedList;
+                                                    } else {
+                                                      setUploadingImage(
+                                                          ref, false);
+                                                      return;
+                                                    }
+                                                  }
+                                                  setUploadingImage(ref, false);
+                                                }
+                                              },
+                                        textColor: Colors.white,
+                                      )
                                     ],
                                   ),
                                   const SizedBox(
@@ -209,53 +294,116 @@ class ContainerInfo extends ConsumerWidget {
                                 .read(expandedContainersProvider.notifier)
                                 .toggle('registroPlaca');
                           },
-                          content: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              _imageGallery(ref,
-                                  selectedIndexes: [placaImage], isPlaca: true),
-                              Expanded(
-                                flex: 4,
-                                child: Container(
-                                  margin: const EdgeInsets.only(left: 0),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 5),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(2),
-                                      border: Border.all(
-                                          color: uiUtils.labelColor, width: 1),
-                                      color: uiUtils.labelColor),
-                                  child: Text(
-                                    'NUMERO',
-                                    style: TextStyle(
-                                        color: uiUtils.grayDarkColor,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 6,
-                                child: Container(
-                                  margin: const EdgeInsets.only(left: 0),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 5),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(2),
-                                      border: Border.all(
-                                          color: uiUtils.labelColor, width: 1),
-                                      color: Colors.transparent),
-                                  child: Center(
-                                    child: Text(
-                                      placaProviderInfo?.codigo ?? '',
-                                      style: TextStyle(
-                                          color: uiUtils.grayLightColor,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.normal),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _imageGallery(ref,
+                                      selectedIndexes: [placaImage],
+                                      isPlaca: true),
+                                  Expanded(
+                                    flex: 4,
+                                    child: Container(
+                                      margin: const EdgeInsets.only(left: 0),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                          border: Border.all(
+                                              color: uiUtils.labelColor,
+                                              width: 1),
+                                          color: uiUtils.labelColor),
+                                      child: Text(
+                                        'NUMERO',
+                                        style: TextStyle(
+                                            color: uiUtils.grayDarkColor,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  Expanded(
+                                    flex: 6,
+                                    child: Container(
+                                      margin: const EdgeInsets.only(left: 0),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(2),
+                                          border: Border.all(
+                                              color: uiUtils.labelColor,
+                                              width: 1),
+                                          color: Colors.transparent),
+                                      child: Center(
+                                        child: Text(
+                                          placaProviderInfo?.codigo ?? '',
+                                          style: TextStyle(
+                                              color: uiUtils.grayLightColor,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.normal),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
+                              GeneralBottom(
+                                  width: uiUtils.screenWidth * 0.4,
+                                  color: uploadUpdateImage
+                                      ? Colors.grey
+                                      : uiUtils.primaryColor,
+                                  text: uploadUpdateImage
+                                      ? 'ACTUALIZANDO'
+                                      : 'ACTUALIZAR',
+                                  onTap: uploadUpdateImage
+                                      ? () {}
+                                      : () async {
+                                          final capturedImage =
+                                              await CodeUtils()
+                                                  .checkCameraPermission(
+                                                      context);
+                                          if (capturedImage != null) {
+                                            if (!uploadUpdateImage) {
+                                              setUploadingImage(ref, true);
+                                              ref
+                                                  .read(placaImageProvider
+                                                      .notifier)
+                                                  .state = (capturedImage);
+                                              final result = await getPlacaInfo(
+                                                  ref, capturedImage, '');
+                                              if (result != null) {
+                                                log('Placa actualizada');
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Placa actualizada',
+                                                    ),
+                                                  ),
+                                                );
+                                              } else if (result == null) {
+                                                log('No se pudo obtener la información de la placa');
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'No se pudo obtener la información de la placa. Por favor, inténtalo de nuevo.',
+                                                    ),
+                                                  ),
+                                                );
+                                                setUploadingImage(ref, false);
+                                              } else {
+                                                log('Error al obtener la información de la placa');
+                                              }
+                                            }
+                                            setUploadingImage(ref, false);
+                                          }
+                                        },
+                                  textColor: Colors.white),
                             ],
                           ),
                         ),
@@ -270,213 +418,306 @@ class ContainerInfo extends ConsumerWidget {
                                 .read(expandedContainersProvider.notifier)
                                 .toggle('registroConductor');
                           },
-                          content: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              _imageGallery(ref,
-                                  selectedIndexes: [dniImage],
-                                  isPlaca: false,
-                                  isCond: true),
-                              SizedBox(
-                                height: uiUtils.screenHeight * 0.1,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            height: uiUtils.screenHeight * 0.03,
-                                            margin:
-                                                const EdgeInsets.only(left: 0),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 0),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                                border: Border.all(
-                                                    color: uiUtils.labelColor,
-                                                    width: 1),
-                                                color: uiUtils.labelColor),
-                                            child: Center(
-                                              child: Text(
-                                                'NOMBRES:',
-                                                style: TextStyle(
-                                                    color:
-                                                        uiUtils.grayLightColor,
-                                                    fontSize:
-                                                        uiUtils.screenWidth *
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  _imageGallery(ref,
+                                      selectedIndexes: [dniImage],
+                                      isPlaca: false,
+                                      isCond: true),
+                                  SizedBox(
+                                    height: uiUtils.screenHeight * 0.1,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                height:
+                                                    uiUtils.screenHeight * 0.03,
+                                                margin: const EdgeInsets.only(
+                                                    left: 0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 0),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            2),
+                                                    border: Border.all(
+                                                        color:
+                                                            uiUtils.labelColor,
+                                                        width: 1),
+                                                    color: uiUtils.labelColor),
+                                                child: Center(
+                                                  child: Text(
+                                                    'NOMBRES:',
+                                                    style: TextStyle(
+                                                        color: uiUtils
+                                                            .grayLightColor,
+                                                        fontSize: uiUtils
+                                                                .screenWidth *
                                                             0.03,
-                                                    fontWeight:
-                                                        FontWeight.bold),
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                          Container(
-                                            height: uiUtils.screenHeight * 0.03,
-                                            width: uiUtils.screenWidth * 0.3,
-                                            margin:
-                                                const EdgeInsets.only(left: 0),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 5),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                                border: Border.all(
-                                                    color: uiUtils.labelColor,
-                                                    width: 1),
-                                                color: Colors.transparent),
-                                            child: Center(
-                                              child: Text(
-                                                conductorProviderInfo
-                                                        ?.fullName ??
-                                                    '',
-                                                style: TextStyle(
-                                                    color:
-                                                        uiUtils.grayLightColor,
-                                                    fontSize:
-                                                        uiUtils.screenWidth *
+                                              Container(
+                                                height:
+                                                    uiUtils.screenHeight * 0.03,
+                                                width:
+                                                    uiUtils.screenWidth * 0.3,
+                                                margin: const EdgeInsets.only(
+                                                    left: 0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 5),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            2),
+                                                    border: Border.all(
+                                                        color:
+                                                            uiUtils.labelColor,
+                                                        width: 1),
+                                                    color: Colors.transparent),
+                                                child: Center(
+                                                  child: Text(
+                                                    conductorProviderInfo
+                                                            ?.fullName ??
+                                                        '',
+                                                    style: TextStyle(
+                                                        color: uiUtils
+                                                            .grayLightColor,
+                                                        fontSize: uiUtils
+                                                                .screenWidth *
                                                             0.03,
-                                                    fontWeight:
-                                                        FontWeight.normal),
+                                                        fontWeight:
+                                                            FontWeight.normal),
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                height:
+                                                    uiUtils.screenHeight * 0.03,
+                                                margin: const EdgeInsets.only(
+                                                    left: 0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 0),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            2),
+                                                    border: Border.all(
+                                                        color:
+                                                            uiUtils.labelColor,
+                                                        width: 1),
+                                                    color: uiUtils.labelColor),
+                                                child: Center(
+                                                  child: Text(
+                                                    'APELLIDOS:',
+                                                    style: TextStyle(
+                                                        color: uiUtils
+                                                            .grayLightColor,
+                                                        fontSize: uiUtils
+                                                                .screenWidth *
+                                                            0.03,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                              Container(
+                                                height:
+                                                    uiUtils.screenHeight * 0.03,
+                                                width:
+                                                    uiUtils.screenWidth * 0.3,
+                                                margin: const EdgeInsets.only(
+                                                    left: 0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 5),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            2),
+                                                    border: Border.all(
+                                                        color:
+                                                            uiUtils.labelColor,
+                                                        width: 1),
+                                                    color: Colors.transparent),
+                                                child: Center(
+                                                  child: Text(
+                                                    conductorProviderInfo
+                                                            ?.fullLastName ??
+                                                        '',
+                                                    style: TextStyle(
+                                                        color: uiUtils
+                                                            .grayLightColor,
+                                                        fontSize: uiUtils
+                                                                .screenWidth *
+                                                            0.03,
+                                                        fontWeight:
+                                                            FontWeight.normal),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                height:
+                                                    uiUtils.screenHeight * 0.03,
+                                                margin: const EdgeInsets.only(
+                                                    left: 0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 0),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            2),
+                                                    border: Border.all(
+                                                        color:
+                                                            uiUtils.labelColor,
+                                                        width: 1),
+                                                    color: uiUtils.labelColor),
+                                                child: Center(
+                                                  child: Text(
+                                                    'DNI:           ',
+                                                    style: TextStyle(
+                                                        color: uiUtils
+                                                            .grayLightColor,
+                                                        fontSize: uiUtils
+                                                                .screenWidth *
+                                                            0.03,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                              Container(
+                                                height:
+                                                    uiUtils.screenHeight * 0.03,
+                                                width:
+                                                    uiUtils.screenWidth * 0.3,
+                                                margin: const EdgeInsets.only(
+                                                    left: 0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 5),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            2),
+                                                    border: Border.all(
+                                                        color:
+                                                            uiUtils.labelColor,
+                                                        width: 1),
+                                                    color: Colors.transparent),
+                                                child: Center(
+                                                  child: Text(
+                                                    conductorProviderInfo
+                                                            ?.codLicence ??
+                                                        '',
+                                                    style: TextStyle(
+                                                        color: uiUtils
+                                                            .grayLightColor,
+                                                        fontSize: uiUtils
+                                                                .screenWidth *
+                                                            0.03,
+                                                        fontWeight:
+                                                            FontWeight.normal),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 5),
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            height: uiUtils.screenHeight * 0.03,
-                                            margin:
-                                                const EdgeInsets.only(left: 0),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 0),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                                border: Border.all(
-                                                    color: uiUtils.labelColor,
-                                                    width: 1),
-                                                color: uiUtils.labelColor),
-                                            child: Center(
-                                              child: Text(
-                                                'APELLIDOS:',
-                                                style: TextStyle(
-                                                    color:
-                                                        uiUtils.grayLightColor,
-                                                    fontSize:
-                                                        uiUtils.screenWidth *
-                                                            0.03,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            height: uiUtils.screenHeight * 0.03,
-                                            width: uiUtils.screenWidth * 0.3,
-                                            margin:
-                                                const EdgeInsets.only(left: 0),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 5),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                                border: Border.all(
-                                                    color: uiUtils.labelColor,
-                                                    width: 1),
-                                                color: Colors.transparent),
-                                            child: Center(
-                                              child: Text(
-                                                conductorProviderInfo
-                                                        ?.fullLastName ??
-                                                    '',
-                                                style: TextStyle(
-                                                    color:
-                                                        uiUtils.grayLightColor,
-                                                    fontSize:
-                                                        uiUtils.screenWidth *
-                                                            0.03,
-                                                    fontWeight:
-                                                        FontWeight.normal),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            height: uiUtils.screenHeight * 0.03,
-                                            margin:
-                                                const EdgeInsets.only(left: 0),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 0),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                                border: Border.all(
-                                                    color: uiUtils.labelColor,
-                                                    width: 1),
-                                                color: uiUtils.labelColor),
-                                            child: Center(
-                                              child: Text(
-                                                'DNI:           ',
-                                                style: TextStyle(
-                                                    color:
-                                                        uiUtils.grayLightColor,
-                                                    fontSize:
-                                                        uiUtils.screenWidth *
-                                                            0.03,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            height: uiUtils.screenHeight * 0.03,
-                                            width: uiUtils.screenWidth * 0.3,
-                                            margin:
-                                                const EdgeInsets.only(left: 0),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 5),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(2),
-                                                border: Border.all(
-                                                    color: uiUtils.labelColor,
-                                                    width: 1),
-                                                color: Colors.transparent),
-                                            child: Center(
-                                              child: Text(
-                                                conductorProviderInfo
-                                                        ?.codLicence ??
-                                                    '',
-                                                style: TextStyle(
-                                                    color:
-                                                        uiUtils.grayLightColor,
-                                                    fontSize:
-                                                        uiUtils.screenWidth *
-                                                            0.03,
-                                                    fontWeight:
-                                                        FontWeight.normal),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
+                              SizedBox(height: uiUtils.screenHeight * 0.02),
+                              GeneralBottom(
+                                  width: uiUtils.screenWidth * 0.4,
+                                  color: uploadUpdateImage
+                                      ? Colors.grey
+                                      : uiUtils.primaryColor,
+                                  text: uploadUpdateImage
+                                      ? 'ACTUALIZANDO'
+                                      : 'ACTUALIZAR',
+                                  onTap: uploadUpdateImage
+                                      ? () {}
+                                      : () async {
+                                          final capturedImage =
+                                              await CodeUtils()
+                                                  .checkCameraPermission(
+                                                      context);
+                                          if (capturedImage != null) {
+                                            if (!uploadUpdateImage) {
+                                              setUploadingImage(ref, true);
+                                              ref
+                                                  .read(
+                                                      dniImageProvider.notifier)
+                                                  .state = (capturedImage);
+                                              final result = await getDniInfo(
+                                                  ref, capturedImage);
+                                              if (result != null) {
+                                                log('Documento actualizado');
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Documento actualizado',
+                                                    ),
+                                                  ),
+                                                );
+                                              } else if (result == null) {
+                                                log('No se pudo obtener la información del documento');
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'No se pudo obtener la información del documento. Por favor, inténtalo de nuevo.',
+                                                    ),
+                                                  ),
+                                                );
+                                                setUploadingImage(ref, false);
+                                              } else {
+                                                log('Error al obtener la información del documento');
+                                              }
+                                            }
+                                            setUploadingImage(ref, false);
+                                          }
+                                        },
+                                  textColor: Colors.white),
                             ],
                           ),
                         ),
@@ -662,9 +903,10 @@ class ContainerInfo extends ConsumerWidget {
     );
   }
 
-  _containerInfo(Foto foto, WidgetRef ref) {
+  _containerInfo(BuildContext context, Foto foto, WidgetRef ref) {
     UiUtils uiUtils = UiUtils();
     final images = ref.watch(containerImageProvider);
+    final isUploadingImage = ref.watch(uploadingImageProvider);
     return Column(
       children: [
         const SizedBox(height: 10),
@@ -732,6 +974,7 @@ class ContainerInfo extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 20),
+
         LabelInfo2(
           uiUtils: uiUtils,
           label: 'CODIGO ISO',
@@ -812,9 +1055,79 @@ class ContainerInfo extends ConsumerWidget {
           subLabel: '${foto.payloadKg} KG',
         ),
         const SizedBox(height: 20),
+        Text(
+          'Si al revisar la informacion del contenedor, alguna de esta no coincide con con informacion real, vuelve a tomar la foto.',
+          style: TextStyle(fontSize: 12, color: uiUtils.optionsColor),
+        ),
+        const SizedBox(height: 10),
+        GeneralBottom(
+            width: uiUtils.screenWidth,
+            color: isUploadingImage ? Colors.grey : uiUtils.primaryColor,
+            text: isUploadingImage ? 'ACTUALIZANDO...' : 'ACTUALIZAR',
+            onTap: () async {
+              final capturedImage =
+                  await CodeUtils().checkCameraPermission(context);
+              if (capturedImage != null) {
+                ref.read(containerImageProvider.notifier).state = [
+                  capturedImage
+                ];
+              }
+              if (capturedImage != null) {
+                log('uploading image: $isUploadingImage');
+                if (!isUploadingImage) {
+                  setUploadingImage(ref, true);
+                  final result =
+                      await uploadImageToServer(ref, capturedImage, '');
+                  if (result != null) {
+                    ref.read(fotoProvider.notifier).state = result;
+                  } else {
+                    // Mostrar SnackBar en la parte superior
+                    final snackBar = SnackBar(
+                      content: const Text(
+                        'Ocurrió un error, por favor vuelve a tomar la imagen. '
+                        'Asegúrate de que sea clara y los valores sean legibles.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                      margin: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top + 8,
+                        left: 16,
+                        right: 16,
+                      ),
+                      backgroundColor: Colors.red.shade600,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      duration: const Duration(seconds: 4),
+                    );
+
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(snackBar);
+                  }
+                  setUploadingImage(ref, false);
+                }
+              }
+            },
+            textColor: Colors.white),
+        const SizedBox(height: 20),
       ],
     );
   }
+}
+
+void updatePrecintAtIndex(WidgetRef ref, int index, Precinct result) {
+  final currentList = [...ref.read(precintProvider) ?? <Precinct>[]];
+
+  // Extender la lista si hace falta
+  while (currentList.length <= index) {
+    currentList.add(Precinct(codPrecinto: ''));
+  }
+
+  currentList[index] = result;
+  ref.read(precintProvider.notifier).state = currentList;
 }
 
 class LabelInfo2 extends StatelessWidget {

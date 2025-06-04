@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:ui' as ui;
 
 import 'package:agunsa/core/class/image_params.dart';
 import 'package:agunsa/core/config/constants.dart';
@@ -15,7 +14,6 @@ import 'package:agunsa/features/transactions/domain/entities/placa.dart';
 import 'package:agunsa/features/transactions/domain/entities/precint.dart';
 import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
 import 'package:agunsa/features/transactions/domain/entities/transactions.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 abstract class TransactionRemoteDatasource {
@@ -116,66 +114,47 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
 Future<int> _sendImageToS3(String base64Image) async {
   try {
-      final startTime = DateTime.now();
+      final startTime = DateTime.now(); // ⏱️ Inicio
 
-      final compressedImage = await _compressImage(base64Image);
-    
     final response = await http.post(
       Uri.parse('${baseUrl}presigned-url-images'),
       body: jsonEncode({
         "folder": "containerback",
-          'image_base64': compressedImage,
+          'image_base64': base64Image,
       }),
       headers: {'Content-Type': 'application/json'},
     );
 
-      final elapsedMs = DateTime.now().difference(startTime).inMilliseconds;
-      log('📤 Tiempo total: $elapsedMs ms (${(elapsedMs / 1000).toStringAsFixed(2)} s)');
+      final endTime = DateTime.now(); // ⏱️ Fin
+      final elapsedMs = endTime.difference(startTime).inMilliseconds;
+      log('📤 Tiempo de subida a S3: $elapsedMs ms (${(elapsedMs / 1000).toStringAsFixed(2)} s)');
 
     if (response.statusCode == 200) {
+        final initialTimeToResponse = DateTime.now();
       final responseBody = jsonDecode(response.body);
+
+        final endTimeToResponse = DateTime.now();
+        final elapsedMsToResponse =
+            endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
+
+        log('📤 Tiempo de respuesta: $elapsedMsToResponse ms (${(elapsedMsToResponse / 1000).toStringAsFixed(2)} s)');
       return responseBody['statusCode'];
     } else {
+        final endTimeToResponse2 = DateTime.now();
+        final elapsedMsToResponse2 =
+            endTimeToResponse2.difference(startTime).inMilliseconds;
+        log('📤 Tiempo de respuesta con error: $elapsedMsToResponse2 ms (${(elapsedMsToResponse2 / 1000).toStringAsFixed(2)} s)');
       log('Error al subir la imagen. Código: ${response.statusCode}');
         throw Exception(
             'Error al subir la imagen. Código: ${response.statusCode}');
     }
+  
   } catch (e) {
     log('Error en uploadImage to S3: $e');
     throw Exception('Error al conectar con la API: $e');
-  }
+    }
+  
 }
-
-Future<String> _compressImage(String base64Image) async {
-    final bytes = base64Decode(base64Image);
-    final image = await decodeImageFromList(bytes);
-
-    const maxSize = 1024;
-    final ratio = image.width > image.height
-        ? maxSize / image.width
-        : maxSize / image.height;
-
-    final width = (image.width * ratio).round();
-    final height = (image.height * ratio).round();
-
-    final recorder = ui.PictureRecorder();
-    final canvas = ui.Canvas(recorder);
-    final paint = ui.Paint();
-
-    canvas.drawImageRect(
-      image,
-      ui.Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-      ui.Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
-      paint,
-    );
-
-    final picture = recorder.endRecording();
-    final img = await picture.toImage(width, height);
-    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
-    final compressedBytes = byteData!.buffer.asUint8List();
-
-    return base64Encode(compressedBytes);
-  }
 
 
   @override
@@ -218,11 +197,11 @@ Future<FotoModel?> uploadImageToServer(
 
   // Medir tiempo de respuesta
   final stopwatch = Stopwatch()..start();
-    final compressedImage = await _compressImage(image.base64);
+
   final result = await _genericRequest<FotoModel>(
     url: _uploadImage,
     body: {
-        'image_base64': compressedImage,
+        'image_base64': image.base64,
     },
     idToken: idToken,
     parseResponse: (json) {

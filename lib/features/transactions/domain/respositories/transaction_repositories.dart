@@ -36,7 +36,7 @@ abstract class TransactionRepositories {
   Future<Either<DomainExeptions, String>> createPendingTransaction(
       PendingTransactionModel transaction);
 
-  Future<Either<DomainExeptions, String>> uploadLateralImages(
+  Future<Either<DomainExeptions, Map<String, dynamic>>> uploadLateralImages(
       String base64Image);
 
 }

@@ -237,14 +237,23 @@ Future<Foto?> uploadImageToServer(
 //   );
 // }
 
-Future<String> uploadLateralImagesFunction(WidgetRef ref, XFile image) async {
+Future<Map<String, dynamic>> uploadLateralImagesFunction(
+    WidgetRef ref, XFile image) async {
   final uploadUsecase = ref.read(uploadLateralImagesProvider);
 
   final bytes = await image.readAsBytes();
   final base64Image = base64Encode(bytes);
   final result = await uploadUsecase.call(base64Image);
-
-  return result.fold((failure) => failure.message, (message) => message);
+  log('Resultado de uploadLateralImages: $result');
+  return result.fold(
+      (failure) => {
+            'Error':
+                'Fallo al subir las imágenes laterales: ${failure.message}',
+          }, (message) {
+    log('Imágenes laterales subidas correctamente: $message');
+    
+    return message;
+  });
 }
 
 Future<Precinct?> uploadPrecint(
@@ -305,6 +314,8 @@ Future<Placa?> getPlacaInfo(WidgetRef ref, XFile placa, String idToken) async {
 
 final containerImageProvider = StateProvider<List<XFile?>>((ref) => []);
 final aditionalImagesProvider = StateProvider<List<XFile?>>((ref) => []);
+final aditionalImageUrlsProvider =
+    StateProvider<List<Map<String, dynamic>>>((ref) => []);
 final precintsImageProvider = StateProvider<List<XFile?>>((ref) => []);
 final placaImageProvider = StateProvider<XFile?>((ref) => null);
 final dniImageProvider = StateProvider<XFile?>((ref) => null);
@@ -326,6 +337,11 @@ final isCompleteTransactionProvider = StateProvider<bool>((ref) => false);
 
 void setTimeCreationTransaction(WidgetRef ref, DateTime? timeCreation) {
   ref.read(timeCreationTransactionProvider.notifier).state = timeCreation;
+}
+
+void addAdtionalUrlImages(
+    WidgetRef ref, List<Map<String, dynamic>> latearImages) {
+  ref.read(aditionalImageUrlsProvider.notifier).state = latearImages;
 }
 
 void setIsCompleteTransaction(WidgetRef ref, bool isComplete) {

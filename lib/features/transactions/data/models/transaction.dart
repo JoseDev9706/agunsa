@@ -12,6 +12,9 @@ class TransactionModel extends Transaction {
     super.createdDataContainer,
     super.updatedDataContainer,
     super.createDateContainerDateTimeRespone,
+    super.createdDataContainerLat,
+    super.createdDataContainerLatResponse,
+    super.containerUrlImageLat,
     super.driverDni,
     super.driverName,
     super.driverLastName,
@@ -23,8 +26,10 @@ class TransactionModel extends Transaction {
     super.updatedDataPlate,
     super.createdDataPlateResponse,
     super.sealCode,
+    super.sealcodesList,
     super.createdDataSeal,
     super.updatedDataSeal,
+    super.createdDataSealResponse,
     super.transactionNumber,
     super.initialTransactionId,
     super.transactionTypeId,
@@ -57,6 +62,12 @@ class TransactionModel extends Transaction {
               ? DateTime.parse(json['createDateContainerDateTimeRespone'])
                   .toIso8601String()
               : null,
+      createdDataContainerLat:
+          DateTime.parse(json['createdDataContainerLat']).toIso8601String(),
+      createdDataContainerLatResponse:
+          DateTime.parse(json['createdDataContainerLatResponse'])
+              .toIso8601String(),
+      containerUrlImageLat: (json['containerUrlImageLat']),
       driverDni: json['driverDni'],
       driverName: json['driverName'],
       driverLastName: json['driverLastName'],
@@ -72,10 +83,14 @@ class TransactionModel extends Transaction {
           DateTime.parse(json['updatedDataPlate']).toIso8601String(),
       createdDataPlateResponse: json['createdDataPlateResponse'],
       sealCode: json['sealCode'],
+      sealcodesList: json['sealcodesList'],
+      
       createdDataSeal:
           DateTime.parse(json['createdDataSeal']).toIso8601String(),
       updatedDataSeal:
           DateTime.parse(json['updatedDataSeal']).toIso8601String(),
+      createdDataSealResponse:
+          DateTime.parse(json['createdDataSealResponse']).toIso8601String(),
       transactionNumber: json['transactionNumber'],
       initialTransactionId: json['initialTransactionId'],
       transactionTypeId: json['transactionTypeId'],
@@ -125,7 +140,13 @@ class TransactionModel extends Transaction {
       'containerUrlImage': containerUrlImage,
       'driverUrlImage': driverUrlImage,
       'plateUrlImage': plateUrlImage,
-      'precintImagesUrl': precintImagesUrl
+      'precintImagesUrl': precintImagesUrl,
+      'createdDataContainerLat': createdDataContainerLat,
+      'createdDataContainerLatResponse': createdDataContainerLatResponse,
+      'containerUrlImageLat': containerUrlImageLat,
+      'sealcodesList': sealcodesList,
+      'createdDataSealResponse': createdDataSealResponse,
+      
     };
   }
 }

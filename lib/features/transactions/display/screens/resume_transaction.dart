@@ -36,6 +36,19 @@ class ResumeTransaction extends ConsumerWidget {
     final precintList = ref.watch(precintProvider);
     final urlPrecint =
         precintList?.map((precinto) => precinto.imageUrl).toList();
+    final precintsCodes =
+        precintList?.map((precinto) => precinto.codPrecinto).toList();
+    final lateralsImages = ref.watch(aditionalImageUrlsProvider);
+    final lateralPhotos =
+        lateralsImages.map((image) => image['imageUrl'] as String).toList();
+    final timeToResponseLateralPhotos = lateralsImages.map((image) {
+      final timeString = image['createdDataContainerLatRespoonse'] as String;
+      final numberOnly = int.parse(timeString.replaceAll(' ms', ''));
+      return numberOnly;
+    }).toList();
+    final totalTime =
+        timeToResponseLateralPhotos.fold(0, (sum, item) => sum + item);
+
     final isUploadingTransaction = ref.watch(uploadingImageProvider);
     if (pendingTransaction != null) {
       transactionNumberController.text = pendingTransaction.transactionNumber;
@@ -259,7 +272,8 @@ class ResumeTransaction extends ConsumerWidget {
                                       return;
                                     }
 
-                                    if (pendingTransaction != null) {
+                                    try {
+                                      if (pendingTransaction != null) {
                                       TransactionModel transaction =
                                           TransactionModel(
                                         containerNumber:
@@ -294,11 +308,17 @@ class ResumeTransaction extends ConsumerWidget {
                                                 containerInfo?.responseDateTime
                                                         ?.toIso8601String() ??
                                                     DateTime.now()
-                                                        .toIso8601String()),        
-                                        driverDni: driverInfo?.codLicence ??
-                                            "",
-                                        driverName:
-                                            driverInfo?.name1 ?? "",
+                                                          .toIso8601String()),
+                                          containerUrlImageLat: lateralPhotos,
+                                          createdDataContainerLat:
+                                              lateralsImages[0][
+                                                      'createdDataContainerLat']
+                                                  .toString(),
+                                          createdDataContainerLatResponse:
+                                              "${totalTime.toString()}ms",
+                                          driverDni:
+                                              driverInfo?.codLicence ?? "",
+                                          driverName: driverInfo?.name1 ?? "",
                                         driverLastName:
                                             driverInfo?.lastName1 ?? "",
                                         createdDataDriver:
@@ -325,7 +345,15 @@ class ResumeTransaction extends ConsumerWidget {
                                                 placaInfo?.responseDateTime ??
                                                     DateTime.now()
                                                         .toIso8601String()),
-                                        sealCode: "SEAL7890",
+                                          sealCode: "",
+                                          sealcodesList: precintsCodes,
+                                          createdDataSealResponse:
+                                              codeUtils.formatDateToIso8601(
+                                                  precintList?[0]
+                                                          .responseDateTime
+                                                          ?.toIso8601String() ??
+                                                      DateTime.now()
+                                                          .toIso8601String()),
                                         createdDataSeal:
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
@@ -471,10 +499,15 @@ class ResumeTransaction extends ConsumerWidget {
                                                         ?.toIso8601String() ??
                                                     DateTime.now()
                                                         .toIso8601String()),
-                                        driverDni: driverInfo?.codLicence ??
-                                            "",
-                                        driverName:
-                                            driverInfo?.name1 ?? "",
+                                          createdDataContainerLat:
+                                              lateralsImages[0]
+                                                  ['createdDataContainerLat'],
+                                          createdDataContainerLatResponse:
+                                              "${totalTime.toString()}ms",
+                                          containerUrlImageLat: lateralPhotos,
+                                          driverDni:
+                                              driverInfo?.codLicence ?? "",
+                                          driverName: driverInfo?.name1 ?? "",
                                         driverLastName:
                                             driverInfo?.lastName1 ?? "",
                                         createdDataDriver:
@@ -505,6 +538,14 @@ class ResumeTransaction extends ConsumerWidget {
                                         sealCode: "",
                                         createdDataSeal: "2025-05-14T12:00:00Z",
                                         updatedDataSeal: "2025-05-14T12:00:00Z",
+                                          sealcodesList: precintsCodes,
+                                          createdDataSealResponse:
+                                              codeUtils.formatDateToIso8601(
+                                                  precintList?[0]
+                                                          .responseDateTime
+                                                          ?.toIso8601String() ??
+                                                      DateTime.now()
+                                                          .toIso8601String()),
                                         transactionNumber:
                                             transactionNumberController.text,
                                         initialTransactionId: DateTime.now()
@@ -546,6 +587,13 @@ class ResumeTransaction extends ConsumerWidget {
                                         setUploadingImage(ref, false);
                                         return;
                                       }
+                                    }
+                                    } catch (e) {
+                                      log('Error al crear la transacción: $e');
+                                      uiUtils.showSnackBar(context,
+                                          'Error al crear la transacción: $e');
+                                      setUploadingImage(ref, false);
+                                      return;
                                     }
                                   },
                             textColor: uiUtils.whiteColor,

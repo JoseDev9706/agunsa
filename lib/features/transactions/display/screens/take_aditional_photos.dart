@@ -192,7 +192,8 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                             text:
                                 isUploadingImage ? 'SUBIENDO...' : 'CONFIRMAR',
                             onTap: () async {
-                              List<String> succesResults = [];
+                              List<Map<String, dynamic>> succesResults = [];
+                              
                               if (!isUploadingImage) {
                                 setUploadingImage(ref, true);
 
@@ -203,15 +204,19 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                                       ref,
                                       image!,
                                     );
-
-                                    if (result !=
-                                        'Imagen subida correctamente.') {
+                                   
+                                    log('Imagen subida: $result');
+                                    if (!result['imageUrl'].contains('http')) {
                                       throw Exception(
                                           'Error al subir una de las imágenes');
                                     } else {
                                       succesResults.add(result);
+                                         
                                       if (succesResults.length ==
                                           images.length) {
+                                        addAdtionalUrlImages(
+                                            ref, succesResults);
+                                        log('Todas las imágenes subidas correctamente');
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           const SnackBar(
@@ -220,12 +225,12 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                                           ),
                                         );
                                         ref.read(routerDelegateProvider).push(
-                                    AppRoute.containerInfo,
-                                    args: {
-                                      'images': images,
-                                      'isContainer': true,
-                                    },
-                                  );
+                                          AppRoute.containerInfo,
+                                          args: {
+                                            'images': images,
+                                            'isContainer': true,
+                                          },
+                                        );
                                       }
                                     }
                                   }

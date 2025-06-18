@@ -10,6 +10,9 @@ class Transaction {
   final String? createdDataContainer;
   final String? updatedDataContainer;
   final String? createDateContainerDateTimeRespone;
+  final String? createdDataContainerLat;
+  final String? createdDataContainerLatResponse;
+  final List<String>? containerUrlImageLat;
   final String? driverDni;
   final String? driverName;
   final String? driverLastName;
@@ -23,8 +26,10 @@ class Transaction {
   final String? createdDataPlateResponse;
   final String? plateUrlImage;
   final String? sealCode;
+  final List<String>? sealcodesList;
   final String? createdDataSeal;
   final String? updatedDataSeal;
+  final String? createdDataSealResponse;
   final String? transactionNumber;
   final List<String>? precintImagesUrl;
   final int? initialTransactionId;
@@ -45,6 +50,9 @@ class Transaction {
     this.createdDataContainer,
     this.updatedDataContainer,
     this.createDateContainerDateTimeRespone,
+    this.createdDataContainerLat,
+    this.createdDataContainerLatResponse,
+    this.containerUrlImageLat,
     this.driverDni,
     this.driverName,
     this.driverLastName,
@@ -56,8 +64,10 @@ class Transaction {
     this.updatedDataPlate,
     this.createdDataPlateResponse,
     this.sealCode,
+    this.sealcodesList,
     this.createdDataSeal,
     this.updatedDataSeal,
+    this.createdDataSealResponse,
     this.transactionNumber,
     this.initialTransactionId,
     this.transactionTypeId,

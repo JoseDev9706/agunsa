@@ -137,11 +137,11 @@ class TransactionRespositoriesImpl implements TransactionRepositories {
   }
   
   @override
-  Future<Either<DomainExeptions, String>> uploadLateralImages(
+  Future<Either<DomainExeptions, Map<String, dynamic>>> uploadLateralImages(
       String base64Image) async {
     try {
       final result = await remoteDataSource.uploadLateralImages(base64Image);
-      return right(result!);
+      return right(result);
     } catch (e) {
       log('Error en uploadLateralImages: $e');
       return left(DomainExeptions(e.toString()));

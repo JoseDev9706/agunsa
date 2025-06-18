@@ -5,7 +5,8 @@ import 'package:dartz/dartz.dart';
 class UploadLateralImages {
   final TransactionRepositories transactionRepositories;
   UploadLateralImages(this.transactionRepositories);
-  Future<Either<DomainExeptions, String>> call(String base64Image){
+  Future<Either<DomainExeptions, Map<String, dynamic>>> call(
+      String base64Image) {
     return transactionRepositories.uploadLateralImages(base64Image);
   }
 }

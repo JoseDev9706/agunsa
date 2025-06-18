@@ -535,7 +535,7 @@ class ResumeTransaction extends ConsumerWidget {
                                           'Item registered successfully') {
                                         setUploadingImage(ref, false);
                                         setIsCompleteTransaction(ref, true);
-
+                                        setTimeCreationTransaction(ref, null);
                                         uiUtils.showSnackBar(context,
                                             'Transacción creada exitosamente');
                                         log('creo la transaccion completa');

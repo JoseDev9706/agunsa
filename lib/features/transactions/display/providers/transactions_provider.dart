@@ -324,6 +324,10 @@ final timeCreationTransactionProvider = StateProvider<DateTime?>((ref) => null);
 
 final isCompleteTransactionProvider = StateProvider<bool>((ref) => false);
 
+void setTimeCreationTransaction(WidgetRef ref, DateTime? timeCreation) {
+  ref.read(timeCreationTransactionProvider.notifier).state = timeCreation;
+}
+
 void setIsCompleteTransaction(WidgetRef ref, bool isComplete) {
   ref.read(isCompleteTransactionProvider.notifier).state = isComplete;
 }

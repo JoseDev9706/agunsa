@@ -106,16 +106,10 @@ class TransactionsScreen extends ConsumerWidget {
                                         final router =
                                             ref.read(routerDelegateProvider);
                                         timeCreation != null
-                                            ? ref
-                                                .read(
-                                                    timeCreationTransactionProvider
-                                                        .notifier)
-                                                .state = null
-                                            : ref
-                                                .read(
-                                                    timeCreationTransactionProvider
-                                                        .notifier)
-                                                .state = DateTime.now();    
+                                            ? setTimeCreationTransaction(
+                                                ref, null)
+                                            : setTimeCreationTransaction(
+                                                ref, DateTime.now()); 
                                         seleteTransactionType(ref, item);
                                         if (item.isInOut == true) {
                                           router.push(AppRoute.talePlaca,

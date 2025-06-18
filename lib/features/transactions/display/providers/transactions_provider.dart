@@ -320,6 +320,7 @@ final uploadingImageProvider = StateProvider<bool>((ref) => false);
 final isFromPendingTransactionProvider = StateProvider<bool>((ref) => false);
 final selectedPendingTransactionProvider =
     StateProvider<PendingTransaction?>((ref) => null);
+final timeCreationTransactionProvider = StateProvider<DateTime?>((ref) => null);
 
 final isCompleteTransactionProvider = StateProvider<bool>((ref) => false);
 

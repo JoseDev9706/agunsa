@@ -33,6 +33,9 @@ class ResumeTransaction extends ConsumerWidget {
     final user = ref.watch(userProvider);
     final driverInfo = ref.watch(dniProvider);
     final placaInfo = ref.watch(placaProvider);
+    final precintList = ref.watch(precintProvider);
+    final urlPrecint =
+        precintList?.map((precinto) => precinto.imageUrl).toList();
     final isUploadingTransaction = ref.watch(uploadingImageProvider);
     if (pendingTransaction != null) {
       transactionNumberController.text = pendingTransaction.transactionNumber;
@@ -261,7 +264,11 @@ class ResumeTransaction extends ConsumerWidget {
                                           TransactionModel(
                                         containerNumber:
                                             containerInfo?.numSerie,
-                                        containerTransportLine: "MSC",
+                                        transactionTypeName:
+                                            transactionType?.name ?? '',
+                                        containerTransportLine:
+                                            containerInfo?.codPropietario ??
+                                                "MSC",
                                         containerIso:
                                             containerInfo?.codPropietario,
                                         containerType:
@@ -282,6 +289,12 @@ class ResumeTransaction extends ConsumerWidget {
                                         updatedDataContainer:
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
+                                        createDateContainerDateTimeRespone:
+                                            codeUtils.formatDateToIso8601(
+                                                containerInfo?.responseDateTime
+                                                        ?.toIso8601String() ??
+                                                    DateTime.now()
+                                                        .toIso8601String()),        
                                         driverDni: driverInfo?.codLicence ??
                                             "",
                                         driverName:
@@ -294,6 +307,12 @@ class ResumeTransaction extends ConsumerWidget {
                                         updatedDataDriver:
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
+                                        createdDataDriverResponse: codeUtils
+                                            .formatDateToIso8601(driverInfo
+                                                    ?.responseDateTime
+                                                    ?.toIso8601String() ??
+                                                DateTime.now()
+                                                    .toIso8601String()),
                                         plate: placaInfo?.codigo ?? "XY-1234",
                                         createdDataPlate:
                                             codeUtils.formatDateToIso8601(
@@ -301,6 +320,11 @@ class ResumeTransaction extends ConsumerWidget {
                                         updatedDataPlate:
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
+                                        createdDataPlateResponse:
+                                            codeUtils.formatDateToIso8601(
+                                                placaInfo?.responseDateTime ??
+                                                    DateTime.now()
+                                                        .toIso8601String()),
                                         sealCode: "SEAL7890",
                                         createdDataSeal:
                                             codeUtils.formatDateToIso8601(
@@ -316,8 +340,18 @@ class ResumeTransaction extends ConsumerWidget {
                                             .transactionTypeId,
                                         epochCreatedDatetime: pendingTransaction
                                             .epochCreatedDatetime,
+                                        cratedDataTimeTransaction: ref
+                                                .watch(
+                                                    timeCreationTransactionProvider)
+                                                ?.millisecondsSinceEpoch ??
+                                            0,
                                         createdByUserId:
                                             pendingTransaction.createdByUserId,
+                                        containerUrlImage:
+                                            containerInfo?.imageUrl,
+                                        driverUrlImage: driverInfo?.imageUrl,
+                                        plateUrlImage: placaInfo?.imageUrl,
+                                        precintImagesUrl: urlPrecint,
                                       );
                                       log('transaction: ${transaction.toJson()}');
                                       final resultTransaction =
@@ -333,6 +367,9 @@ class ResumeTransaction extends ConsumerWidget {
                                             PendingTransactionModel(
                                           transactionNumber: pendingTransaction
                                               .transactionNumber,
+                                          transactionTypeName:
+                                              pendingTransaction
+                                                  .transactionTypeName,
                                           transactionTypeId: pendingTransaction
                                               .transactionTypeId,
                                           initialTransactionId:
@@ -344,6 +381,9 @@ class ResumeTransaction extends ConsumerWidget {
                                           createdByUserId: pendingTransaction
                                               .createdByUserId,
                                           currentStatus: false,
+                                          createdDataTimeTransaction:
+                                              pendingTransaction
+                                                  .createdDataTimeTransaction,
                                         );
                                         final resultPendingTransaction =
                                             await createPendingTransactionFuntion(
@@ -375,6 +415,8 @@ class ResumeTransaction extends ConsumerWidget {
                                           PendingTransactionModel(
                                         transactionNumber:
                                             transactionNumberController.text,
+                                        transactionTypeName:
+                                            transactionType?.name ?? '',
                                         transactionTypeId:
                                             transactionType?.id ?? 0,
                                         initialTransactionId: DateTime.now()
@@ -383,6 +425,9 @@ class ResumeTransaction extends ConsumerWidget {
                                             .millisecondsSinceEpoch,
                                         createdByUserId: user?.id.hashCode ?? 1,
                                         currentStatus: true,
+                                        createdDataTimeTransaction:
+                                            DateTime.now()
+                                                .millisecondsSinceEpoch,
                                       );
 
                                       await createPendingTransactionFuntion(
@@ -397,6 +442,8 @@ class ResumeTransaction extends ConsumerWidget {
                                           TransactionModel(
                                         containerNumber:
                                             containerInfo?.numSerie,
+                                        transactionTypeName:
+                                            transactionType?.name ?? '',
                                         containerTransportLine: "MSC",
                                         containerIso:
                                             containerInfo?.codPropietario,
@@ -418,6 +465,12 @@ class ResumeTransaction extends ConsumerWidget {
                                         updatedDataContainer:
                                             codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
+                                        createDateContainerDateTimeRespone:
+                                            codeUtils.formatDateToIso8601(
+                                                containerInfo?.responseDateTime
+                                                        ?.toIso8601String() ??
+                                                    DateTime.now()
+                                                        .toIso8601String()),
                                         driverDni: driverInfo?.codLicence ??
                                             "",
                                         driverName:
@@ -425,14 +478,30 @@ class ResumeTransaction extends ConsumerWidget {
                                         driverLastName:
                                             driverInfo?.lastName1 ?? "",
                                         createdDataDriver:
-                                            "2025-05-14T12:00:00Z",
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
                                         updatedDataDriver:
-                                            "2025-05-14T12:00:00Z",
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                        createdDataDriverResponse: codeUtils
+                                            .formatDateToIso8601(driverInfo
+                                                    ?.responseDateTime
+                                                    ?.toIso8601String() ??
+                                                DateTime.now()
+                                                    .toIso8601String()),
                                         plate: placaInfo?.codigo ?? "",
                                         createdDataPlate:
-                                            "2025-05-14T12:00:00Z",
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
                                         updatedDataPlate:
-                                            "2025-05-14T12:00:00Z",
+                                            codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                        createdDataPlateResponse: placaInfo
+                                                    ?.responseDateTime !=
+                                                null
+                                            ? codeUtils.formatDateToIso8601(
+                                                placaInfo!.responseDateTime!)
+                                            : DateTime.now().toIso8601String(),
                                         sealCode: "",
                                         createdDataSeal: "2025-05-14T12:00:00Z",
                                         updatedDataSeal: "2025-05-14T12:00:00Z",
@@ -444,8 +513,19 @@ class ResumeTransaction extends ConsumerWidget {
                                             transactionType?.id ?? 0,
                                         epochCreatedDatetime: DateTime.now()
                                             .millisecondsSinceEpoch,
+                                        cratedDataTimeTransaction: ref
+                                                .watch(
+                                                    timeCreationTransactionProvider)
+                                                ?.millisecondsSinceEpoch ??
+                                            DateTime.now()
+                                                .millisecondsSinceEpoch,
                                         createdByUserId: user?.id.hashCode ?? 1,
                                         currentStatus: false,
+                                        containerUrlImage:
+                                            containerInfo?.imageUrl,
+                                        driverUrlImage: driverInfo?.imageUrl,
+                                        plateUrlImage: placaInfo?.imageUrl,
+                                        precintImagesUrl: urlPrecint,
                                       );
                                       log('transaction: ${transaction.toJson()}');
                                       final result =

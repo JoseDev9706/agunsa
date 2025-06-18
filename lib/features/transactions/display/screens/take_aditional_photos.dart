@@ -205,7 +205,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                                     );
 
                                     if (result !=
-                                        'Imagen subida correctamente') {
+                                        'Imagen subida correctamente.') {
                                       throw Exception(
                                           'Error al subir una de las imágenes');
                                     } else {

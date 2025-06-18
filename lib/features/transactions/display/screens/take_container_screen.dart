@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
+import 'package:agunsa/features/transactions/data/models/foto.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/container_photo.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
@@ -114,6 +115,20 @@ class TakeContainerScreen extends ConsumerWidget {
                               final result = await uploadImageToServer(
                                   ref, images.first!, '');
                               if (result != null) {
+                                final re = FotoModel(
+                                    codPropietario: result.codPropietario,
+                                    numSerie: result.numSerie,
+                                    numControl: result.numControl,
+                                    tipoContenedor: result.tipoContenedor,
+                                    maxGrossKg: result.maxGrossKg,
+                                    maxGrossLbs: result.maxGrossLbs,
+                                    taraKg: result.taraKg,
+                                    taraLbs: result.taraLbs,
+                                    payloadKg: result.payloadKg,
+                                    payloadLbs: result.payloadLbs,
+                                    responseDateTime: result.responseDateTime,
+                                    imageUrl: result.imageUrl);
+                                log('Image uploaded successfully: ${re.toJson()}');
                                 ref.read(routerDelegateProvider).push(
                                   AppRoute.takeAditionalPhotos,
                                   args: {

@@ -1123,7 +1123,8 @@ void updatePrecintAtIndex(WidgetRef ref, int index, Precinct result) {
 
   // Extender la lista si hace falta
   while (currentList.length <= index) {
-    currentList.add(Precinct(codPrecinto: ''));
+    currentList
+        .add(Precinct(codPrecinto: '', imageUrl: '', responseDateTime: null));
   }
 
   currentList[index] = result;

@@ -1,29 +1,37 @@
 import 'package:agunsa/features/transactions/domain/entities/photos.dart';
 
 class FotoModel extends Foto {
-  FotoModel(
-      {required super.codPropietario,
-      required super.numSerie,
-      required super.numControl,
-      required super.tipoContenedor,
-      required super.maxGrossKg,
-      required super.maxGrossLbs,
-      required super.taraKg,
-      required super.taraLbs,
-      required super.payloadKg,
-      required super.payloadLbs});
+  FotoModel({
+    required super.codPropietario,
+    required super.numSerie,
+    required super.numControl,
+    required super.tipoContenedor,
+    required super.maxGrossKg,
+    required super.maxGrossLbs,
+    required super.taraKg,
+    required super.taraLbs,
+    required super.payloadKg,
+    required super.payloadLbs,
+    required super.responseDateTime,
+    required super.imageUrl,
+  });
 
   factory FotoModel.fromJson(Map<String, dynamic> json) => FotoModel(
-      codPropietario: json['cod_propietario'],
-      numSerie: json['num_serie'],
-      numControl: json['num_control'],
-      tipoContenedor: json['tipo_contenedor'],
-      maxGrossKg: json['max_gross_kg'],
-      maxGrossLbs: json['max_gross_lbs'],
-      taraKg: json['tara_kg'],
-      taraLbs: json['tara_lbs'],
-      payloadKg: json['payload_kg'],
-      payloadLbs: json['payload_lbs']);
+        codPropietario: json['cod_propietario'],
+        numSerie: json['num_serie'],
+        numControl: json['num_control'],
+        tipoContenedor: json['tipo_contenedor'],
+        maxGrossKg: json['max_gross_kg'],
+        maxGrossLbs: json['max_gross_lbs'],
+        taraKg: json['tara_kg'],
+        taraLbs: json['tara_lbs'],
+        payloadKg: json['payload_kg'],
+        payloadLbs: json['payload_lbs'],
+        responseDateTime: json['response_date_time'] != null
+            ? DateTime.parse(json['response_date_time'])
+            : DateTime.now(),
+        imageUrl: json['image_url'],
+      );
 
   Map<String, dynamic> toJson() => {
         'cod_propietario': codPropietario,
@@ -36,6 +44,7 @@ class FotoModel extends Foto {
         'tara_lbs': taraLbs,
         'payload_kg': payloadKg,
         'payload_lbs': payloadLbs,
+        'response_date_time': responseDateTime?.toIso8601String(),
+        'image_url': imageUrl,
       };
- 
 }

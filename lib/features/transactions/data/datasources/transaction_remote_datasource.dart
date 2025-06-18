@@ -112,50 +112,52 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   //   }
   // }
 
-Future<int> _sendImageToS3(String base64Image) async {
-  try {
-      final startTime = DateTime.now(); // ⏱️ Inicio
-
-    final response = await http.post(
-      Uri.parse('${baseUrl}presigned-url-images'),
-      body: jsonEncode({
-        "folder": "containerback",
+  Future<Map<String, dynamic>> _sendImageToS3(String base64Image) async {
+    try {
+      final startTime = DateTime.now();
+      final response = await http.post(
+        Uri.parse('${baseUrl}presigned-url-images'),
+        body: jsonEncode({
+          "folder": "containerback",
           'image_base64': base64Image,
-      }),
-      headers: {'Content-Type': 'application/json'},
-    );
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-      final endTime = DateTime.now(); // ⏱️ Fin
+      final endTime = DateTime.now();
       final elapsedMs = endTime.difference(startTime).inMilliseconds;
       log('📤 Tiempo de subida a S3: $elapsedMs ms (${(elapsedMs / 1000).toStringAsFixed(2)} s)');
 
-    if (response.statusCode == 200) {
+      if (response.statusCode == 200) {
         final initialTimeToResponse = DateTime.now();
-      final responseBody = jsonDecode(response.body);
-
+        final responseBody = jsonDecode(response.body);
+        log('Respuesta de S3: $responseBody');
+        final bodyData = jsonDecode(responseBody['body']);
+        final imageUrl = bodyData['image_url'];
         final endTimeToResponse = DateTime.now();
         final elapsedMsToResponse =
             endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
 
         log('📤 Tiempo de respuesta: $elapsedMsToResponse ms (${(elapsedMsToResponse / 1000).toStringAsFixed(2)} s)');
-      return responseBody['statusCode'];
-    } else {
+
+        return {
+          'statusCode': responseBody['statusCode'],
+          'imageUrl': imageUrl,
+        };
+      } else {
         final endTimeToResponse2 = DateTime.now();
         final elapsedMsToResponse2 =
             endTimeToResponse2.difference(startTime).inMilliseconds;
         log('📤 Tiempo de respuesta con error: $elapsedMsToResponse2 ms (${(elapsedMsToResponse2 / 1000).toStringAsFixed(2)} s)');
-      log('Error al subir la imagen. Código: ${response.statusCode}');
+        log('Error al subir la imagen. Código: ${response.statusCode}');
         throw Exception(
             'Error al subir la imagen. Código: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error en uploadImage to S3: $e');
+      throw Exception('Error al conectar con la API: $e');
     }
-  
-  } catch (e) {
-    log('Error en uploadImage to S3: $e');
-    throw Exception('Error al conectar con la API: $e');
-    }
-  
-}
-
+  }
 
   @override
   Future<List<TransactionType>> getAllTransactions() async {
@@ -184,70 +186,56 @@ Future<int> _sendImageToS3(String base64Image) async {
       throw Exception('Error al conectar con la API: $e');
     }
   }
-@override
-Future<FotoModel?> uploadImageToServer(
-  ImageParams image,
-  String idToken,
-) async {
-  final statusCode = await _sendImageToS3(image.base64);
-  log('Status code de la imagen: $statusCode');
-  if (statusCode != 200) {
-    throw Exception('Error al subir la imagen a S3. Código: $statusCode');
-  }
 
-  // Medir tiempo de respuesta
-  final stopwatch = Stopwatch()..start();
+  @override
+  Future<FotoModel?> uploadImageToServer(
+    ImageParams image,
+    String idToken,
+  ) async {
+    final response = await _sendImageToS3(image.base64);
+    final statusCode = response['statusCode'];
+    final imageUrl = response['imageUrl'];
 
-  final result = await _genericRequest<FotoModel>(
-    url: _uploadImage,
-    body: {
+    log('Status code de la imagen: $statusCode');
+    if (statusCode != 200) {
+      throw Exception('Error al subir la imagen a S3. Código: $statusCode');
+    }
+
+    final stopwatch = Stopwatch()..start();
+
+    final result = await _genericRequest<FotoModel>(
+      url: _uploadImage,
+      body: {
         'image_base64': image.base64,
-    },
-    idToken: idToken,
-    parseResponse: (json) {
-      final bodyData =
-          json['body'] is String ? jsonDecode(json['body']) : json['body'];
-      log('bodyData: $bodyData');
-      return FotoModel.fromJson(bodyData);
-    },
-  );
+        'image_url': imageUrl,
+      },
+      idToken: idToken,
+      parseResponse: (json) {
+        final bodyData =
+            json['body'] is String ? jsonDecode(json['body']) : json['body'];
+        log('bodyData: $bodyData');
+        final result = FotoModel.fromJson({
+          ...bodyData,
+          'image_url': imageUrl,
+        });
+        log('FotoModel result: $result');
+        return result;
+      },
+    );
 
-  stopwatch.stop();
-  log('Tiempo de respuesta de la API: ${stopwatch.elapsedMilliseconds} ms');
+    stopwatch.stop();
+    log('Tiempo de respuesta de la API: ${stopwatch.elapsedMilliseconds} ms');
 
-  return result;
-}
-
-  // @override
-  // Future<FotoModel?> uploadImageToServer(
-  //   ImageParams image,
-  //   String idToken) async {
-  //   final statusCode = await _sendImageToS3(image.base64);
-  //   log('Status code de la imagen: $statusCode');
-  //   if (statusCode != 200) {
-  //     throw Exception('Error al subir la imagen a S3. Código: $statusCode');
-  //   }
-
-  //   return _genericRequest<FotoModel>(
-  //     url: _uploadImage,
-  //     body: {
-  //       'image_base64': image.base64,
-  //     },
-  //     idToken: idToken,
-  //     parseResponse: (json) {
-  //       final bodyData =
-  //           json['body'] is String ? jsonDecode(json['body']) : json['body'];
-  //       log('bodyData: $bodyData');
-  //       return FotoModel.fromJson(bodyData);
-  //     },
-  //   );
-  // }
+    return result;
+  }
 
 // Implementación para PrecintModel
   @override
   Future<PrecintModel> uploadPrecint(
       ImageParams precintParam, String idToken) async {
-    final statusCode = await _sendImageToS3(precintParam.base64);
+    final response = await _sendImageToS3(precintParam.base64);
+    final statusCode = response['statusCode'];
+    final imageUrl = response['imageUrl'];
     log('Status code de la imagen: $statusCode');
     if (statusCode != 200) {
       throw Exception('Error al subir la imagen a S3. Código: $statusCode');
@@ -257,48 +245,69 @@ Future<FotoModel?> uploadImageToServer(
       body: {
         // 'filename': precintParam.fileName,
         'image_base64': precintParam.base64,
+        'image_url': imageUrl,
       },
       idToken: idToken,
       parseResponse: (json) {
         final bodyData =
             json['body'] is String ? jsonDecode(json['body']) : json['body'];
-        log('bodyData precint: $bodyData');
-        return PrecintModel.fromJson(bodyData);
+        final result =
+            PrecintModel.fromJson({...bodyData, 'image_url': imageUrl});
+        log('bodyData precint: $result');
+        return result;
       },
     );
   }
 
   @override
-  Future<Conductor> getDni(ImageParams dniParams, String idToken) {
+  Future<Conductor> getDni(ImageParams dniParams, String idToken) async {
+    final response = await _sendImageToS3(dniParams.base64);
+    final statusCode = response['statusCode'];
+    final imageUrl = response['imageUrl'];
+    log('Status code de la imagen: $statusCode');
+    if (statusCode != 200) {
+      throw Exception('Error al subir la imagen a S3. Código: $statusCode');
+    }
     return _genericRequest<Conductor>(
       url: _getdni,
       body: {
         'image_base64': dniParams.base64,
+        'image_url': imageUrl,
       },
       idToken: idToken,
       parseResponse: (json) {
         final bodyData =
             json['body'] is String ? jsonDecode(json['body']) : json['body'];
-        log('bodyData dni: $bodyData');
-        return Conductor.fromJson(bodyData);
+        final result = Conductor.fromJson({...bodyData, 'image_url': imageUrl});
+        log('bodyData dni: $result');
+        return result;
       },
     );
   }
 
   @override
-  Future<Placa> upLoadPlaca(ImageParams placaParams, String idToken) {
+  Future<Placa> upLoadPlaca(ImageParams placaParams, String idToken) async {
+    final response = await _sendImageToS3(placaParams.base64);
+    final statusCode = response['statusCode'];
+    final imageUrl = response['imageUrl'];
+    log('Status code de la imagen: $statusCode');
+    if (statusCode != 200) {
+      throw Exception('Error al subir la imagen a S3. Código: $statusCode');
+    }
     return _genericRequest<Placa>(
       url: _getplaca,
       body: {
         'filename': placaParams.fileName,
         'image_base64': placaParams.base64,
+        'image_url': imageUrl,
       },
       idToken: idToken,
       parseResponse: (json) {
         final bodyData =
             json['body'] is String ? jsonDecode(json['body']) : json['body'];
-        log('bodyData placa: $bodyData');
-        return Placa.fromJson(bodyData);
+        final result = Placa.fromJson({...bodyData, 'image_url': imageUrl});
+        log('bodyData placa: $result');
+        return result;
       },
     );
   }
@@ -406,19 +415,23 @@ Future<FotoModel?> uploadImageToServer(
       return null;
     }
     return null;
-}
+  }
 
   @override
-  Future<String?> uploadLateralImages(String base64Image) {
-    return _sendImageToS3(base64Image).then((statusCode) {
+Future<String?> uploadLateralImages(String base64Image) async {
+    try {
+      final response = await _sendImageToS3(base64Image);
+      final statusCode = response['statusCode'];
+      final imageUrl = response['imageUrl'];
+
       if (statusCode == 200) {
-        return 'Imagen subida correctamente';
+        return 'Imagen subida correctamente.'; 
       } else {
         return null;
       }
-    }).catchError((error) {
+    } catch (error) {
       log('Error al subir la imagen lateral: $error');
       return null;
-    });
+    }
   }
 }

@@ -9,6 +9,8 @@ class Foto {
   final String taraLbs;
   final String payloadKg;
   final String payloadLbs;
+  final DateTime? responseDateTime;
+  final String? imageUrl;
 
   Foto({
     required this.codPropietario,
@@ -21,5 +23,7 @@ class Foto {
     required this.taraLbs,
     required this.payloadKg,
     required this.payloadLbs,
+    this.responseDateTime,
+    this.imageUrl,
   });
 }

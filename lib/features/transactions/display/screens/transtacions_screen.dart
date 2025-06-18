@@ -26,6 +26,7 @@ class TransactionsScreen extends ConsumerWidget {
     UiUtils uiUtils = UiUtils();
     final currentPage = ref.watch(currentPageProvider);
     final transactionTypesAsync = ref.watch(filteredTransactionTypesProvider);
+    final timeCreation = ref.watch(timeCreationTransactionProvider);
 
     const itemsPerPage = 6;
 
@@ -49,6 +50,8 @@ class TransactionsScreen extends ConsumerWidget {
                   title: 'Transacciones',
                   onTap: () {
                     ref.read(routerDelegateProvider).popRoute();
+                    ref.read(timeCreationTransactionProvider.notifier).state =
+                        null;
                   },
                 ),
                 Expanded(
@@ -102,6 +105,17 @@ class TransactionsScreen extends ConsumerWidget {
                                       onTap: () {
                                         final router =
                                             ref.read(routerDelegateProvider);
+                                        timeCreation != null
+                                            ? ref
+                                                .read(
+                                                    timeCreationTransactionProvider
+                                                        .notifier)
+                                                .state = null
+                                            : ref
+                                                .read(
+                                                    timeCreationTransactionProvider
+                                                        .notifier)
+                                                .state = DateTime.now();    
                                         seleteTransactionType(ref, item);
                                         if (item.isInOut == true) {
                                           router.push(AppRoute.talePlaca,

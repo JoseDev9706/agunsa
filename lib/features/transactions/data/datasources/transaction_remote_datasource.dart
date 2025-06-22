@@ -130,23 +130,27 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       log('📤 Tiempo de subida a S3: $elapsedMs ms (${(elapsedMs / 1000).toStringAsFixed(2)} s)');
 
       if (response.statusCode == 200) {
-        final initialTimeToResponse = DateTime.now();
+        //final initialTimeToResponse = DateTime.now();
         final responseBody = jsonDecode(response.body);
         log('Respuesta de S3: $responseBody');
         final bodyData = jsonDecode(responseBody['body']);
         final imageUrl = bodyData['image_url'];
-        final endTimeToResponse = DateTime.now();
-        final elapsedMsToResponse =
-            endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
+        final endTimeToResponse = DateTime.now().toUtc()
+              .copyWith(millisecond: 0, microsecond: 0)
+              .toIso8601String()
+              .replaceAll('.000', '');
+        //final elapsedMsToResponse =
+         //   endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
        
 
-        log('📤 Tiempo de respuesta: $elapsedMsToResponse ms (${(elapsedMsToResponse / 1000).toStringAsFixed(2)} s)');
+       // log('📤 Tiempo de respuesta: $elapsedMsToResponse ms (${(elapsedMsToResponse / 1000).toStringAsFixed(2)} s)');
 
         return {
           'statusCode': responseBody['statusCode'],
           'imageUrl': imageUrl,
           'timeToResponse': "$elapsedMs ms",
-          'DataTimeResponse': endTimeToResponse.toIso8601String(),
+          'DataTimeResponse': endTimeToResponse
+
           
         };
       } else {
@@ -447,8 +451,14 @@ Future<Map<String, dynamic>> uploadLateralImages(String base64Image) async {
       final imageUrl = response['imageUrl'];
       final String timeToResponse = response['timeToResponse'];
       final String dataTimeResponse = response['DataTimeResponse'];
+      final fecha = DateTime.now()
+                      .toUtc()
+                      .copyWith(millisecond: 0, microsecond: 0)
+                      .toIso8601String();
+
+      final fechaSinMilisegundos = fecha.replaceAll('.000', '');
       final rs = {
-        'createdDataContainerLat': DateTime.now().toIso8601String(),
+        'createdDataContainerLat': fechaSinMilisegundos,
         'createdDataContainerLatRespoonse': timeToResponse,
         'imageUrl': imageUrl,
         'response_date_time': dataTimeResponse,

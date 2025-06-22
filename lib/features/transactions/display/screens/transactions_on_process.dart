@@ -163,7 +163,7 @@ class TransactionsOnProcess extends ConsumerWidget {
                                     Row(
                                       children: [
                                         Text(
-                                          'NÚMERO DE CONTENEDOR: ',
+                                          'NÚMERO DE TRANSACCION: ',
                                           style: TextStyle(
                                             color: uiUtils.grayLightColor,
                                             fontWeight: FontWeight.bold,

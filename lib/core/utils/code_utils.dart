@@ -245,7 +245,10 @@ Future<XFile?> _openCamera(BuildContext context) async {
   }
 
   String formatDateToIso8601(String date) {
-    DateTime parsedDate = DateTime.parse(date);
-    return parsedDate.toIso8601String();
-  }
+  DateTime parsedDate = DateTime.parse(date);
+  parsedDate = parsedDate.copyWith(millisecond: 0, microsecond: 0);
+  // Devuelve solo hasta los segundos, sin los .000
+  return parsedDate.toIso8601String().replaceAll('.000', '');
+}
+
 }

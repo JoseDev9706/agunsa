@@ -624,7 +624,7 @@ class ContainerInfo extends ConsumerWidget {
                                                 height:
                                                     uiUtils.screenHeight * 0.03,
                                                 width:
-                                                    uiUtils.screenWidth * 0.33,
+                                                    uiUtils.screenWidth * 0.32,
                                                 margin: const EdgeInsets.only(
                                                     left: 0),
                                                 padding:

@@ -644,7 +644,13 @@ class ResumeTransaction extends ConsumerWidget {
                                                   .toIso8601String()
                                                   .replaceAll('.000', ''),
                                           sealCode: "",
-                                          createdDataSeal: "",
+                                          createdDataSeal: DateTime.now()
+                                              .toUtc()
+                                              .copyWith(
+                                                  millisecond: 0,
+                                                  microsecond: 0)
+                                              .toIso8601String()
+                                              .replaceAll('.000', ''),
                                           updatedDataSeal: DateTime.now()
                                               .toUtc()
                                               .copyWith(

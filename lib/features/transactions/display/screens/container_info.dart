@@ -230,6 +230,9 @@ class ContainerInfo extends ConsumerWidget {
                                                         await uploadPrecint(ref,
                                                             capturedImage, '');
                                                     if (result != null) {
+                                                      result.updateDataSeal =
+                                                          DateTime.now()
+                                                              .toIso8601String();
                                                       final updatedPrecintList =
                                                           [...precintList];
                                                       log('precintList: $precintList');

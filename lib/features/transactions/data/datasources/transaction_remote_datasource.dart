@@ -148,7 +148,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
         return {
           'statusCode': responseBody['statusCode'],
           'imageUrl': imageUrl,
-          'timeToResponse': "$elapsedMs ms",
+          'timeToResponse': endTime,
           'DataTimeResponse': endTimeToResponse
 
           

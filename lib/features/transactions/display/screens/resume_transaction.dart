@@ -41,13 +41,19 @@ class ResumeTransaction extends ConsumerWidget {
     final lateralsImages = ref.watch(aditionalImageUrlsProvider);
     final lateralPhotos =
         lateralsImages.map((image) => image['imageUrl'] as String).toList();
+    //final timeToResponseLateralPhotos = lateralsImages.map((image) {
+    //  final timeString = image['createdDataContainerLatRespoonse'] as String;
+    //  final numberOnly = int.parse(timeString.replaceAll(' ms', ''));
+    //  return numberOnly;
+    //}).toList();
+
     final timeToResponseLateralPhotos = lateralsImages.map((image) {
       final timeString = image['createdDataContainerLatRespoonse'] as String;
-      final numberOnly = int.parse(timeString.replaceAll(' ms', ''));
-      return numberOnly;
+      final dateTime = DateTime.parse(timeString); // ya no es int.parse, sino DateTime.parse
+      return dateTime;
     }).toList();
-    final totalTime =
-        timeToResponseLateralPhotos.fold(0, (sum, item) => sum + item);
+    //final totalTime =
+    //    timeToResponseLateralPhotos.fold(0, (sum, item) => sum + item);
 
     final isUploadingTransaction = ref.watch(uploadingImageProvider);
     if (pendingTransaction != null) {
@@ -547,7 +553,12 @@ class ResumeTransaction extends ConsumerWidget {
                                               lateralsImages[0]
                                                   ['createdDataContainerLat'],
                                           createdDataContainerLatResponse:
-                                              "${totalTime.toString()}ms",
+                                              DateTime.now()
+                                                .toUtc()
+                                                .copyWith(millisecond: 0, microsecond: 0)
+                                                .toIso8601String()
+                                                .replaceAll('.000', ''),
+
                                           containerUrlImageLat: lateralPhotos,
                                           driverDni:
                                               driverInfo?.codLicence ?? "",

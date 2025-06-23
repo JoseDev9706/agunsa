@@ -459,7 +459,7 @@ Future<Map<String, dynamic>> uploadLateralImages(String base64Image) async {
       final fechaSinMilisegundos = fecha.replaceAll('.000', '');
       final rs = {
         'createdDataContainerLat': fechaSinMilisegundos,
-        'createdDataContainerLatRespoonse': timeToResponse,
+        'createdDataContainerLatRespoonse': dataTimeResponse,
         'imageUrl': imageUrl,
         'response_date_time': dataTimeResponse,
       };

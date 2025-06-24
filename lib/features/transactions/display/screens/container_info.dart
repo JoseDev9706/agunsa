@@ -608,7 +608,7 @@ class ContainerInfo extends ConsumerWidget {
                                                     color: uiUtils.labelColor),
                                                 child: Center(
                                                   child: Text(
-                                                    'DNI:           ',
+                                                    'Nro de Licencia:',
                                                     style: TextStyle(
                                                         color: uiUtils
                                                             .grayLightColor,
@@ -624,7 +624,7 @@ class ContainerInfo extends ConsumerWidget {
                                                 height:
                                                     uiUtils.screenHeight * 0.03,
                                                 width:
-                                                    uiUtils.screenWidth * 0.3,
+                                                    uiUtils.screenWidth * 0.32,
                                                 margin: const EdgeInsets.only(
                                                     left: 0),
                                                 padding:
@@ -1020,7 +1020,7 @@ class ContainerInfo extends ConsumerWidget {
             ],
           ),
           label: '',
-          subLabel: '${foto.taraKg} KG',
+          subLabel: '${foto.taraKg}',
         ),
         const SizedBox(height: 10),
         LabelInfo2(
@@ -1052,7 +1052,7 @@ class ContainerInfo extends ConsumerWidget {
             ],
           ),
           label: '',
-          subLabel: '${foto.payloadKg} KG',
+          subLabel: '${foto.payloadKg}',
         ),
         const SizedBox(height: 20),
         Text(

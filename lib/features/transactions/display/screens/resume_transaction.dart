@@ -41,14 +41,8 @@ class ResumeTransaction extends ConsumerWidget {
     final lateralsImages = ref.watch(aditionalImageUrlsProvider);
     final lateralPhotos =
         lateralsImages.map((image) => image['imageUrl'] as String).toList();
-    final timeToResponseLateralPhotos = lateralsImages.map((image) {
-      final timeString = image['createdDataContainerLatRespoonse'] as String;
-      final numberOnly = int.parse(timeString.replaceAll(' ms', ''));
-      return numberOnly;
-    }).toList();
-    final totalTime =
-        timeToResponseLateralPhotos.fold(0, (sum, item) => sum + item);
-
+    
+    
     final isUploadingTransaction = ref.watch(uploadingImageProvider);
     if (pendingTransaction != null) {
       transactionNumberController.text = pendingTransaction.transactionNumber;
@@ -315,7 +309,17 @@ class ResumeTransaction extends ConsumerWidget {
                                                       'createdDataContainerLat']
                                                   .toString(),
                                           createdDataContainerLatResponse:
-                                              "${totalTime.toString()}ms",
+                                              codeUtils.formatDateToIso8601(
+                                                  containerInfo?.responseDateTime
+                                                          ?.toIso8601String() ??
+                                                      DateTime.now()
+                                                          .toUtc()
+                                                          .copyWith(
+                                                              millisecond: 0,
+                                                              microsecond: 0)
+                                                          .toIso8601String()
+                                                          .replaceAll(
+                                                              '.000', '')),
                                           driverDni:
                                               driverInfo?.codLicence ?? "",
                                           driverName: driverInfo?.name1 ?? "",
@@ -447,8 +451,7 @@ class ResumeTransaction extends ConsumerWidget {
                                             transactionType?.name ?? '',
                                         transactionTypeId:
                                             transactionType?.id ?? 0,
-                                        initialTransactionId: DateTime.now()
-                                            .millisecondsSinceEpoch,
+                                        initialTransactionId: transactionType?.id ?? 0,
                                         epochCreatedDatetime: DateTime.now()
                                             .millisecondsSinceEpoch,
                                         createdByUserId: user?.id.hashCode ?? 1,
@@ -503,7 +506,17 @@ class ResumeTransaction extends ConsumerWidget {
                                               lateralsImages[0]
                                                   ['createdDataContainerLat'],
                                           createdDataContainerLatResponse:
-                                              "${totalTime.toString()}ms",
+                                              codeUtils.formatDateToIso8601(
+                                                  containerInfo?.responseDateTime
+                                                          ?.toIso8601String() ??
+                                                      DateTime.now()
+                                                          .toUtc()
+                                                          .copyWith(
+                                                              millisecond: 0,
+                                                              microsecond: 0)
+                                                          .toIso8601String()
+                                                          .replaceAll(
+                                                              '.000', '')),
                                           containerUrlImageLat: lateralPhotos,
                                           driverDni:
                                               driverInfo?.codLicence ?? "",

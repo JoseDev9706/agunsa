@@ -129,6 +129,7 @@ class TakeContainerScreen extends ConsumerWidget {
                                     responseDateTime: result.responseDateTime,
                                     imageUrl: result.imageUrl);
                                 log('Image uploaded successfully: ${re.toJson()}');
+                                ref.read(fotoProvider.notifier).state = result;
                                 ref.read(routerDelegateProvider).push(
                                   AppRoute.takeAditionalPhotos,
                                   args: {

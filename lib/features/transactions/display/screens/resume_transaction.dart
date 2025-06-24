@@ -295,12 +295,14 @@ class ResumeTransaction extends ConsumerWidget {
                                               containerInfo?.tipoContenedor,
                                           containerTara: double.tryParse(
                                                   containerInfo?.taraKg
+                                                          .replaceAll('kg', '')
                                                           .replaceAll(
                                                               ',', '.') ??
                                                       '0.0') ??
                                               0.0,
                                           containerPayload: double.tryParse(
                                                   containerInfo?.payloadKg
+                                                          .replaceAll('kg', '')
                                                           .replaceAll(
                                                               ',', '.') ??
                                                       '0.0') ??
@@ -494,12 +496,14 @@ class ResumeTransaction extends ConsumerWidget {
                                               containerInfo?.tipoContenedor,
                                           containerTara: double.tryParse(
                                                   containerInfo?.taraKg
+                                                          .replaceAll('kg', '')
                                                           .replaceAll(
                                                               ',', '.') ??
                                                       '0.0') ??
                                               0.0,
                                           containerPayload: double.tryParse(
                                                   containerInfo?.payloadKg
+                                                          .replaceAll('kg', '')
                                                           .replaceAll(
                                                               ',', '.') ??
                                                       '0.0') ??

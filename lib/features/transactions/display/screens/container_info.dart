@@ -1033,7 +1033,7 @@ class ContainerInfo extends ConsumerWidget {
             ],
           ),
           label: '',
-          subLabel: '${foto.taraKg}',
+          subLabel: foto.taraKg,
         ),
         const SizedBox(height: 10),
         LabelInfo2(
@@ -1065,7 +1065,7 @@ class ContainerInfo extends ConsumerWidget {
             ],
           ),
           label: '',
-          subLabel: '${foto.payloadKg}',
+          subLabel: foto.payloadKg,
         ),
         const SizedBox(height: 20),
         Text(

@@ -41,8 +41,20 @@ class ResumeTransaction extends ConsumerWidget {
     final lateralsImages = ref.watch(aditionalImageUrlsProvider);
     final lateralPhotos =
         lateralsImages.map((image) => image['imageUrl'] as String).toList();
-    
-    
+    //final timeToResponseLateralPhotos = lateralsImages.map((image) {
+    //  final timeString = image['createdDataContainerLatRespoonse'] as String;
+    //  final numberOnly = int.parse(timeString.replaceAll(' ms', ''));
+    //  return numberOnly;
+    //}).toList();
+
+    final timeToResponseLateralPhotos = lateralsImages.map((image) {
+      final timeString = image['createdDataContainerLatRespoonse'] as String;
+      final dateTime = DateTime.parse(timeString); // ya no es int.parse, sino DateTime.parse
+      return dateTime;
+    }).toList();
+    //final totalTime =
+    //    timeToResponseLateralPhotos.fold(0, (sum, item) => sum + item);
+
     final isUploadingTransaction = ref.watch(uploadingImageProvider);
     if (pendingTransaction != null) {
       transactionNumberController.text = pendingTransaction.transactionNumber;
@@ -268,41 +280,43 @@ class ResumeTransaction extends ConsumerWidget {
 
                                     try {
                                       if (pendingTransaction != null) {
-                                      TransactionModel transaction =
-                                          TransactionModel(
-                                        containerNumber:
-                                            containerInfo?.numSerie,
-                                        transactionTypeName:
-                                            transactionType?.name ?? '',
-                                        containerTransportLine:
-                                            containerInfo?.codPropietario ??
-                                                "MSC",
-                                        containerIso:
-                                            containerInfo?.codPropietario,
-                                        containerType:
-                                            containerInfo?.tipoContenedor,
-                                        containerTara: double.tryParse(
-                                                containerInfo?.taraKg
-                                                        .replaceAll(',', '.') ??
-                                                    '0.0') ??
-                                            0.0,
-                                        containerPayload: double.tryParse(
-                                                containerInfo?.payloadKg
-                                                        .replaceAll(',', '.') ??
-                                                    '0.0') ??
-                                            0.0,
-                                        createdDataContainer:
-                                            codeUtils.formatDateToIso8601(
+                                        TransactionModel transaction =
+                                            TransactionModel(
+                                          containerNumber:
+                                              containerInfo?.numSerie,
+                                          transactionTypeName:
+                                              transactionType?.name ?? '',
+                                          containerTransportLine:
+                                              containerInfo?.codPropietario ??
+                                                  "MSC",
+                                          containerIso:
+                                              containerInfo?.codPropietario,
+                                          containerType:
+                                              containerInfo?.tipoContenedor,
+                                          containerTara: double.tryParse(
+                                                  containerInfo?.taraKg
+                                                          .replaceAll(
+                                                              ',', '.') ??
+                                                      '0.0') ??
+                                              0.0,
+                                          containerPayload: double.tryParse(
+                                                  containerInfo?.payloadKg
+                                                          .replaceAll(
+                                                              ',', '.') ??
+                                                      '0.0') ??
+                                              0.0,
+                                          createdDataContainer: codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        updatedDataContainer:
-                                            codeUtils.formatDateToIso8601(
+                                          updatedDataContainer: containerInfo
+                                                  ?.updateDataContainer ??
+                                              codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        createDateContainerDateTimeRespone:
-                                            codeUtils.formatDateToIso8601(
-                                                containerInfo?.responseDateTime
-                                                        ?.toIso8601String() ??
-                                                    DateTime.now()
-                                                          .toIso8601String()),
+                                          createDateContainerDateTimeRespone:
+                                              codeUtils.formatDateToIso8601(
+                                                  containerInfo?.responseDateTime
+                                                          ?.toIso8601String() ??
+                                                      codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),),
                                           containerUrlImageLat: lateralPhotos,
                                           createdDataContainerLat:
                                               lateralsImages[0][
@@ -312,245 +326,236 @@ class ResumeTransaction extends ConsumerWidget {
                                               codeUtils.formatDateToIso8601(
                                                   containerInfo?.responseDateTime
                                                           ?.toIso8601String() ??
-                                                      DateTime.now()
-                                                          .toUtc()
-                                                          .copyWith(
-                                                              millisecond: 0,
-                                                              microsecond: 0)
-                                                          .toIso8601String()
-                                                          .replaceAll(
-                                                              '.000', '')),
+                                                      codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),),
                                           driverDni:
                                               driverInfo?.codLicence ?? "",
                                           driverName: driverInfo?.name1 ?? "",
-                                        driverLastName:
-                                            driverInfo?.lastName1 ?? "",
-                                        createdDataDriver:
-                                            codeUtils.formatDateToIso8601(
+                                          driverLastName:
+                                              driverInfo?.lastName1 ?? "",
+                                          createdDataDriver: codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        updatedDataDriver:
-                                            codeUtils.formatDateToIso8601(
+                                          updatedDataDriver: driverInfo
+                                                  ?.updateConductorDateTime ??
+                                              codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        createdDataDriverResponse: codeUtils
-                                            .formatDateToIso8601(driverInfo
-                                                    ?.responseDateTime
-                                                    ?.toIso8601String() ??
-                                                DateTime.now()
-                                                    .toIso8601String()),
-                                        plate: placaInfo?.codigo ?? "XY-1234",
-                                        createdDataPlate:
-                                            codeUtils.formatDateToIso8601(
+                                          createdDataDriverResponse: codeUtils
+                                              .formatDateToIso8601(driverInfo
+                                                      ?.responseDateTime
+                                                      ?.toIso8601String() ??
+                                                  codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),),
+                                          plate: placaInfo?.codigo ?? "XY-1234",
+                                          createdDataPlate: codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        updatedDataPlate:
-                                            codeUtils.formatDateToIso8601(
+                                          updatedDataPlate:
+                                              placaInfo?.updatePlateDateTime ??
+                                                  codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        createdDataPlateResponse:
-                                            codeUtils.formatDateToIso8601(
-                                                placaInfo?.responseDateTime ??
-                                                    DateTime.now()
-                                                        .toIso8601String()),
+                                          createdDataPlateResponse: codeUtils
+                                          .formatDateToIso8601( placaInfo
+                                          ?.responseDateTime.toString() ??
+                                                codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                          ),
                                           sealCode: "",
                                           sealcodesList: precintsCodes,
-                                          createdDataSealResponse:
-                                              codeUtils.formatDateToIso8601(
-                                                  precintList?[0]
+                                          createdDataSealResponse: codeUtils
+                                          .formatDateToIso8601(precintList?[0]
                                                           .responseDateTime
                                                           ?.toIso8601String() ??
-                                                      DateTime.now()
-                                                          .toIso8601String()),
-                                        createdDataSeal:
-                                            codeUtils.formatDateToIso8601(
+                                                      codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),),
+                                          createdDataSeal:codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        updatedDataSeal:
-                                            codeUtils.formatDateToIso8601(
+                                          updatedDataSeal: precintList
+                                                  ?.last.updateDataSeal ??
+                                              codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        transactionNumber: pendingTransaction
-                                            .transactionNumber,
-                                        initialTransactionId: pendingTransaction
-                                            .initialTransactionId,
-                                        transactionTypeId: pendingTransaction
-                                            .transactionTypeId,
-                                        epochCreatedDatetime: pendingTransaction
-                                            .epochCreatedDatetime,
-                                        cratedDataTimeTransaction: ref
-                                                .watch(
-                                                    timeCreationTransactionProvider)
-                                                ?.millisecondsSinceEpoch ??
-                                            0,
-                                        createdByUserId:
-                                            pendingTransaction.createdByUserId,
-                                        containerUrlImage:
-                                            containerInfo?.imageUrl,
-                                        driverUrlImage: driverInfo?.imageUrl,
-                                        plateUrlImage: placaInfo?.imageUrl,
-                                        precintImagesUrl: urlPrecint,
-                                      );
-                                      log('transaction: ${transaction.toJson()}');
-                                      final resultTransaction =
-                                          await createTransactionFuntion(
-                                              ref, transaction);
-
-                                      if (resultTransaction ==
-                                          'Item registered successfully') {
-                                        log('resultTransaction1: $resultTransaction');
-                                        // 2️⃣ Crear nueva PendingTransactionModel ajustada
-                                        PendingTransactionModel
-                                            newPendingTransaction =
-                                            PendingTransactionModel(
                                           transactionNumber: pendingTransaction
                                               .transactionNumber,
-                                          transactionTypeName:
-                                              pendingTransaction
-                                                  .transactionTypeName,
+                                          initialTransactionId:
+                                              transactionType?.id ?? 0,
                                           transactionTypeId: pendingTransaction
                                               .transactionTypeId,
-                                          initialTransactionId:
-                                              pendingTransaction
-                                                  .initialTransactionId,
                                           epochCreatedDatetime:
                                               pendingTransaction
                                                   .epochCreatedDatetime,
+                                          cratedDataTimeTransaction: ref
+                                                  .watch(
+                                                      timeCreationTransactionProvider)
+                                                  ?.millisecondsSinceEpoch ??
+                                              0,
                                           createdByUserId: pendingTransaction
                                               .createdByUserId,
-                                          currentStatus: false,
-                                          createdDataTimeTransaction:
-                                              pendingTransaction
-                                                  .createdDataTimeTransaction,
+                                          containerUrlImage:
+                                              containerInfo?.imageUrl,
+                                          driverUrlImage: driverInfo?.imageUrl,
+                                          plateUrlImage: placaInfo?.imageUrl,
+                                          precintImagesUrl: urlPrecint,
                                         );
-                                        final resultPendingTransaction =
-                                            await createPendingTransactionFuntion(
-                                                ref, newPendingTransaction);
-                                        if (resultPendingTransaction ==
-                                            'Item registered successfully') {
-                                          log('creo la transaccion pendiente');
-                                          uiUtils.showSnackBar(context,
-                                              'Transacción creada exitosamente');
-                                          log('resultPendingTransaction: $resultPendingTransaction');
-                                          // setIsFromPendingTransaction(
-                                          //     ref, false);
-                                          // getSelectedPendingTransaction(
-                                          //     ref, null);
-                                        }
-                                        log('creo las dos transacciones');
-                                        setUploadingImage(ref, false);
-                                      } else {
-                                        log('Error al crear la transacción');
-                                        uiUtils.showSnackBar(context,
-                                            'Error al crear la transacción');
-                                        setUploadingImage(ref, false);
-                                        return;
-                                      }
-                                    } else if (transactionType?.isInOut ??
-                                        false || isfromPending) {
-                                      PendingTransactionModel
-                                          pendingTransaction =
-                                          PendingTransactionModel(
-                                        transactionNumber:
-                                            transactionNumberController.text,
-                                        transactionTypeName:
-                                            transactionType?.name ?? '',
-                                        transactionTypeId:
-                                            transactionType?.id ?? 0,
-                                        initialTransactionId: transactionType?.id ?? 0,
-                                        epochCreatedDatetime: DateTime.now()
-                                            .millisecondsSinceEpoch,
-                                        createdByUserId: user?.id.hashCode ?? 1,
-                                        currentStatus: true,
-                                        createdDataTimeTransaction:
-                                            DateTime.now()
-                                                .millisecondsSinceEpoch,
-                                      );
+                                        log('transaction: ${transaction.toJson()}');
+                                        final resultTransaction =
+                                            await createTransactionFuntion(
+                                                ref, transaction);
 
-                                      await createPendingTransactionFuntion(
-                                          ref, pendingTransaction);
-                                      log('creo la transaccion pendiente');
-                                      setUploadingImage(ref, false);
-                                      uiUtils.showSnackBar(context,
-                                          'Transacción pendiente creada exitosamente');
-                                    } else {
-                                      log('user : ${user?.id.hashCode}');
-                                      TransactionModel transaction =
-                                          TransactionModel(
-                                        containerNumber:
-                                            containerInfo?.numSerie,
-                                        transactionTypeName:
-                                            transactionType?.name ?? '',
-                                        containerTransportLine: "MSC",
-                                        containerIso:
-                                            containerInfo?.codPropietario,
-                                        containerType:
-                                            containerInfo?.tipoContenedor,
-                                        containerTara: double.tryParse(
-                                                containerInfo?.taraKg
-                                                        .replaceAll(',', '.') ??
-                                                    '0.0') ??
-                                            0.0,
-                                        containerPayload: double.tryParse(
-                                                containerInfo?.payloadKg
-                                                        .replaceAll(',', '.') ??
-                                                    '0.0') ??
-                                            0.0,
-                                        createdDataContainer:
-                                            codeUtils.formatDateToIso8601(
+                                        if (resultTransaction ==
+                                            'Item registered successfully') {
+                                          log('resultTransaction1: $resultTransaction');
+                                          // 2️⃣ Crear nueva PendingTransactionModel ajustada
+                                          PendingTransactionModel
+                                              newPendingTransaction =
+                                              PendingTransactionModel(
+                                            transactionNumber:
+                                                pendingTransaction
+                                                    .transactionNumber,
+                                            transactionTypeName:
+                                                pendingTransaction
+                                                    .transactionTypeName,
+                                            transactionTypeId:
+                                                pendingTransaction
+                                                    .transactionTypeId,
+                                            initialTransactionId:
+                                                transactionType?.id ?? 0,
+                                            epochCreatedDatetime:
+                                                pendingTransaction
+                                                    .epochCreatedDatetime,
+                                            createdByUserId: pendingTransaction
+                                                .createdByUserId,
+                                            currentStatus: false,
+                                            createdDataTimeTransaction:
+                                                pendingTransaction
+                                                    .createdDataTimeTransaction,
+                                          );
+                                          final resultPendingTransaction =
+                                              await createPendingTransactionFuntion(
+                                                  ref, newPendingTransaction);
+                                          if (resultPendingTransaction ==
+                                              'Item registered successfully') {
+                                            log('creo la transaccion pendiente');
+                                            uiUtils.showSnackBar(context,
+                                                'Transacción creada exitosamente');
+                                            log('resultPendingTransaction: $resultPendingTransaction');
+                                            // setIsFromPendingTransaction(
+                                            //     ref, false);
+                                            // getSelectedPendingTransaction(
+                                            //     ref, null);
+                                          }
+                                          log('creo las dos transacciones');
+                                          setUploadingImage(ref, false);
+                                        } else {
+                                          log('Error al crear la transacción');
+                                          uiUtils.showSnackBar(context,
+                                              'Error al crear la transacción');
+                                          setUploadingImage(ref, false);
+                                          return;
+                                        }
+                                      } else if (transactionType?.isInOut ??
+                                          false || isfromPending) {
+                                        PendingTransactionModel
+                                            pendingTransaction =
+                                            PendingTransactionModel(
+                                          transactionNumber:
+                                              transactionNumberController.text,
+                                          transactionTypeName:
+                                              transactionType?.name ?? '',
+                                          transactionTypeId:
+                                              transactionType?.id ?? 0,
+                                          initialTransactionId:
+                                              transactionType?.id ?? 0,
+                                          epochCreatedDatetime: DateTime.now()
+                                              .millisecondsSinceEpoch,
+                                          createdByUserId:
+                                              user?.id.hashCode ?? 1,
+                                          currentStatus: true,
+                                          createdDataTimeTransaction:
+                                              DateTime.now()
+                                                  .millisecondsSinceEpoch,
+                                        );
+
+                                        await createPendingTransactionFuntion(
+                                            ref, pendingTransaction);
+                                        log('creo la transaccion pendiente');
+                                        setUploadingImage(ref, false);
+                                        uiUtils.showSnackBar(context,
+                                            'Transacción pendiente creada exitosamente');
+                                      } else {
+                                        log('user : ${user?.id.hashCode}');
+                                        TransactionModel transaction =
+                                            TransactionModel(
+                                          containerNumber:
+                                              containerInfo?.numSerie,
+                                          transactionTypeName:
+                                              transactionType?.name ?? '',
+                                          containerTransportLine: "MSC",
+                                          containerIso:
+                                              containerInfo?.codPropietario,
+                                          containerType:
+                                              containerInfo?.tipoContenedor,
+                                          containerTara: double.tryParse(
+                                                  containerInfo?.taraKg
+                                                          .replaceAll(
+                                                              ',', '.') ??
+                                                      '0.0') ??
+                                              0.0,
+                                          containerPayload: double.tryParse(
+                                                  containerInfo?.payloadKg
+                                                          .replaceAll(
+                                                              ',', '.') ??
+                                                      '0.0') ??
+                                              0.0,
+                                          createdDataContainer: codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        updatedDataContainer:
-                                            codeUtils.formatDateToIso8601(
+                                          updatedDataContainer: containerInfo
+                                                  ?.updateDataContainer ??
+                                              codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        createDateContainerDateTimeRespone:
-                                            codeUtils.formatDateToIso8601(
-                                                containerInfo?.responseDateTime
-                                                        ?.toIso8601String() ??
-                                                    DateTime.now()
-                                                        .toIso8601String()),
+                                          createDateContainerDateTimeRespone:
+                                              codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
                                           createdDataContainerLat:
                                               lateralsImages[0]
                                                   ['createdDataContainerLat'],
                                           createdDataContainerLatResponse:
                                               codeUtils.formatDateToIso8601(
-                                                  containerInfo?.responseDateTime
-                                                          ?.toIso8601String() ??
-                                                      DateTime.now()
-                                                          .toUtc()
-                                                          .copyWith(
-                                                              millisecond: 0,
-                                                              microsecond: 0)
-                                                          .toIso8601String()
-                                                          .replaceAll(
-                                                              '.000', '')),
+                                                DateTime.now().toString()),
+
                                           containerUrlImageLat: lateralPhotos,
                                           driverDni:
                                               driverInfo?.codLicence ?? "",
                                           driverName: driverInfo?.name1 ?? "",
-                                        driverLastName:
-                                            driverInfo?.lastName1 ?? "",
-                                        createdDataDriver:
-                                            codeUtils.formatDateToIso8601(
+                                          driverLastName:
+                                              driverInfo?.lastName1 ?? "",
+                                          createdDataDriver: codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        updatedDataDriver:
-                                            codeUtils.formatDateToIso8601(
+                                          updatedDataDriver: driverInfo
+                                                  ?.updateConductorDateTime ??
+                                              codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        createdDataDriverResponse: codeUtils
-                                            .formatDateToIso8601(driverInfo
-                                                    ?.responseDateTime
-                                                    ?.toIso8601String() ??
-                                                DateTime.now()
-                                                    .toIso8601String()),
-                                        plate: placaInfo?.codigo ?? "",
-                                        createdDataPlate:
-                                            codeUtils.formatDateToIso8601(
+                                          createdDataDriverResponse:
+                                              codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        updatedDataPlate:
-                                            codeUtils.formatDateToIso8601(
+                                          plate: placaInfo?.codigo ?? "",
+                                          createdDataPlate: codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
-                                        createdDataPlateResponse: placaInfo
-                                                    ?.responseDateTime !=
-                                                null
-                                            ? codeUtils.formatDateToIso8601(
-                                                placaInfo!.responseDateTime!)
-                                            : DateTime.now().toIso8601String(),
-                                        sealCode: "",
-                                        createdDataSeal: "2025-05-14T12:00:00Z",
-                                        updatedDataSeal: "2025-05-14T12:00:00Z",
+                                          updatedDataPlate:
+                                              placaInfo?.updatePlateDateTime ??
+                                                  codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                          createdDataPlateResponse: placaInfo
+                                                      ?.responseDateTime !=
+                                                  null
+                                              ? codeUtils.formatDateToIso8601(
+                                                  placaInfo!.responseDateTime!)
+                                              : codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                          sealCode: "",
+                                          createdDataSeal: codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
+                                          updatedDataSeal: precintList
+                                                  ?.last.updateDataSeal ??
+                                              codeUtils.formatDateToIso8601(
+                                                DateTime.now().toString()),
                                           sealcodesList: precintsCodes,
                                           createdDataSealResponse:
                                               codeUtils.formatDateToIso8601(
@@ -559,48 +564,51 @@ class ResumeTransaction extends ConsumerWidget {
                                                           ?.toIso8601String() ??
                                                       DateTime.now()
                                                           .toIso8601String()),
-                                        transactionNumber:
-                                            transactionNumberController.text,
-                                        initialTransactionId: DateTime.now()
-                                            .millisecondsSinceEpoch,
-                                        transactionTypeId:
-                                            transactionType?.id ?? 0,
-                                        epochCreatedDatetime: DateTime.now()
-                                            .millisecondsSinceEpoch,
-                                        cratedDataTimeTransaction: ref
-                                                .watch(
-                                                    timeCreationTransactionProvider)
-                                                ?.millisecondsSinceEpoch ??
-                                            DateTime.now()
-                                                .millisecondsSinceEpoch,
-                                        createdByUserId: user?.id.hashCode ?? 1,
-                                        currentStatus: false,
-                                        containerUrlImage:
-                                            containerInfo?.imageUrl,
-                                        driverUrlImage: driverInfo?.imageUrl,
-                                        plateUrlImage: placaInfo?.imageUrl,
-                                        precintImagesUrl: urlPrecint,
-                                      );
-                                      log('transaction: ${transaction.toJson()}');
-                                      final result =
-                                          await createTransactionFuntion(
-                                              ref, transaction);
-                                      if (result ==
-                                          'Item registered successfully') {
-                                        setUploadingImage(ref, false);
-                                        setIsCompleteTransaction(ref, true);
-                                        setTimeCreationTransaction(ref, null);
-                                        uiUtils.showSnackBar(context,
-                                            'Transacción creada exitosamente');
-                                        log('creo la transaccion completa');
-                                      } else {
-                                        log('Error al crear la transacción');
-                                        uiUtils.showSnackBar(context,
-                                            'Error al crear la transacción sola');
-                                        setUploadingImage(ref, false);
-                                        return;
+                                         
+                                                          
+                                          transactionNumber:
+                                              transactionNumberController.text,
+                                          initialTransactionId:
+                                              transactionType?.id ?? 0,
+                                          transactionTypeId:
+                                              transactionType?.id ?? 0,
+                                          epochCreatedDatetime: DateTime.now()
+                                              .millisecondsSinceEpoch,
+                                          cratedDataTimeTransaction: ref
+                                                  .watch(
+                                                      timeCreationTransactionProvider)
+                                                  ?.millisecondsSinceEpoch ??
+                                              DateTime.now()
+                                                  .millisecondsSinceEpoch,
+                                          createdByUserId:
+                                              user?.id.hashCode ?? 1,
+                                          currentStatus: false,
+                                          containerUrlImage:
+                                              containerInfo?.imageUrl,
+                                          driverUrlImage: driverInfo?.imageUrl,
+                                          plateUrlImage: placaInfo?.imageUrl,
+                                          precintImagesUrl: urlPrecint,
+                                        );
+                                        log('transaction: ${transaction.toJson()}');
+                                        final result =
+                                            await createTransactionFuntion(
+                                                ref, transaction);
+                                        if (result ==
+                                            'Item registered successfully') {
+                                          setUploadingImage(ref, false);
+                                          setIsCompleteTransaction(ref, true);
+                                          setTimeCreationTransaction(ref, null);
+                                          uiUtils.showSnackBar(context,
+                                              'Transacción creada exitosamente');
+                                          log('creo la transaccion completa');
+                                        } else {
+                                          log('Error al crear la transacción');
+                                          uiUtils.showSnackBar(context,
+                                              'Error al crear la transacción sola');
+                                          setUploadingImage(ref, false);
+                                          return;
+                                        }
                                       }
-                                    }
                                     } catch (e) {
                                       log('Error al crear la transacción: $e');
                                       uiUtils.showSnackBar(context,

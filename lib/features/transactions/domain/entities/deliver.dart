@@ -6,6 +6,7 @@ class Conductor {
   final String codLicence;
   final String imageUrl;
   final DateTime? responseDateTime;
+  String? updateConductorDateTime; 
 
   Conductor({
     required this.name1,
@@ -15,6 +16,7 @@ class Conductor {
     required this.codLicence,
     required this.imageUrl,
     this.responseDateTime,
+    this.updateConductorDateTime,
   });
 
   factory Conductor.fromJson(Map<String, dynamic> json) => Conductor(
@@ -27,6 +29,7 @@ class Conductor {
         responseDateTime: json['response_date_time'] != null
             ? DateTime.parse(json['response_date_time'])
             : DateTime.now(),
+        updateConductorDateTime: json['update_conductor_date_time'] ?? '',
       );
 
   Map<String, dynamic> toJson() => {
@@ -37,6 +40,7 @@ class Conductor {
         'cod_licencia': codLicence,
         'image_url': imageUrl,
         'response_date_time': responseDateTime?.toIso8601String(),
+        'update_conductor_date_time': updateConductorDateTime ?? '',
       };
 
   String get fullName {

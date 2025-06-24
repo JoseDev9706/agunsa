@@ -113,7 +113,7 @@ class TakeContainerScreen extends ConsumerWidget {
                             if (!isUploadingImage) {
                               setUploadingImage(ref, true);
                               final result = await uploadImageToServer(
-                                  ref, images.first!, '');
+                                  ref, images.first!, '', null);
                               if (result != null) {
                                 final re = FotoModel(
                                     codPropietario: result.codPropietario,
@@ -129,6 +129,7 @@ class TakeContainerScreen extends ConsumerWidget {
                                     responseDateTime: result.responseDateTime,
                                     imageUrl: result.imageUrl);
                                 log('Image uploaded successfully: ${re.toJson()}');
+                                ref.read(fotoProvider.notifier).state = result;
                                 ref.read(routerDelegateProvider).push(
                                   AppRoute.takeAditionalPhotos,
                                   args: {

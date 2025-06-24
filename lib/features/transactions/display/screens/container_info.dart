@@ -380,6 +380,9 @@ class ContainerInfo extends ConsumerWidget {
                                                   ref, capturedImage, '');
                                               if (result != null) {
                                                 log('Placa actualizada');
+                                                result.updatePlateDateTime =
+                                                    DateTime.now()
+                                                        .toIso8601String();
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
                                                   const SnackBar(
@@ -692,8 +695,13 @@ class ContainerInfo extends ConsumerWidget {
                                                   .state = (capturedImage);
                                               final result = await getDniInfo(
                                                   ref, capturedImage);
+                                                 
                                               if (result != null) {
                                                 log('Documento actualizado');
+                                                result.updateConductorDateTime =
+                                                    CodeUtils().formatDateToIso8601(
+                                                        DateTime.now()
+                                                            .toIso8601String());
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
                                                   const SnackBar(
@@ -1068,30 +1076,33 @@ class ContainerInfo extends ConsumerWidget {
             color: isUploadingImage ? Colors.grey : uiUtils.primaryColor,
             text: isUploadingImage ? 'ACTUALIZANDO...' : 'ACTUALIZAR',
             onTap: () async {
+              final previousImage = ref.read(containerImageProvider);
+
               final capturedImage =
                   await CodeUtils().checkCameraPermission(context);
-              if (capturedImage != null) {
-                ref.read(containerImageProvider.notifier).state = [
-                  capturedImage
-                ];
-              }
+
               if (capturedImage != null) {
                 log('uploading image: $isUploadingImage');
+
                 if (!isUploadingImage) {
                   setUploadingImage(ref, true);
+
                   final result =
-                      await uploadImageToServer(ref, capturedImage, '');
+                      await uploadImageToServer(ref, capturedImage, '', foto);
+                  log('Result: $result');
                   if (result != null) {
+                    ref.read(containerImageProvider.notifier).state = [
+                      capturedImage
+                    ];
+                    result.updateDataContainer = CodeUtils()
+                        .formatDateToIso8601(DateTime.now().toIso8601String());
                     ref.read(fotoProvider.notifier).state = result;
                   } else {
-                    // Mostrar SnackBar en la parte superior
                     final snackBar = SnackBar(
                       content: const Text(
                         'Ocurrió un error, por favor vuelve a tomar la imagen. '
                         'Asegúrate de que sea clara y los valores sean legibles.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       behavior: SnackBarBehavior.floating,
                       margin: EdgeInsets.only(
@@ -1109,7 +1120,11 @@ class ContainerInfo extends ConsumerWidget {
                     ScaffoldMessenger.of(context)
                       ..hideCurrentSnackBar()
                       ..showSnackBar(snackBar);
+                    log('Error al subir la imagen del contenedor');
+                    ref.read(containerImageProvider.notifier).state =
+                        previousImage;
                   }
+
                   setUploadingImage(ref, false);
                 }
               }

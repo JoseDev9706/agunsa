@@ -14,6 +14,7 @@ class FotoModel extends Foto {
     required super.payloadLbs,
     required super.responseDateTime,
     required super.imageUrl,
+    super.updateDataContainer,
   });
 
   factory FotoModel.fromJson(Map<String, dynamic> json) => FotoModel(
@@ -31,6 +32,7 @@ class FotoModel extends Foto {
             ? DateTime.parse(json['response_date_time'])
             : DateTime.now(),
         imageUrl: json['image_url'],
+        updateDataContainer: json['update_data_container'] ?? "",
       );
 
   Map<String, dynamic> toJson() => {
@@ -46,5 +48,6 @@ class FotoModel extends Foto {
         'payload_lbs': payloadLbs,
         'response_date_time': responseDateTime?.toIso8601String(),
         'image_url': imageUrl,
+        'update_data_container': updateDataContainer,
       };
 }

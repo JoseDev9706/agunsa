@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 //
 //import 'dart:typed_data';
+import 'package:agunsa/features/transactions/data/models/foto.dart';
 import 'package:image/image.dart' as img;
 //import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart';
@@ -150,7 +151,6 @@ void sendTransaction(WidgetRef ref, bool value) {
   ref.read(sendTransactionProvider.notifier).state = value;
 }
 
-
 Future<String?> processAndEncodeImage(String imagePath,
     {int maxWidth = 400, int maxHeight = 400, int quality = 70}) async {
   try {
@@ -163,11 +163,13 @@ Future<String?> processAndEncodeImage(String imagePath,
 
     debugPrint('Dimensiones originales: ${image.width}x${image.height}');
 
-    final resized = img.copyResize(image, 
-        width: maxWidth, height: maxHeight, 
+    final resized = img.copyResize(image,
+        width: maxWidth,
+        height: maxHeight,
         interpolation: img.Interpolation.average);
 
-    debugPrint('Dimensiones redimensionadas: ${resized.width}x${resized.height}');
+    debugPrint(
+        'Dimensiones redimensionadas: ${resized.width}x${resized.height}');
 
     final jpg = img.encodeJpg(resized, quality: quality);
     return base64Encode(jpg);
@@ -178,10 +180,7 @@ Future<String?> processAndEncodeImage(String imagePath,
 }
 
 Future<Foto?> uploadImageToServer(
-  WidgetRef ref,
-  XFile image,
-  String idToken,
-) async {
+    WidgetRef ref, XFile image, String idToken, Foto? dataPrevous) async {
   final uploadUsecase = ref.read(uploadImageToServerProvider);
 
   final base64Image = await processAndEncodeImage(image.path);
@@ -199,16 +198,15 @@ Future<Foto?> uploadImageToServer(
 
   return result.fold(
     (failure) {
-      ref.read(fotoProvider.notifier).state = null;
+     
       return null;
     },
     (foto) {
-      ref.read(fotoProvider.notifier).state = foto;
+      // ref.read(fotoProvider.notifier).state = foto;
       return foto;
     },
   );
 }
-
 
 // Future<Foto?> uploadImageToServer(
 //   WidgetRef ref,
@@ -251,7 +249,7 @@ Future<Map<String, dynamic>> uploadLateralImagesFunction(
                 'Fallo al subir las imágenes laterales: ${failure.message}',
           }, (message) {
     log('Imágenes laterales subidas correctamente: $message');
-    
+
     return message;
   });
 }
@@ -347,6 +345,7 @@ void addAdtionalUrlImages(
 void setIsCompleteTransaction(WidgetRef ref, bool isComplete) {
   ref.read(isCompleteTransactionProvider.notifier).state = isComplete;
 }
+
 void getSelectedPendingTransaction(
     WidgetRef ref, PendingTransaction? transaction) {
   if (transaction != null) {
@@ -416,7 +415,6 @@ final currentPageProvider = StateProvider<int>((ref) => 1);
 
 final filteredTransactionTypesProvider =
     Provider<AsyncValue<List<TransactionType>>>((ref) {
-      
   final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
   final transactionTypesAsync = ref.watch(transactionTypesProvider);
 

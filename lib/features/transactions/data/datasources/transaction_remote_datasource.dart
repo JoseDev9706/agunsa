@@ -139,10 +139,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
               .copyWith(millisecond: 0, microsecond: 0)
               .toIso8601String()
               .replaceAll('.000', '');
-        //final elapsedMsToResponse =
-         //   endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
-       
-
+        //final elapsedMsToResponse = endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
        // log('📤 Tiempo de respuesta: $elapsedMsToResponse ms (${(elapsedMsToResponse / 1000).toStringAsFixed(2)} s)');
 
         return {
@@ -197,7 +194,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   }
 
   @override
-  Future<FotoModel?> uploadImageToServer(
+  Future<FotoModel> uploadImageToServer(
     ImageParams image,
     String idToken,
   ) async {
@@ -206,8 +203,9 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     final imageUrl = response['imageUrl'];
 
     log('Status code de la imagen: $statusCode');
-    if (statusCode != 200) {
-      throw Exception('Error al subir la imagen a S3. Código: $statusCode');
+    if (statusCode != 200 || imageUrl == null) {
+      throw Exception(
+          'Error al subir la imagen a S3. Código: $statusCode, imageUrl: $imageUrl');
     }
 
     final stopwatch = Stopwatch()..start();
@@ -223,11 +221,17 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
         final bodyData =
             json['body'] is String ? jsonDecode(json['body']) : json['body'];
         log('bodyData: $bodyData');
+
+        if (bodyData == null || bodyData.isEmpty) {
+          throw Exception('Respuesta vacía o inválida al parsear bodyData');
+        }
+
         final result = FotoModel.fromJson({
           ...bodyData,
           'image_url': imageUrl,
         });
         log('FotoModel result: $result');
+
         return result;
       },
     );
@@ -235,8 +239,13 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     stopwatch.stop();
     log('Tiempo de respuesta de la API: ${stopwatch.elapsedMilliseconds} ms');
 
+    if (result == null) {
+      throw Exception('El resultado de _genericRequest es null');
+    }
+
     return result;
   }
+
 
 // Implementación para PrecintModel
   @override
@@ -449,7 +458,6 @@ Future<Map<String, dynamic>> uploadLateralImages(String base64Image) async {
       final response = await _sendImageToS3(base64Image);
       final statusCode = response['statusCode'];
       final imageUrl = response['imageUrl'];
-      final String timeToResponse = response['timeToResponse'];
       final String dataTimeResponse = response['DataTimeResponse'];
       final fecha = DateTime.now()
                       .toUtc()
@@ -472,10 +480,10 @@ Future<Map<String, dynamic>> uploadLateralImages(String base64Image) async {
           });
       }
     } catch (error) {
-      log('Error al subir la imagen lateral: $error');
+      log('Error al subir la imagen lateral remote: $error');
       return {
         'statusCode': 500,
-        'error': 'Error al subir la imagen lateral: $error',
+        'error': 'Error al subir la imagen lateral remote 2: $error',
       };
     }
   }

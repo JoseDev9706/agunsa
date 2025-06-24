@@ -11,6 +11,7 @@ class Foto {
   final String payloadLbs;
   final DateTime? responseDateTime;
   final String? imageUrl;
+  String? updateDataContainer;
 
   Foto({
     required this.codPropietario,
@@ -25,5 +26,6 @@ class Foto {
     required this.payloadLbs,
     this.responseDateTime,
     this.imageUrl,
+    this.updateDataContainer,
   });
 }

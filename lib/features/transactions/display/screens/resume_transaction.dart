@@ -295,66 +295,31 @@ class ResumeTransaction extends ConsumerWidget {
                                               containerInfo?.tipoContenedor,
                                           containerTara: double.tryParse(
                                                   containerInfo?.taraKg
-<<<<<<< HEAD
-=======
                                                           .replaceAll('kg', '')
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
                                                           .replaceAll(
                                                               ',', '.') ??
-                                                      '0.0') ??
-                                              0.0,
+                                                      '0.0')
+                                              ?.toStringAsFixed(3),
                                           containerPayload: double.tryParse(
                                                   containerInfo?.payloadKg
-<<<<<<< HEAD
-=======
                                                           .replaceAll('kg', '')
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
                                                           .replaceAll(
                                                               ',', '.') ??
-                                                      '0.0') ??
-                                              0.0,
-<<<<<<< HEAD
-                                          createdDataContainer: DateTime.now()
-                                              .toUtc()
-                                              .copyWith(
-                                                  millisecond: 0,
-                                                  microsecond: 0)
-                                              .toIso8601String()
-                                              .replaceAll('.000', ''),
-                                          updatedDataContainer: containerInfo
-                                                  ?.updateDataContainer ??
-                                              DateTime.now()
-                                                  .toUtc()
-                                                  .copyWith(
-                                                      millisecond: 0,
-                                                      microsecond: 0)
-                                                  .toIso8601String()
-                                                  .replaceAll('.000', ''),
-=======
+                                                      '0.0')
+                                              ?.toStringAsFixed(3),
                                           createdDataContainer: codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
                                           updatedDataContainer: containerInfo
                                                   ?.updateDataContainer ??
                                               codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
+                                                  DateTime.now().toString()),
                                           createDateContainerDateTimeRespone:
                                               codeUtils.formatDateToIso8601(
                                                   containerInfo?.responseDateTime
-                                                          ?.toIso8601String() ??
-<<<<<<< HEAD
-                                                      DateTime.now()
-                                                          .toUtc()
-                                                          .copyWith(
-                                                              millisecond: 0,
-                                                              microsecond: 0)
-                                                          .toIso8601String()
-                                                          .replaceAll(
-                                                              '.000', '')),
-=======
+                                                    ?.toIso8601String() ??
                                                       codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),),
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
+                                                    DateTime.now().toString()),
+                                          ),
                                           containerUrlImageLat: lateralPhotos,
                                           createdDataContainerLat:
                                               lateralsImages[0][
@@ -371,71 +336,16 @@ class ResumeTransaction extends ConsumerWidget {
                                           driverName: driverInfo?.name1 ?? "",
                                           driverLastName:
                                               driverInfo?.lastName1 ?? "",
-<<<<<<< HEAD
-                                          createdDataDriver: DateTime.now()
-                                              .toUtc()
-                                              .copyWith(
-                                                  millisecond: 0,
-                                                  microsecond: 0)
-                                              .toIso8601String()
-                                              .replaceAll('.000', ''),
-                                          updatedDataDriver: driverInfo
-                                                  ?.updateConductorDateTime ??
-                                              DateTime.now()
-                                                  .toUtc()
-                                                  .copyWith(
-                                                      millisecond: 0,
-                                                      microsecond: 0)
-                                                  .toIso8601String()
-                                                  .replaceAll('.000', ''),
-=======
                                           createdDataDriver: codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
                                           updatedDataDriver: driverInfo
                                                   ?.updateConductorDateTime ??
                                               codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
+                                                  DateTime.now().toString()),
                                           createdDataDriverResponse: codeUtils
                                               .formatDateToIso8601(driverInfo
                                                       ?.responseDateTime
-                                                      ?.toIso8601String() ??
-<<<<<<< HEAD
-                                                  DateTime.now()
-                                                      .toUtc()
-                                                      .copyWith(
-                                                          millisecond: 0,
-                                                          microsecond: 0)
-                                                      .toIso8601String()
-                                                      .replaceAll('.000', '')),
-                                          plate: placaInfo?.codigo ?? "XY-1234",
-                                          createdDataPlate: DateTime.now()
-                                              .toUtc()
-                                              .copyWith(
-                                                  millisecond: 0,
-                                                  microsecond: 0)
-                                              .toIso8601String()
-                                              .replaceAll('.000', ''),
-                                          updatedDataPlate:
-                                              placaInfo?.updatePlateDateTime ??
-                                                  DateTime.now()
-                                                      .toUtc()
-                                                      .copyWith(
-                                                          millisecond: 0,
-                                                          microsecond: 0)
-                                                      .toIso8601String()
-                                                      .replaceAll('.000', ''),
-                                          createdDataPlateResponse:
-                                              codeUtils.formatDateToIso8601(
-                                            placaInfo?.responseDateTime ??
-                                                DateTime.now()
-                                                    .toUtc()
-                                                    .copyWith(
-                                                        millisecond: 0,
-                                                        microsecond: 0)
-                                                    .toIso8601String()
-                                                    .replaceAll('.000', ''),
-=======
+                                                    ?.toIso8601String() ??
                                                   codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),),
                                           plate: placaInfo?.codigo ?? "XY-1234",
@@ -449,46 +359,14 @@ class ResumeTransaction extends ConsumerWidget {
                                           .formatDateToIso8601( placaInfo
                                           ?.responseDateTime.toString() ??
                                                 codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
+                                                    DateTime.now().toString()),
                                           ),
                                           sealCode: "",
                                           sealcodesList: precintsCodes,
                                           createdDataSealResponse: codeUtils
                                           .formatDateToIso8601(precintList?[0]
                                                           .responseDateTime
-                                                          ?.toIso8601String() ??
-<<<<<<< HEAD
-                                                      DateTime.now()
-                                                          .toUtc()
-                                                          .copyWith(
-                                                              millisecond: 0,
-                                                              microsecond: 0)
-                                                          .toIso8601String()
-                                                          .replaceAll(
-                                                              '.000', '')),
-                                          createdDataSeal: DateTime.now()
-                                              .toUtc()
-                                              .copyWith(
-                                                  millisecond: 0,
-                                                  microsecond: 0)
-                                              .toIso8601String()
-                                              .replaceAll('.000', ''),
-                                          updatedDataSeal: precintList
-                                                  ?.last.updateDataSeal ??
-                                              DateTime.now()
-                                                  .toUtc()
-                                                  .copyWith(
-                                                      millisecond: 0,
-                                                      microsecond: 0)
-                                                  .toIso8601String()
-                                                  .replaceAll('.000', ''),
-                                          transactionNumber: pendingTransaction
-                                              .transactionNumber,
-                                          initialTransactionId:
-                                              pendingTransaction
-                                                  .initialTransactionId,
-=======
+                                                    ?.toIso8601String() ??
                                                       codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),),
                                           createdDataSeal:codeUtils.formatDateToIso8601(
@@ -501,7 +379,6 @@ class ResumeTransaction extends ConsumerWidget {
                                               .transactionNumber,
                                           initialTransactionId:
                                               transactionType?.id ?? 0,
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
                                           transactionTypeId: pendingTransaction
                                               .transactionTypeId,
                                           epochCreatedDatetime:
@@ -542,12 +419,7 @@ class ResumeTransaction extends ConsumerWidget {
                                                 pendingTransaction
                                                     .transactionTypeId,
                                             initialTransactionId:
-<<<<<<< HEAD
-                                                pendingTransaction
-                                                    .initialTransactionId,
-=======
                                                 transactionType?.id ?? 0,
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
                                             epochCreatedDatetime:
                                                 pendingTransaction
                                                     .epochCreatedDatetime,
@@ -625,50 +497,18 @@ class ResumeTransaction extends ConsumerWidget {
                                               containerInfo?.tipoContenedor,
                                           containerTara: double.tryParse(
                                                   containerInfo?.taraKg
-<<<<<<< HEAD
-=======
                                                           .replaceAll('kg', '')
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
                                                           .replaceAll(
                                                               ',', '.') ??
-                                                      '0.0') ??
-                                              0.0,
+                                                      '0.0')
+                                              ?.toStringAsFixed(3),
                                           containerPayload: double.tryParse(
                                                   containerInfo?.payloadKg
-<<<<<<< HEAD
-=======
                                                           .replaceAll('kg', '')
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
                                                           .replaceAll(
                                                               ',', '.') ??
-                                                      '0.0') ??
-                                              0.0,
-<<<<<<< HEAD
-                                          createdDataContainer: DateTime.now()
-                                              .toUtc()
-                                              .copyWith(
-                                                  millisecond: 0,
-                                                  microsecond: 0)
-                                              .toIso8601String()
-                                              .replaceAll('.000', ''),
-                                          updatedDataContainer: containerInfo
-                                                  ?.updateDataContainer ??
-                                              DateTime.now()
-                                                  .toUtc()
-                                                  .copyWith(
-                                                      millisecond: 0,
-                                                      microsecond: 0)
-                                                  .toIso8601String()
-                                                  .replaceAll('.000', ''),
-                                          createDateContainerDateTimeRespone:
-                                              DateTime.now()
-                                                  .toUtc()
-                                                  .copyWith(
-                                                      millisecond: 0,
-                                                      microsecond: 0)
-                                                  .toIso8601String()
-                                                  .replaceAll('.000', ''),
-=======
+                                                      '0.0')
+                                              ?.toStringAsFixed(3),
                                           createdDataContainer: codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
                                           updatedDataContainer: containerInfo
@@ -677,22 +517,13 @@ class ResumeTransaction extends ConsumerWidget {
                                                 DateTime.now().toString()),
                                           createDateContainerDateTimeRespone:
                                               codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
+                                                  DateTime.now().toString()),
                                           createdDataContainerLat:
                                               lateralsImages[0]
                                                   ['createdDataContainerLat'],
                                           createdDataContainerLatResponse:
-<<<<<<< HEAD
-                                              DateTime.now()
-                                                .toUtc()
-                                                .copyWith(millisecond: 0, microsecond: 0)
-                                                .toIso8601String()
-                                                .replaceAll('.000', ''),
-=======
                                               codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
+                                                  DateTime.now().toString()),
 
                                           containerUrlImageLat: lateralPhotos,
                                           driverDni:
@@ -700,49 +531,6 @@ class ResumeTransaction extends ConsumerWidget {
                                           driverName: driverInfo?.name1 ?? "",
                                           driverLastName:
                                               driverInfo?.lastName1 ?? "",
-<<<<<<< HEAD
-                                          createdDataDriver: DateTime.now()
-                                              .toUtc()
-                                              .copyWith(
-                                                  millisecond: 0,
-                                                  microsecond: 0)
-                                              .toIso8601String()
-                                              .replaceAll('.000', ''),
-                                          updatedDataDriver: driverInfo
-                                                  ?.updateConductorDateTime ??
-                                              DateTime.now()
-                                                  .toUtc()
-                                                  .copyWith(
-                                                      millisecond: 0,
-                                                      microsecond: 0)
-                                                  .toIso8601String()
-                                                  .replaceAll('.000', ''),
-                                          createdDataDriverResponse:
-                                              DateTime.now()
-                                                  .toUtc()
-                                                  .copyWith(
-                                                      millisecond: 0,
-                                                      microsecond: 0)
-                                                  .toIso8601String()
-                                                  .replaceAll('.000', ''),
-                                          plate: placaInfo?.codigo ?? "",
-                                          createdDataPlate: DateTime.now()
-                                              .toUtc()
-                                              .copyWith(
-                                                  millisecond: 0,
-                                                  microsecond: 0)
-                                              .toIso8601String()
-                                              .replaceAll('.000', ''),
-                                          updatedDataPlate:
-                                              placaInfo?.updatePlateDateTime ??
-                                                  DateTime.now()
-                                                      .toUtc()
-                                                      .copyWith(
-                                                          millisecond: 0,
-                                                          microsecond: 0)
-                                                      .toIso8601String()
-                                                      .replaceAll('.000', ''),
-=======
                                           createdDataDriver: codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
                                           updatedDataDriver: driverInfo
@@ -758,39 +546,12 @@ class ResumeTransaction extends ConsumerWidget {
                                           updatedDataPlate:
                                               placaInfo?.updatePlateDateTime ??
                                                   codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
+                                                  DateTime.now().toString()),
                                           createdDataPlateResponse: placaInfo
                                                       ?.responseDateTime !=
                                                   null
                                               ? codeUtils.formatDateToIso8601(
                                                   placaInfo!.responseDateTime!)
-<<<<<<< HEAD
-                                              : DateTime.now()
-                                                  .toUtc()
-                                                  .copyWith(
-                                                      millisecond: 0,
-                                                      microsecond: 0)
-                                                  .toIso8601String()
-                                                  .replaceAll('.000', ''),
-                                          sealCode: "",
-                                          createdDataSeal: DateTime.now()
-                                              .toUtc()
-                                              .copyWith(
-                                                  millisecond: 0,
-                                                  microsecond: 0)
-                                              .toIso8601String()
-                                              .replaceAll('.000', ''),
-                                          updatedDataSeal: precintList
-                                                  ?.last.updateDataSeal ??
-                                              DateTime.now()
-                                                  .toUtc()
-                                                  .copyWith(
-                                                      millisecond: 0,
-                                                      microsecond: 0)
-                                                  .toIso8601String()
-                                                  .replaceAll('.000', ''),
-=======
                                               : codeUtils.formatDateToIso8601(
                                                 DateTime.now().toString()),
                                           sealCode: "",
@@ -799,8 +560,7 @@ class ResumeTransaction extends ConsumerWidget {
                                           updatedDataSeal: precintList
                                                   ?.last.updateDataSeal ??
                                               codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
->>>>>>> b0991dfe764eab793c391a90ecb97fdcca8bc33e
+                                                  DateTime.now().toString()),
                                           sealcodesList: precintsCodes,
                                           createdDataSealResponse:
                                               codeUtils.formatDateToIso8601(

@@ -17,6 +17,8 @@ import 'package:agunsa/features/transactions/domain/entities/transaction_type.da
 import 'package:agunsa/features/transactions/domain/entities/transactions.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../../core/utils/code_utils.dart';
+
 abstract class TransactionRemoteDatasource {
   Future<List<TransactionType>> getAllTransactions();
   Future<Foto?> uploadImageToServer(
@@ -114,6 +116,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   // }
 
   Future<Map<String, dynamic>> _sendImageToS3(String base64Image) async {
+    CodeUtils codeUtils = CodeUtils();
     try {
       final startTime = DateTime.now();
       final response = await http.post(
@@ -135,10 +138,9 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
         log('Respuesta de S3: $responseBody');
         final bodyData = jsonDecode(responseBody['body']);
         final imageUrl = bodyData['image_url'];
-        final endTimeToResponse = DateTime.now();
-        //final elapsedMsToResponse =
+        final endTimeToResponse =
+            codeUtils.formatDateToIso8601(DateTime.now().toIso8601String());
         //    endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
-       
 
         //log('📤 Tiempo de respuesta: $elapsedMsToResponse ms (${(elapsedMsToResponse / 1000).toStringAsFixed(2)} s)');
 
@@ -146,8 +148,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           'statusCode': responseBody['statusCode'],
           'imageUrl': imageUrl,
           'timeToResponse': endTime,
-          'DataTimeResponse': endTimeToResponse.toIso8601String(),
-          
+          'DataTimeResponse': endTimeToResponse
         };
       } else {
         final endTimeToResponse2 = DateTime.now();
@@ -269,8 +270,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       parseResponse: (json) {
         final bodyData =
             json['body'] is String ? jsonDecode(json['body']) : json['body'];
-        final result =
-            PrecintModel.fromJson({
+        final result = PrecintModel.fromJson({
           ...bodyData,
           'image_url': imageUrl,
           'response_date_time': dataTimeResponse
@@ -450,15 +450,18 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   }
 
   @override
-Future<Map<String, dynamic>> uploadLateralImages(String base64Image) async {
+  Future<Map<String, dynamic>> uploadLateralImages(String base64Image) async {
+    CodeUtils codeUtils = CodeUtils();
     try {
       log('Subiendo imagen lateral a S3...');
-      
+
       final response = await _sendImageToS3(base64Image);
       final statusCode = response['statusCode'];
       final imageUrl = response['imageUrl'];
       //final String timeToResponse = response['timeToResponse'];
       final String dataTimeResponse = response['DataTimeResponse'];
+
+      //final fechaSinMilisegundos = fecha.replaceAll('.000', '');
       final fecha = DateTime.now()
                       .toUtc()
                       .copyWith(millisecond: 0, microsecond: 0)
@@ -466,13 +469,14 @@ Future<Map<String, dynamic>> uploadLateralImages(String base64Image) async {
 
       final fechaSinMilisegundos = fecha.replaceAll('.000', '');
       final rs = {
-        'createdDataContainerLat': DateTime.now().toIso8601String(),
+        'createdDataContainerLat':
+            codeUtils.formatDateToIso8601(DateTime.now().toIso8601String()),
         'createdDataContainerLatRespoonse': dataTimeResponse,
         'imageUrl': imageUrl,
         'response_date_time': dataTimeResponse,
       };
       if (statusCode == 200) {
-        return rs; 
+        return rs;
       } else {
         return rs
           ..addAll({

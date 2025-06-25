@@ -231,8 +231,9 @@ class ContainerInfo extends ConsumerWidget {
                                                             capturedImage, '');
                                                     if (result != null) {
                                                       result.updateDataSeal =
-                                                          DateTime.now()
-                                                              .toIso8601String();
+                                                          CodeUtils().formatDateToIso8601(
+                                                        DateTime.now()
+                                                            .toIso8601String());
                                                       final updatedPrecintList =
                                                           [...precintList];
                                                       log('precintList: $precintList');
@@ -381,8 +382,9 @@ class ContainerInfo extends ConsumerWidget {
                                               if (result != null) {
                                                 log('Placa actualizada');
                                                 result.updatePlateDateTime =
-                                                    DateTime.now()
-                                                        .toIso8601String();
+                                                    CodeUtils().formatDateToIso8601(
+                                                        DateTime.now()
+                                                            .toIso8601String());
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
                                                   const SnackBar(
@@ -1031,7 +1033,7 @@ class ContainerInfo extends ConsumerWidget {
             ],
           ),
           label: '',
-          subLabel: '${foto.taraKg}',
+          subLabel: foto.taraKg,
         ),
         const SizedBox(height: 10),
         LabelInfo2(
@@ -1063,7 +1065,7 @@ class ContainerInfo extends ConsumerWidget {
             ],
           ),
           label: '',
-          subLabel: '${foto.payloadKg}',
+          subLabel: foto.payloadKg,
         ),
         const SizedBox(height: 20),
         Text(

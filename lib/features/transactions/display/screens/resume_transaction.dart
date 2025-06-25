@@ -338,9 +338,10 @@ class ResumeTransaction extends ConsumerWidget {
                                           ),
                                           driverDni:
                                               driverInfo?.codLicence ?? "",
-                                          driverName: driverInfo?.name1 ?? "",
+                                          driverName:
+                                              driverInfo?.fullName ?? "",
                                           driverLastName:
-                                              driverInfo?.lastName1 ?? "",
+                                              driverInfo?.fullLastName ?? "",
                                           createdDataDriver:
                                               codeUtils.formatDateToIso8601(
                                                   DateTime.now().toString()),

@@ -146,6 +146,8 @@ class ResumeTransaction extends ConsumerWidget {
                               onTap: () {
                                 try {
                                   resetTransactionProviders(ref);
+                                  setIsFromPendingTransaction(ref, false);
+                                  setIsCompleteTransaction(ref, false);
                                   ref
                                       .read(routerDelegateProvider)
                                       .pushReplacement(AppRoute.home);
@@ -536,9 +538,10 @@ class ResumeTransaction extends ConsumerWidget {
                                           containerUrlImageLat: lateralPhotos,
                                           driverDni:
                                               driverInfo?.codLicence ?? "",
-                                          driverName: driverInfo?.name1 ?? "",
+                                          driverName:
+                                              driverInfo?.fullName ?? "",
                                           driverLastName:
-                                              driverInfo?.lastName1 ?? "",
+                                              driverInfo?.fullLastName ?? "",
                                           createdDataDriver:
                                               codeUtils.formatDateToIso8601(
                                                   DateTime.now().toString()),

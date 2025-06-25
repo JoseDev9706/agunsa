@@ -296,6 +296,13 @@ class ResumeTransaction extends ConsumerWidget {
                                           containerTara: double.tryParse(
                                                   containerInfo?.taraKg
                                                           .replaceAll('kg', '')
+                                                          .replaceAll('kgs', '')
+                                                          .replaceAll('lb', '')
+                                                          .replaceAll('lbs', '')
+                                                          .replaceAll('LB', '')
+                                                          .replaceAll('LBS', '')
+                                                          .replaceAll('KG', '')
+                                                          .replaceAll('KGS', '')
                                                           .replaceAll(
                                                               ',', '.') ??
                                                       '0.0') ??
@@ -303,6 +310,13 @@ class ResumeTransaction extends ConsumerWidget {
                                           containerPayload: double.tryParse(
                                                   containerInfo?.payloadKg
                                                           .replaceAll('kg', '')
+                                                          .replaceAll('kgs', '')
+                                                          .replaceAll('lb', '')
+                                                          .replaceAll('lbs', '')
+                                                          .replaceAll('LB', '')
+                                                          .replaceAll('LBS', '')
+                                                          .replaceAll('KG', '')
+                                                          .replaceAll('KGS', '')
                                                           .replaceAll(
                                                               ',', '.') ??
                                                       '0.0') ??
@@ -497,6 +511,13 @@ class ResumeTransaction extends ConsumerWidget {
                                           containerTara: double.tryParse(
                                                   containerInfo?.taraKg
                                                           .replaceAll('kg', '')
+                                                          .replaceAll('kgs', '')
+                                                          .replaceAll('lb', '')
+                                                          .replaceAll('lbs', '')
+                                                          .replaceAll('LB', '')
+                                                          .replaceAll('LBS', '')
+                                                          .replaceAll('KG', '')
+                                                          .replaceAll('KGS', '')
                                                           .replaceAll(
                                                               ',', '.') ??
                                                       '0.0') ??
@@ -504,6 +525,13 @@ class ResumeTransaction extends ConsumerWidget {
                                           containerPayload: double.tryParse(
                                                   containerInfo?.payloadKg
                                                           .replaceAll('kg', '')
+                                                          .replaceAll('kgs', '')
+                                                          .replaceAll('lb', '')
+                                                          .replaceAll('lbs', '')
+                                                          .replaceAll('LB', '')
+                                                          .replaceAll('LBS', '')
+                                                          .replaceAll('KG', '')
+                                                          .replaceAll('KGS', '')
                                                           .replaceAll(
                                                               ',', '.') ??
                                                       '0.0') ??

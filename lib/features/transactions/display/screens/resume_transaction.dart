@@ -49,7 +49,8 @@ class ResumeTransaction extends ConsumerWidget {
 
     final timeToResponseLateralPhotos = lateralsImages.map((image) {
       final timeString = image['createdDataContainerLatRespoonse'] as String;
-      final dateTime = DateTime.parse(timeString); // ya no es int.parse, sino DateTime.parse
+      final dateTime =
+          DateTime.parse(timeString); // ya no es int.parse, sino DateTime.parse
       return dateTime;
     }).toList();
     //final totalTime =
@@ -307,17 +308,18 @@ class ResumeTransaction extends ConsumerWidget {
                                                               ',', '.') ??
                                                       '0.0')
                                               ?.toStringAsFixed(3),
-                                          createdDataContainer: codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                          createdDataContainer:
+                                              codeUtils.formatDateToIso8601(
+                                                  DateTime.now().toString()),
                                           updatedDataContainer: containerInfo
                                                   ?.updateDataContainer ??
                                               codeUtils.formatDateToIso8601(
                                                   DateTime.now().toString()),
                                           createDateContainerDateTimeRespone:
                                               codeUtils.formatDateToIso8601(
-                                                  containerInfo?.responseDateTime
+                                            containerInfo?.responseDateTime
                                                     ?.toIso8601String() ??
-                                                      codeUtils.formatDateToIso8601(
+                                                codeUtils.formatDateToIso8601(
                                                     DateTime.now().toString()),
                                           ),
                                           containerUrlImageLat: lateralPhotos,
@@ -327,54 +329,62 @@ class ResumeTransaction extends ConsumerWidget {
                                                   .toString(),
                                           createdDataContainerLatResponse:
                                               codeUtils.formatDateToIso8601(
-                                                  containerInfo?.responseDateTime
-                                                          ?.toIso8601String() ??
-                                                      codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),),
+                                            containerInfo?.responseDateTime
+                                                    ?.toIso8601String() ??
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                          ),
                                           driverDni:
                                               driverInfo?.codLicence ?? "",
                                           driverName: driverInfo?.name1 ?? "",
                                           driverLastName:
                                               driverInfo?.lastName1 ?? "",
-                                          createdDataDriver: codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                          createdDataDriver:
+                                              codeUtils.formatDateToIso8601(
+                                                  DateTime.now().toString()),
                                           updatedDataDriver: driverInfo
                                                   ?.updateConductorDateTime ??
                                               codeUtils.formatDateToIso8601(
                                                   DateTime.now().toString()),
-                                          createdDataDriverResponse: codeUtils
-                                              .formatDateToIso8601(driverInfo
-                                                      ?.responseDateTime
+                                          createdDataDriverResponse:
+                                              codeUtils.formatDateToIso8601(
+                                            driverInfo?.responseDateTime
                                                     ?.toIso8601String() ??
-                                                  codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),),
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                          ),
                                           plate: placaInfo?.codigo ?? "XY-1234",
-                                          createdDataPlate: codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
-                                          updatedDataPlate:
-                                              placaInfo?.updatePlateDateTime ??
-                                                  codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
-                                          createdDataPlateResponse: codeUtils
-                                          .formatDateToIso8601( placaInfo
-                                          ?.responseDateTime.toString() ??
+                                          createdDataPlate:
+                                              codeUtils.formatDateToIso8601(
+                                                  DateTime.now().toString()),
+                                          updatedDataPlate: placaInfo
+                                                  ?.updatePlateDateTime ??
+                                              codeUtils.formatDateToIso8601(
+                                                  DateTime.now().toString()),
+                                          createdDataPlateResponse:
+                                              codeUtils.formatDateToIso8601(
+                                            placaInfo?.responseDateTime
+                                                    .toString() ??
                                                 codeUtils.formatDateToIso8601(
                                                     DateTime.now().toString()),
                                           ),
                                           sealCode: "",
                                           sealcodesList: precintsCodes,
-                                          createdDataSealResponse: codeUtils
-                                          .formatDateToIso8601(precintList?[0]
-                                                          .responseDateTime
+                                          createdDataSealResponse:
+                                              codeUtils.formatDateToIso8601(
+                                            precintList?[0]
+                                                    .responseDateTime
                                                     ?.toIso8601String() ??
-                                                      codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),),
-                                          createdDataSeal:codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                          ),
+                                          createdDataSeal:
+                                              codeUtils.formatDateToIso8601(
+                                                  DateTime.now().toString()),
                                           updatedDataSeal: precintList
                                                   ?.last.updateDataSeal ??
                                               codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                                  DateTime.now().toString()),
                                           transactionNumber: pendingTransaction
                                               .transactionNumber,
                                           initialTransactionId:
@@ -497,24 +507,23 @@ class ResumeTransaction extends ConsumerWidget {
                                               containerInfo?.tipoContenedor,
                                           containerTara: double.tryParse(
                                                   containerInfo?.taraKg
-                                                          .replaceAll('kg', '')
                                                           .replaceAll(
                                                               ',', '.') ??
                                                       '0.0')
                                               ?.toStringAsFixed(3),
                                           containerPayload: double.tryParse(
                                                   containerInfo?.payloadKg
-                                                          .replaceAll('kg', '')
                                                           .replaceAll(
                                                               ',', '.') ??
                                                       '0.0')
                                               ?.toStringAsFixed(3),
-                                          createdDataContainer: codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                          createdDataContainer:
+                                              codeUtils.formatDateToIso8601(
+                                                  DateTime.now().toString()),
                                           updatedDataContainer: containerInfo
                                                   ?.updateDataContainer ??
                                               codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                                  DateTime.now().toString()),
                                           createDateContainerDateTimeRespone:
                                               codeUtils.formatDateToIso8601(
                                                   DateTime.now().toString()),
@@ -524,28 +533,29 @@ class ResumeTransaction extends ConsumerWidget {
                                           createdDataContainerLatResponse:
                                               codeUtils.formatDateToIso8601(
                                                   DateTime.now().toString()),
-
                                           containerUrlImageLat: lateralPhotos,
                                           driverDni:
                                               driverInfo?.codLicence ?? "",
                                           driverName: driverInfo?.name1 ?? "",
                                           driverLastName:
                                               driverInfo?.lastName1 ?? "",
-                                          createdDataDriver: codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                          createdDataDriver:
+                                              codeUtils.formatDateToIso8601(
+                                                  DateTime.now().toString()),
                                           updatedDataDriver: driverInfo
                                                   ?.updateConductorDateTime ??
                                               codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                                  DateTime.now().toString()),
                                           createdDataDriverResponse:
                                               codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                                  DateTime.now().toString()),
                                           plate: placaInfo?.codigo ?? "",
-                                          createdDataPlate: codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
-                                          updatedDataPlate:
-                                              placaInfo?.updatePlateDateTime ??
-                                                  codeUtils.formatDateToIso8601(
+                                          createdDataPlate:
+                                              codeUtils.formatDateToIso8601(
+                                                  DateTime.now().toString()),
+                                          updatedDataPlate: placaInfo
+                                                  ?.updatePlateDateTime ??
+                                              codeUtils.formatDateToIso8601(
                                                   DateTime.now().toString()),
                                           createdDataPlateResponse: placaInfo
                                                       ?.responseDateTime !=
@@ -553,10 +563,11 @@ class ResumeTransaction extends ConsumerWidget {
                                               ? codeUtils.formatDateToIso8601(
                                                   placaInfo!.responseDateTime!)
                                               : codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                                  DateTime.now().toString()),
                                           sealCode: "",
-                                          createdDataSeal: codeUtils.formatDateToIso8601(
-                                                DateTime.now().toString()),
+                                          createdDataSeal:
+                                              codeUtils.formatDateToIso8601(
+                                                  DateTime.now().toString()),
                                           updatedDataSeal: precintList
                                                   ?.last.updateDataSeal ??
                                               codeUtils.formatDateToIso8601(
@@ -569,8 +580,6 @@ class ResumeTransaction extends ConsumerWidget {
                                                           ?.toIso8601String() ??
                                                       DateTime.now()
                                                           .toIso8601String()),
-                                         
-                                                          
                                           transactionNumber:
                                               transactionNumberController.text,
                                           initialTransactionId:

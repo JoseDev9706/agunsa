@@ -479,8 +479,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 ),
                                               ),
                                               Container(
-                                                height:
-                                                    uiUtils.screenHeight * 0.03,
+                                                constraints: BoxConstraints(
+                                                  minHeight: uiUtils.screenHeight * 0.03,
+                                                ),
                                                 width:
                                                     uiUtils.screenWidth * 0.3,
                                                 margin: const EdgeInsets.only(
@@ -554,8 +555,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 ),
                                               ),
                                               Container(
-                                                height:
-                                                    uiUtils.screenHeight * 0.03,
+                                                constraints: BoxConstraints(
+                                                  minHeight: uiUtils.screenHeight * 0.03,
+                                                ),
                                                 width:
                                                     uiUtils.screenWidth * 0.3,
                                                 margin: const EdgeInsets.only(
@@ -629,8 +631,9 @@ class ContainerInfo extends ConsumerWidget {
                                                 ),
                                               ),
                                               Container(
-                                                height:
-                                                    uiUtils.screenHeight * 0.03,
+                                                constraints: BoxConstraints(
+                                                  minHeight: uiUtils.screenHeight * 0.03,
+                                                ),
                                                 width:
                                                     uiUtils.screenWidth * 0.32,
                                                 margin: const EdgeInsets.only(

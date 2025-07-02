@@ -200,6 +200,8 @@ class TransactionsOnProcess extends ConsumerWidget {
                                     GestureDetector(
                                       onTap: () {
                                         setIsFromPendingTransaction(ref, true);
+                                        setTimeCreationTransaction(
+                                            ref, DateTime.now());
                                         getSelectedPendingTransaction(
                                             ref, transaction);
                                         ref.read(routerDelegateProvider).push(

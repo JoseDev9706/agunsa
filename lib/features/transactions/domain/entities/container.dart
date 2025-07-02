@@ -5,8 +5,8 @@ class Container {
   final String identificacionLineaTransporte;
   final String codigoIso;
   final String tipoContenedor;
-  final double tara;
-  final double payload; 
+  final String tara;
+  final String payload; 
   final DateTime fechaHora;
 
   Container({
@@ -28,8 +28,8 @@ class Container {
         identificacionLineaTransporte: json['identifcacion_linea_transporte'],
         codigoIso: json['codigo_iso'],
         tipoContenedor: json['tipo_contenedor'],
-        tara: (json['tara'] as num).toDouble(),
-        payload: (json['playload'] as num).toDouble(),
+        tara: json['tara'].toString(),     // ✅ convertimos directo a String
+        payload: json['playload'].toString(),
         fechaHora: DateTime.parse(json['fecha_hora']),
       );
 
@@ -40,8 +40,8 @@ class Container {
         'identifcacion_linea_transporte': identificacionLineaTransporte,
         'codigo_izo': codigoIso,
         'tipo_contenedor': tipoContenedor,
-        'tara': tara,
-        'playload': payload, 
+        'tara': tara,         // <-- Enviado como String
+        'playload': payload,
         'fecha_hora': fechaHora.toIso8601String(),
       };
 }

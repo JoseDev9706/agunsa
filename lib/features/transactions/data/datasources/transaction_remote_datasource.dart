@@ -246,6 +246,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     return result;
   }
 
+
 // Implementación para PrecintModel
   @override
   Future<PrecintModel> uploadPrecint(
@@ -343,24 +344,46 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     );
   }
 
+
   @override
-  Future<String?> createTransaction(TransactionModel transaction) async {
-    final response = await http.post(
-      Uri.parse(_createTransaction),
-      body: jsonEncode(transaction.toJson()),
-      headers: {'Content-Type': 'application/json'},
-    );
+Future<String?> createTransaction(TransactionModel transaction) async {
+  
 
-    if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      final bodyDecoded = jsonDecode(responseBody['body']);
-      log('Respuesta de la API transaccion: ${bodyDecoded['message']}');
-      log('Transacción creada: ${bodyDecoded}');
-      return bodyDecoded['message'];
-    }
+  // ✅ Mostrar los datos que se van a enviar y sus tipos
+  final jsonBody = transaction.toJson();
+  jsonBody.forEach((key, value) {
+    //log('🧾 Campo: $key - Valor: $value - Tipo: ${value.runtimeType}');
+  });
 
+  // ✅ Enviar solicitud
+  final response = await http.post(
+    Uri.parse(_createTransaction),
+    body: jsonEncode(jsonBody),
+    headers: {'Content-Type': 'application/json'},
+  );
+
+  if (response.statusCode == 200) {
+  final responseBody = jsonDecode(response.body);
+  final bodyField = responseBody['body'];
+  if (bodyField != null) {
+    final bodyDecoded = jsonDecode(bodyField);
+    log('✅ Transacción creada: $bodyDecoded');
+    return bodyDecoded['message'];
+  } else {
+    log('⚠️ Respuesta sin campo "body": ${response.body}');
     return null;
   }
+} else {
+  //log('❌ Error al crear transacción - Código: ${response.statusCode}');
+  //log('❌ Cuerpo de respuesta: ${response.body}');
+  //log('transaction222: ${transaction.toJson()}'); // ⛔ AQUÍ puede haber nulls que provocan el error
+
+  return null;
+}
+
+}
+
+
 
   @override
   Future<List<PendingTransactionModel>> getPendingTransactions(
@@ -461,6 +484,12 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       final String dataTimeResponse = response['DataTimeResponse'];
 
       //final fechaSinMilisegundos = fecha.replaceAll('.000', '');
+      final fecha = DateTime.now()
+                      .toUtc()
+                      .copyWith(millisecond: 0, microsecond: 0)
+                      .toIso8601String();
+
+      final fechaSinMilisegundos = fecha.replaceAll('.000', '');
       final rs = {
         'createdDataContainerLat':
             codeUtils.formatDateToIso8601(DateTime.now().toIso8601String()),

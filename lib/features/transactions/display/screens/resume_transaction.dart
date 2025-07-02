@@ -33,8 +33,6 @@ String? validateWeightString(String? input) {
   return null; // ❌ no es un valor numérico válido al inicio
 }
 
-
-
 class ResumeTransaction extends ConsumerWidget {
   const ResumeTransaction({super.key});
 
@@ -88,566 +86,591 @@ class ResumeTransaction extends ConsumerWidget {
     log("isInOut: ${transactionType?.isInOut}, isfromPending: $isfromPending, pendingTransaction: $pendingTransaction");
     log("isPending from created: $isPendingFromCreated");
     log("isPending: $isPendingTransaction");
-    return SafeArea(
-        child: 
-        Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: uiUtils.modalColor,
-      body: SizedBox(
-        height: uiUtils.screenHeight * 0.9,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              send
-                  ? Container(
-                      padding: const EdgeInsets.all(18),
-                    )
-                  : TransactionAppBar(
-                      uiUtils: uiUtils,
-                      title: '',
-                      onTap: () {
-                        ref.read(routerDelegateProvider).popRoute();
-                      },
-                    ),
-              const SizedBox(
-                height: 120,
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 30),
-                decoration: BoxDecoration(
-                    color: uiUtils.whiteColor,
-                    borderRadius: BorderRadius.circular(20)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-                child: send
-                    ? Column(
-                        children: [
-                          shouldShowAsPending
-                              ? SvgPicture.asset(
-                                  'assets/svg/pending.svg',
-                                  width: 46,
-                                  height: 46,
-                                )
-                              : Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                      color: uiUtils.green,
-                                      shape: BoxShape.circle),
-                                  child: Icon(
-                                    Icons.check,
-                                    color: uiUtils.whiteColor,
-                                  )),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            textAlign: TextAlign.center,
+    return PopScope(
+      canPop: false,
+      child: SafeArea(
+          child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: uiUtils.modalColor,
+        body: SizedBox(
+          height: uiUtils.screenHeight * 0.9,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                send
+                    ? Container(
+                        padding: const EdgeInsets.all(18),
+                      )
+                    : TransactionAppBar(
+                        uiUtils: uiUtils,
+                        title: '',
+                        onTap: () {
+                          ref.read(routerDelegateProvider).popRoute();
+                        },
+                      ),
+                const SizedBox(
+                  height: 120,
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 30),
+                  decoration: BoxDecoration(
+                      color: uiUtils.whiteColor,
+                      borderRadius: BorderRadius.circular(20)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                  child: send
+                      ? Column(
+                          children: [
                             shouldShowAsPending
-                                ? 'TRANSACCION EN ESTADO PENDIENTE'
-                                : 'TRANSACCION COMPLETADA CON EXITO',
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: shouldShowAsPending
-                                    ? uiUtils.orange
-                                    : uiUtils.grayDarkColor),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          GeneralBottom(
-                              icon: Icon(
-                                Icons.home,
-                                color: uiUtils.whiteColor,
-                              ),
-                              width: uiUtils.screenWidth * 0.5,
-                              color: uiUtils.primaryColor,
-                              text: 'HOME',
-                              onTap: () {
-                                try {
+                                ? SvgPicture.asset(
+                                    'assets/svg/pending.svg',
+                                    width: 46,
+                                    height: 46,
+                                  )
+                                : Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                        color: uiUtils.green,
+                                        shape: BoxShape.circle),
+                                    child: Icon(
+                                      Icons.check,
+                                      color: uiUtils.whiteColor,
+                                    )),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              textAlign: TextAlign.center,
+                              shouldShowAsPending
+                                  ? 'TRANSACCION EN ESTADO PENDIENTE'
+                                  : 'TRANSACCION COMPLETADA CON EXITO',
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: shouldShowAsPending
+                                      ? uiUtils.orange
+                                      : uiUtils.grayDarkColor),
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            GeneralBottom(
+                                icon: Icon(
+                                  Icons.home,
+                                  color: uiUtils.whiteColor,
+                                ),
+                                width: uiUtils.screenWidth * 0.5,
+                                color: uiUtils.primaryColor,
+                                text: 'HOME',
+                                onTap: () {
+                                  try {
+                                    resetTransactionProviders(ref);
+                                    setIsFromPendingTransaction(ref, false);
+                                    setIsCompleteTransaction(ref, false);
+                                    ref
+                                        .read(routerDelegateProvider)
+                                        .pushReplacement(AppRoute.home);
+                                  } catch (e, stackTrace) {
+                                    log("Error durante navegación: $e",
+                                        stackTrace: stackTrace);
+                                  }
+                                },
+                                textColor: uiUtils.whiteColor),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            GeneralBottom(
+                                icon: Icon(
+                                  Icons.add_circle_outline_outlined,
+                                  color: uiUtils.whiteColor,
+                                ),
+                                width: uiUtils.screenWidth * 0.5,
+                                color: uiUtils.primaryColor,
+                                text: 'NUEVA TRANSACCION',
+                                onTap: () {
                                   resetTransactionProviders(ref);
                                   setIsFromPendingTransaction(ref, false);
                                   setIsCompleteTransaction(ref, false);
                                   ref
                                       .read(routerDelegateProvider)
-                                      .pushReplacement(AppRoute.home);
-                                } catch (e, stackTrace) {
-                                  log("Error durante navegación: $e",
-                                      stackTrace: stackTrace);
-                                }
-                              },
-                              textColor: uiUtils.whiteColor),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          GeneralBottom(
-                              icon: Icon(
-                                Icons.add_circle_outline_outlined,
-                                color: uiUtils.whiteColor,
-                              ),
-                              width: uiUtils.screenWidth * 0.5,
-                              color: uiUtils.primaryColor,
-                              text: 'NUEVA TRANSACCION',
-                              onTap: () {
-                                resetTransactionProviders(ref);
-                                setIsFromPendingTransaction(ref, false);
-                                setIsCompleteTransaction(ref, false);
-                                ref
-                                    .read(routerDelegateProvider)
-                                    .pushReplacement(AppRoute.transactions);
-                              },
-                              textColor: uiUtils.whiteColor),
-                        ],
-                      )
-                    : Column(
-                        children: [
-                          Text(
-                            'RESUMEN DE LA TRANSACCION',
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: uiUtils.grayDarkColor),
-                          ),
-                          Divider(
-                            color: uiUtils.grayLightColor,
-                            thickness: 1,
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          LabelInfo(
-                              uiUtils: uiUtils,
-                              transactionType: transactionType?.name,
-                              transactionTypeLabel: 'TIPO DE TRANSACCION'),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Text('NÚMERO DE TRANSACCION',
+                                      .pushReplacement(AppRoute.transactions);
+                                },
+                                textColor: uiUtils.whiteColor),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Text(
+                              'RESUMEN DE LA TRANSACCION',
                               style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: uiUtils.black)),
-                          Container(
-                            decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 2),
+                                  color: uiUtils.grayDarkColor),
+                            ),
+                            Divider(
+                              color: uiUtils.grayLightColor,
+                              thickness: 1,
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            LabelInfo(
+                                uiUtils: uiUtils,
+                                transactionType: transactionType?.name,
+                                transactionTypeLabel: 'TIPO DE TRANSACCION'),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Text('NÚMERO DE TRANSACCION',
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: uiUtils.black)),
+                            Container(
+                              decoration: BoxDecoration(
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                                color: uiUtils.whiteColor,
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(
+                                  color: uiUtils.labelColor,
+                                  width: 1.5,
                                 ),
-                              ],
-                              color: uiUtils.whiteColor,
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(
-                                color: uiUtils.labelColor,
-                                width: 1.5,
+                              ),
+                              child: TextFormField(
+                                readOnly: pendingTransaction != null &&
+                                    pendingTransaction
+                                        .transactionNumber.isNotEmpty,
+                                controller: transactionNumberController,
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  hintText: 'Ingrese el número de transacción',
+                                  hintStyle: TextStyle(color: Colors.black38),
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 15,
+                                    horizontal: 12,
+                                  ),
+                                ),
                               ),
                             ),
-                            child: TextFormField(
-                              readOnly: pendingTransaction != null &&
-                                  pendingTransaction
-                                      .transactionNumber.isNotEmpty,
-                              controller: transactionNumberController,
-                              textAlign: TextAlign.center,
-                              decoration: const InputDecoration(
-                                hintText: 'Ingrese el número de transacción',
-                                hintStyle: TextStyle(color: Colors.black38),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 12,
-                                ),
-                              ),
+                            const SizedBox(
+                              height: 20,
                             ),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          LabelInfo(
-                              uiUtils: uiUtils,
-                              transactionType: DateFormat('yyyy-MM-dd HH:mm')
-                                  .format(DateTime.now().toLocal()),
-                              transactionTypeLabel: 'FECHA Y HORA'),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          LabelInfo(
-                              uiUtils: uiUtils,
-                              transactionType: containerInfo?.numSerie ?? '',
-                              transactionTypeLabel: 'NÚMERO DE CONTENEDOR'),
-                          const SizedBox(
-                            height: 40,
-                          ),
-                          GeneralBottom(
-                            width: double.infinity,
-                            color: isUploadingTransaction
-                                ? Colors.grey
-                                : uiUtils.primaryColor,
-                            text: isUploadingTransaction
-                                ? 'GUARDANDO...'
-                                : 'GUARDAR TRANSACCION',
-                            onTap: isUploadingTransaction
-                                ? () {
-                                    uiUtils.showSnackBar(context,
-                                        'Espere a que se complete la transacción');
-                                  }
-                                : () async {
-                                    setUploadingImage(ref, true);
-                                    if (transactionNumberController
-                                        .text.isEmpty) {
+                            LabelInfo(
+                                uiUtils: uiUtils,
+                                transactionType: DateFormat('yyyy-MM-dd HH:mm')
+                                    .format(DateTime.now().toLocal()),
+                                transactionTypeLabel: 'FECHA Y HORA'),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            LabelInfo(
+                                uiUtils: uiUtils,
+                                transactionType: containerInfo?.numSerie ?? '',
+                                transactionTypeLabel: 'NÚMERO DE CONTENEDOR'),
+                            const SizedBox(
+                              height: 40,
+                            ),
+                            GeneralBottom(
+                              width: double.infinity,
+                              color: isUploadingTransaction
+                                  ? Colors.grey
+                                  : uiUtils.primaryColor,
+                              text: isUploadingTransaction
+                                  ? 'GUARDANDO...'
+                                  : 'GUARDAR TRANSACCION',
+                              onTap: isUploadingTransaction
+                                  ? () {
                                       uiUtils.showSnackBar(context,
-                                          'Ingrese el número de transacción');
-                                      setUploadingImage(ref, false);
-                                      return;
+                                          'Espere a que se complete la transacción');
                                     }
+                                  : () async {
+                                      setUploadingImage(ref, true);
+                                      if (transactionNumberController
+                                          .text.isEmpty) {
+                                        uiUtils.showSnackBar(context,
+                                            'Ingrese el número de transacción');
+                                        setUploadingImage(ref, false);
+                                        return;
+                                      }
 
-                                    try {
-                                      if (pendingTransaction != null) {
-                                        TransactionModel transaction =
-                                            TransactionModel(
-                                          containerNumber:
-                                              containerInfo?.numSerie,
-                                          transactionTypeName:
-                                              transactionType?.name ?? '',
-                                          containerTransportLine:
-                                              containerInfo?.numControl ??
-                                                  "MSC",
-                                          containerIso:
-                                              containerInfo?.codPropietario,
-                                          containerType:
-                                              containerInfo?.tipoContenedor,
-                                          containerTara: validateWeightString(containerInfo?.taraKg),
-containerPayload: validateWeightString(containerInfo?.payloadKg),
-
-                                          createdDataContainer:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          updatedDataContainer: containerInfo
-                                                  ?.updateDataContainer ??
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          createDateContainerDateTimeRespone:
-                                              codeUtils.formatDateToIso8601(
-                                            containerInfo?.responseDateTime
-                                                    ?.toIso8601String() ??
+                                      try {
+                                        if (pendingTransaction != null) {
+                                          TransactionModel transaction =
+                                              TransactionModel(
+                                            containerNumber:
+                                                containerInfo?.numSerie,
+                                            transactionTypeName:
+                                                transactionType?.name ?? '',
+                                            containerTransportLine:
+                                                containerInfo?.numControl ??
+                                                    "MSC",
+                                            containerIso:
+                                                containerInfo?.tipoContenedor,
+                                            containerType: containerInfo
+                                                ?.getTipoContenedor(
+                                                    containerInfo
+                                                        .tipoContenedor),
+                                            containerTara: validateWeightString(
+                                                containerInfo?.taraKg),
+                                            containerPayload:
+                                                validateWeightString(
+                                                    containerInfo?.payloadKg),
+                                            createdDataContainer:
                                                 codeUtils.formatDateToIso8601(
                                                     DateTime.now().toString()),
-                                          ),
-                                          containerUrlImageLat: lateralPhotos,
-                                          createdDataContainerLat:
-                                              lateralsImages[0][
-                                                      'createdDataContainerLat']
-                                                  .toString(),
-                                          createdDataContainerLatResponse:
-                                              codeUtils.formatDateToIso8601(
-                                            containerInfo?.responseDateTime
-                                                    ?.toIso8601String() ??
+                                            updatedDataContainer: containerInfo
+                                                    ?.updateDataContainer ??
                                                 codeUtils.formatDateToIso8601(
                                                     DateTime.now().toString()),
-                                          ),
-                                          driverDni:
-                                              driverInfo?.codLicence ?? "",
-                                          driverName:
-                                              driverInfo?.fullName ?? "",
-                                          driverLastName:
-                                              driverInfo?.fullLastName ?? "",
-                                          createdDataDriver:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          updatedDataDriver: driverInfo
-                                                  ?.updateConductorDateTime ??
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          createdDataDriverResponse:
-                                              codeUtils.formatDateToIso8601(
-                                            driverInfo?.responseDateTime
-                                                    ?.toIso8601String() ??
+                                            createDateContainerDateTimeRespone:
+                                                codeUtils.formatDateToIso8601(
+                                              containerInfo?.responseDateTime
+                                                      ?.toIso8601String() ??
+                                                  codeUtils.formatDateToIso8601(
+                                                      DateTime.now()
+                                                          .toString()),
+                                            ),
+                                            containerUrlImageLat: lateralPhotos,
+                                            createdDataContainerLat:
+                                                lateralsImages[0][
+                                                        'createdDataContainerLat']
+                                                    .toString(),
+                                            createdDataContainerLatResponse:
+                                                codeUtils.formatDateToIso8601(
+                                              containerInfo?.responseDateTime
+                                                      ?.toIso8601String() ??
+                                                  codeUtils.formatDateToIso8601(
+                                                      DateTime.now()
+                                                          .toString()),
+                                            ),
+                                            driverDni:
+                                                driverInfo?.codLicence ?? "",
+                                            driverName:
+                                                driverInfo?.fullName ?? "",
+                                            driverLastName:
+                                                driverInfo?.fullLastName ?? "",
+                                            createdDataDriver:
                                                 codeUtils.formatDateToIso8601(
                                                     DateTime.now().toString()),
-                                          ),
-                                          plate: placaInfo?.codigo ?? "XY-1234",
-                                          createdDataPlate:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          updatedDataPlate: placaInfo
-                                                  ?.updatePlateDateTime ??
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          createdDataPlateResponse:
-                                              codeUtils.formatDateToIso8601(
-                                            placaInfo?.responseDateTime
-                                                    .toString() ??
+                                            updatedDataDriver: driverInfo
+                                                    ?.updateConductorDateTime ??
                                                 codeUtils.formatDateToIso8601(
                                                     DateTime.now().toString()),
-                                          ),
-                                          sealCode: "",
-                                          sealcodesList: precintsCodes,
-                                          createdDataSealResponse:
-                                              codeUtils.formatDateToIso8601(
-                                            precintList?[0]
-                                                    .responseDateTime
-                                                    ?.toIso8601String() ??
+                                            createdDataDriverResponse:
+                                                codeUtils.formatDateToIso8601(
+                                              driverInfo?.responseDateTime
+                                                      ?.toIso8601String() ??
+                                                  codeUtils.formatDateToIso8601(
+                                                      DateTime.now()
+                                                          .toString()),
+                                            ),
+                                            plate:
+                                                placaInfo?.codigo ?? "XY-1234",
+                                            createdDataPlate:
                                                 codeUtils.formatDateToIso8601(
                                                     DateTime.now().toString()),
-                                          ),
-                                          createdDataSeal:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          updatedDataSeal: precintList
-                                                  ?.last.updateDataSeal ??
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          transactionNumber: pendingTransaction
-                                              .transactionNumber,
-                                          initialTransactionId:
-                                              transactionType?.id ?? 0,
-                                          transactionTypeId: pendingTransaction
-                                              .transactionTypeId,
-                                          epochCreatedDatetime:
-                                              pendingTransaction
-                                                  .epochCreatedDatetime,
-                                          cratedDataTimeTransaction: ref
-                                                  .watch(
-                                                      timeCreationTransactionProvider)
-                                                  ?.millisecondsSinceEpoch ??
-                                              0,
-                                          createdByUserId: pendingTransaction
-                                              .createdByUserId,
-                                          containerUrlImage:
-                                              containerInfo?.imageUrl,
-                                          driverUrlImage: driverInfo?.imageUrl,
-                                          plateUrlImage: placaInfo?.imageUrl,
-                                          precintImagesUrl: urlPrecint,
-                                        );
-                                        log('transaction: ${transaction.toJson()}');
-                                        final resultTransaction =
-                                            await createTransactionFuntion(
-                                                ref, transaction);
-
-                                        if (resultTransaction ==
-                                            'Item registered successfully') {
-                                          log('resultTransaction1: $resultTransaction');
-                                          // 2️⃣ Crear nueva PendingTransactionModel ajustada
-                                          PendingTransactionModel
-                                              newPendingTransaction =
-                                              PendingTransactionModel(
+                                            updatedDataPlate: placaInfo
+                                                    ?.updatePlateDateTime ??
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            createdDataPlateResponse:
+                                                codeUtils.formatDateToIso8601(
+                                              placaInfo?.responseDateTime
+                                                      .toString() ??
+                                                  codeUtils.formatDateToIso8601(
+                                                      DateTime.now()
+                                                          .toString()),
+                                            ),
+                                            sealCode: "",
+                                            sealcodesList: precintsCodes,
+                                            createdDataSealResponse:
+                                                codeUtils.formatDateToIso8601(
+                                              precintList?[0]
+                                                      .responseDateTime
+                                                      ?.toIso8601String() ??
+                                                  codeUtils.formatDateToIso8601(
+                                                      DateTime.now()
+                                                          .toString()),
+                                            ),
+                                            createdDataSeal:
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            updatedDataSeal: precintList
+                                                    ?.last.updateDataSeal ??
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
                                             transactionNumber:
                                                 pendingTransaction
                                                     .transactionNumber,
-                                            transactionTypeName:
-                                                pendingTransaction
-                                                    .transactionTypeName,
+                                            initialTransactionId:
+                                                transactionType?.id ?? 0,
                                             transactionTypeId:
                                                 pendingTransaction
                                                     .transactionTypeId,
-                                            initialTransactionId:
-                                                transactionType?.id ?? 0,
                                             epochCreatedDatetime:
                                                 pendingTransaction
                                                     .epochCreatedDatetime,
+                                            cratedDataTimeTransaction: ref
+                                                    .watch(
+                                                        timeCreationTransactionProvider)
+                                                    ?.millisecondsSinceEpoch ??
+                                                0,
                                             createdByUserId: pendingTransaction
                                                 .createdByUserId,
-                                            currentStatus: false,
-                                            createdDataTimeTransaction:
-                                                pendingTransaction
-                                                    .createdDataTimeTransaction,
+                                            containerUrlImage:
+                                                containerInfo?.imageUrl,
+                                            driverUrlImage:
+                                                driverInfo?.imageUrl,
+                                            plateUrlImage: placaInfo?.imageUrl,
+                                            precintImagesUrl: urlPrecint,
                                           );
-                                          final resultPendingTransaction =
-                                              await createPendingTransactionFuntion(
-                                                  ref, newPendingTransaction);
-                                          if (resultPendingTransaction ==
+                                          log('transaction: ${transaction.toJson()}');
+                                          final resultTransaction =
+                                              await createTransactionFuntion(
+                                                  ref, transaction);
+
+                                          if (resultTransaction ==
                                               'Item registered successfully') {
-                                            log('creo la transaccion pendiente');
+                                            log('resultTransaction1: $resultTransaction');
+                                            // 2️⃣ Crear nueva PendingTransactionModel ajustada
+                                            PendingTransactionModel
+                                                newPendingTransaction =
+                                                PendingTransactionModel(
+                                              transactionNumber:
+                                                  pendingTransaction
+                                                      .transactionNumber,
+                                              transactionTypeName:
+                                                  pendingTransaction
+                                                      .transactionTypeName,
+                                              transactionTypeId:
+                                                  pendingTransaction
+                                                      .transactionTypeId,
+                                              initialTransactionId:
+                                                  transactionType?.id ?? 0,
+                                              epochCreatedDatetime:
+                                                  pendingTransaction
+                                                      .epochCreatedDatetime,
+                                              createdByUserId:
+                                                  pendingTransaction
+                                                      .createdByUserId,
+                                              currentStatus: false,
+                                              createdDataTimeTransaction:
+                                                  pendingTransaction
+                                                      .createdDataTimeTransaction,
+                                            );
+                                            final resultPendingTransaction =
+                                                await createPendingTransactionFuntion(
+                                                    ref, newPendingTransaction);
+                                            if (resultPendingTransaction ==
+                                                'Item registered successfully') {
+                                              log('creo la transaccion pendiente');
+                                              uiUtils.showSnackBar(context,
+                                                  'Transacción creada exitosamente');
+                                              log('resultPendingTransaction: $resultPendingTransaction');
+                                              // setIsFromPendingTransaction(
+                                              //     ref, false);
+                                              // getSelectedPendingTransaction(
+                                              //     ref, null);
+                                            }
+                                            log('creo las dos transacciones');
+                                            setUploadingImage(ref, false);
+                                          } else {
+                                            log('Error al crear la transacción');
+                                            uiUtils.showSnackBar(context,
+                                                'Error al crear la transacción');
+                                            setUploadingImage(ref, false);
+                                            return;
+                                          }
+                                        } else if (transactionType?.isInOut ??
+                                            false || isfromPending) {
+                                          PendingTransactionModel
+                                              pendingTransaction =
+                                              PendingTransactionModel(
+                                            transactionNumber:
+                                                transactionNumberController
+                                                    .text,
+                                            transactionTypeName:
+                                                transactionType?.name ?? '',
+                                            transactionTypeId:
+                                                transactionType?.id ?? 0,
+                                            initialTransactionId:
+                                                transactionType?.id ?? 0,
+                                            epochCreatedDatetime: DateTime.now()
+                                                .millisecondsSinceEpoch,
+                                            createdByUserId:
+                                                user?.id.hashCode ?? 1,
+                                            currentStatus: true,
+                                            createdDataTimeTransaction:
+                                                DateTime.now()
+                                                    .millisecondsSinceEpoch,
+                                          );
+
+                                          await createPendingTransactionFuntion(
+                                              ref, pendingTransaction);
+                                          log('creo la transaccion pendiente');
+                                          setUploadingImage(ref, false);
+                                          uiUtils.showSnackBar(context,
+                                              'Transacción pendiente creada exitosamente');
+                                        } else {
+                                          log('user : ${user?.id.hashCode}');
+                                          TransactionModel transaction =
+                                              TransactionModel(
+                                            containerNumber:
+                                                containerInfo?.numSerie,
+                                            transactionTypeName:
+                                                transactionType?.name ?? '',
+                                            containerTransportLine:
+                                                containerInfo?.numControl ?? '',
+                                            containerIso:
+                                                containerInfo?.tipoContenedor,
+                                            containerType: containerInfo
+                                                ?.getTipoContenedor(
+                                                    containerInfo
+                                                        .tipoContenedor),
+                                               
+                                            containerTara: validateWeightString(
+                                                containerInfo?.taraKg),
+                                            containerPayload:
+                                                validateWeightString(
+                                                    containerInfo?.payloadKg),
+                                            createdDataContainer:
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            updatedDataContainer: containerInfo
+                                                    ?.updateDataContainer ??
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            createDateContainerDateTimeRespone:
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            createdDataContainerLat:
+                                                lateralsImages[0]
+                                                    ['createdDataContainerLat'],
+                                            createdDataContainerLatResponse:
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            containerUrlImageLat: lateralPhotos,
+                                            driverDni:
+                                                driverInfo?.codLicence ?? "",
+                                            driverName:
+                                                driverInfo?.fullName ?? "",
+                                            driverLastName:
+                                                driverInfo?.fullLastName ?? "",
+                                            createdDataDriver:
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            updatedDataDriver: driverInfo
+                                                    ?.updateConductorDateTime ??
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            createdDataDriverResponse:
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            plate: placaInfo?.codigo ?? "",
+                                            createdDataPlate:
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            updatedDataPlate: placaInfo
+                                                    ?.updatePlateDateTime ??
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            createdDataPlateResponse: placaInfo
+                                                        ?.responseDateTime !=
+                                                    null
+                                                ? codeUtils.formatDateToIso8601(
+                                                    placaInfo!
+                                                        .responseDateTime!)
+                                                : codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            sealCode: "",
+                                            createdDataSeal:
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            updatedDataSeal: precintList
+                                                    ?.last.updateDataSeal ??
+                                                codeUtils.formatDateToIso8601(
+                                                    DateTime.now().toString()),
+                                            sealcodesList: precintsCodes,
+                                            createdDataSealResponse:
+                                                codeUtils.formatDateToIso8601(
+                                                    precintList?[0]
+                                                            .responseDateTime
+                                                            ?.toIso8601String() ??
+                                                        DateTime.now()
+                                                            .toIso8601String()),
+                                            transactionNumber:
+                                                transactionNumberController
+                                                    .text,
+                                            initialTransactionId:
+                                                transactionType?.id ?? 0,
+                                            transactionTypeId:
+                                                transactionType?.id ?? 0,
+                                            epochCreatedDatetime: DateTime.now()
+                                                .millisecondsSinceEpoch,
+                                            cratedDataTimeTransaction: ref
+                                                    .watch(
+                                                        timeCreationTransactionProvider)
+                                                    ?.millisecondsSinceEpoch ??
+                                                DateTime.now()
+                                                    .millisecondsSinceEpoch,
+                                            createdByUserId:
+                                                user?.id.hashCode ?? 1,
+                                            currentStatus: false,
+                                            containerUrlImage:
+                                                containerInfo?.imageUrl,
+                                            driverUrlImage:
+                                                driverInfo?.imageUrl,
+                                            plateUrlImage: placaInfo?.imageUrl,
+                                            precintImagesUrl: urlPrecint,
+                                          );
+                                          log('transaction: ${transaction.toJson()}');
+                                          final result =
+                                              await createTransactionFuntion(
+                                                  ref, transaction);
+                                          if (result ==
+                                              'Item registered successfully') {
+                                            setUploadingImage(ref, false);
+                                            setIsCompleteTransaction(ref, true);
+                                            setTimeCreationTransaction(
+                                                ref, null);
                                             uiUtils.showSnackBar(context,
                                                 'Transacción creada exitosamente');
-                                            log('resultPendingTransaction: $resultPendingTransaction');
-                                            // setIsFromPendingTransaction(
-                                            //     ref, false);
-                                            // getSelectedPendingTransaction(
-                                            //     ref, null);
+                                            log('creo la transaccion completa');
+                                          } else {
+                                            log('Error al crear la transacción');
+                                            uiUtils.showSnackBar(context,
+                                                'Error al crear la transacción sola');
+                                            setUploadingImage(ref, false);
+                                            return;
                                           }
-                                          log('creo las dos transacciones');
-                                          setUploadingImage(ref, false);
-                                        } else {
-                                          log('Error al crear la transacción');
-                                          uiUtils.showSnackBar(context,
-                                              'Error al crear la transacción');
-                                          setUploadingImage(ref, false);
-                                          return;
                                         }
-                                      } else if (transactionType?.isInOut ??
-                                          false || isfromPending) {
-                                        PendingTransactionModel
-                                            pendingTransaction =
-                                            PendingTransactionModel(
-                                          transactionNumber:
-                                              transactionNumberController.text,
-                                          transactionTypeName:
-                                              transactionType?.name ?? '',
-                                          transactionTypeId:
-                                              transactionType?.id ?? 0,
-                                          initialTransactionId:
-                                              transactionType?.id ?? 0,
-                                          epochCreatedDatetime: DateTime.now()
-                                              .millisecondsSinceEpoch,
-                                          createdByUserId:
-                                              user?.id.hashCode ?? 1,
-                                          currentStatus: true,
-                                          createdDataTimeTransaction:
-                                              DateTime.now()
-                                                  .millisecondsSinceEpoch,
-                                        );
-
-                                        await createPendingTransactionFuntion(
-                                            ref, pendingTransaction);
-                                        log('creo la transaccion pendiente');
-                                        setUploadingImage(ref, false);
+                                      } catch (e) {
+                                        log('Error al crear la transacción: $e');
                                         uiUtils.showSnackBar(context,
-                                            'Transacción pendiente creada exitosamente');
-                                      } else {
-                                        log('user : ${user?.id.hashCode}');
-                                        TransactionModel transaction =
-                                            TransactionModel(
-                                          containerNumber:
-                                              containerInfo?.numSerie,
-                                          transactionTypeName:
-                                              transactionType?.name ?? '',
-                                          containerTransportLine: containerInfo?.numControl ?? 
-                                          '',
-                                          containerIso:
-                                              containerInfo?.codPropietario,
-                                          containerType:
-                                              containerInfo?.tipoContenedor,
-                                          containerTara: validateWeightString(containerInfo?.taraKg),
-containerPayload: validateWeightString(containerInfo?.payloadKg),
-
-                                          createdDataContainer:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          updatedDataContainer: containerInfo
-                                                  ?.updateDataContainer ??
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          createDateContainerDateTimeRespone:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          createdDataContainerLat:
-                                              lateralsImages[0]
-                                                  ['createdDataContainerLat'],
-                                          createdDataContainerLatResponse:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          containerUrlImageLat: lateralPhotos,
-                                          driverDni:
-                                              driverInfo?.codLicence ?? "",
-                                          driverName:
-                                              driverInfo?.fullName ?? "",
-                                          driverLastName:
-                                              driverInfo?.fullLastName ?? "",
-                                          createdDataDriver:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          updatedDataDriver: driverInfo
-                                                  ?.updateConductorDateTime ??
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          createdDataDriverResponse:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          plate: placaInfo?.codigo ?? "",
-                                          createdDataPlate:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          updatedDataPlate: placaInfo
-                                                  ?.updatePlateDateTime ??
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          createdDataPlateResponse: placaInfo
-                                                      ?.responseDateTime !=
-                                                  null
-                                              ? codeUtils.formatDateToIso8601(
-                                                  placaInfo!.responseDateTime!)
-                                              : codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          sealCode: "",
-                                          createdDataSeal:
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          updatedDataSeal: precintList
-                                                  ?.last.updateDataSeal ??
-                                              codeUtils.formatDateToIso8601(
-                                                  DateTime.now().toString()),
-                                          sealcodesList: precintsCodes,
-                                          createdDataSealResponse:
-                                              codeUtils.formatDateToIso8601(
-                                                  precintList?[0]
-                                                          .responseDateTime
-                                                          ?.toIso8601String() ??
-                                                      DateTime.now()
-                                                          .toIso8601String()),
-                                          transactionNumber:
-                                              transactionNumberController.text,
-                                          initialTransactionId:
-                                              transactionType?.id ?? 0,
-                                          transactionTypeId:
-                                              transactionType?.id ?? 0,
-                                          epochCreatedDatetime: DateTime.now()
-                                              .millisecondsSinceEpoch,
-                                          cratedDataTimeTransaction: ref
-                                                  .watch(
-                                                      timeCreationTransactionProvider)
-                                                  ?.millisecondsSinceEpoch ??
-                                              DateTime.now()
-                                                  .millisecondsSinceEpoch,
-                                          createdByUserId:
-                                              user?.id.hashCode ?? 1,
-                                          currentStatus: false,
-                                          containerUrlImage:
-                                              containerInfo?.imageUrl,
-                                          driverUrlImage: driverInfo?.imageUrl,
-                                          plateUrlImage: placaInfo?.imageUrl,
-                                          precintImagesUrl: urlPrecint,
-                                        );
-                                        log('transaction: ${transaction.toJson()}');
-                                        final result =
-                                            await createTransactionFuntion(
-                                                ref, transaction);
-                                        if (result ==
-                                            'Item registered successfully') {
-                                          setUploadingImage(ref, false);
-                                          setIsCompleteTransaction(ref, true);
-                                          setTimeCreationTransaction(ref, null);
-                                          uiUtils.showSnackBar(context,
-                                              'Transacción creada exitosamente');
-                                          log('creo la transaccion completa');
-                                        } else {
-                                          log('Error al crear la transacción');
-                                          uiUtils.showSnackBar(context,
-                                              'Error al crear la transacción sola');
-                                          setUploadingImage(ref, false);
-                                          return;
-                                        }
+                                            'Error al crear la transacción: $e');
+                                        setUploadingImage(ref, false);
+                                        return;
                                       }
-                                    } catch (e) {
-                                      log('Error al crear la transacción: $e');
-                                      uiUtils.showSnackBar(context,
-                                          'Error al crear la transacción: $e');
-                                      setUploadingImage(ref, false);
-                                      return;
-                                    }
-                                  },
-                            textColor: uiUtils.whiteColor,
-                          )
-                        ],
-                      ),
-              ),
-            ],
+                                    },
+                              textColor: uiUtils.whiteColor,
+                            )
+                          ],
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    )
+      )),
     );
   }
 }

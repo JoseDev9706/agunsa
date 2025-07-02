@@ -79,11 +79,13 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
 
   void pushReplacement(AppRoute route, {dynamic args}) {
     if (_routeStack.isNotEmpty && _routeStack.last == route) {
+      log('entro a pushReplacement e hizo return');
       return;
     }
     if (_routeStack.isNotEmpty) {
       _routeStack.removeLast();
     }
+    log('Pushing route from replacement: $route with args: $args');
     _routeStack.add(route);
     _args = args;
     currentRoute = route;
@@ -100,24 +102,29 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
     return false;
   }
 
-  void _updateRouteStack(AuthState state) {
+void _updateRouteStack(AuthState state) {
     _routeStack.clear();
     switch (state) {
       case AuthState.unknown:
         _routeStack.add(AppRoute.splash);
+        currentRoute = AppRoute.splash;
         break;
       case AuthState.signedIn:
         _routeStack.add(AppRoute.home);
+        currentRoute = AppRoute.home;
         break;
       case AuthState.signedOut:
         _routeStack.add(AppRoute.login);
+        currentRoute = AppRoute.login;
         break;
       case AuthState.requirePasswordChange:
         _routeStack.add(AppRoute.changePassword);
+        currentRoute = AppRoute.changePassword;
         break;
     }
     notifyListeners();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +171,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         return const RegisterScreen();
       case AppRoute.home:
         return HomeScreen(
-            isNeedPasswordConfirmation: _args?['nextStep'],
+            // isNeedPasswordConfirmation: _args?['nextStep'],
             user: _args?['user']);
       case AppRoute.profile:
         return const ProfileScreen();

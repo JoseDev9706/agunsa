@@ -173,6 +173,10 @@ class _ChangePasswordState extends ConsumerState<ChangePassword> {
                                     final router =
                                         ref.read(routerDelegateProvider);
                                     router.push(AppRoute.home);
+                                    ref
+                                        .read(isNeedPasswordConfirmationProvider
+                                            .notifier)
+                                        .state = null;
                                   }
                                 } else {
                                   if (context.mounted) {

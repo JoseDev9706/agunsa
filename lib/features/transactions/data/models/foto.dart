@@ -50,4 +50,6 @@ class FotoModel extends Foto {
         'image_url': imageUrl,
         'update_data_container': updateDataContainer,
       };
+
+ 
 }

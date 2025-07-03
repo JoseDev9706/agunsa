@@ -99,17 +99,9 @@ class ResumeTransaction extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                send
-                    ? Container(
-                        padding: const EdgeInsets.all(18),
-                      )
-                    : TransactionAppBar(
-                        uiUtils: uiUtils,
-                        title: '',
-                        onTap: () {
-                          ref.read(routerDelegateProvider).popRoute();
-                        },
-                      ),
+                Container(
+                  padding: const EdgeInsets.all(18),
+                ),
                 const SizedBox(
                   height: 120,
                 ),
@@ -536,7 +528,6 @@ class ResumeTransaction extends ConsumerWidget {
                                                 ?.getTipoContenedor(
                                                     containerInfo
                                                         .tipoContenedor),
-                                               
                                             containerTara: validateWeightString(
                                                 containerInfo?.taraKg),
                                             containerPayload:
@@ -698,13 +689,13 @@ class LabelInfo extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(transactionTypeLabel!,
+            Text(transactionTypeLabel ?? '',
                 style: TextStyle(
                     color: uiUtils.black,
                     fontSize: 15,
                     fontWeight: FontWeight.bold)),
             Text(
-              transactionType!,
+              transactionType ?? '',
               style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 15,

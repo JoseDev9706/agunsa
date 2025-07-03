@@ -66,6 +66,10 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
     notifyListeners();
   }
 
+  final Set<AppRoute> nonPoppableRoutes = {
+    AppRoute.resumeTransaction,
+  };
+
   void push(AppRoute route, {dynamic args}) {
     if (_routeStack.isNotEmpty && _routeStack.last == route) {
       return;
@@ -102,7 +106,17 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
     return false;
   }
 
-void _updateRouteStack(AuthState state) {
+  void pushAndRemoveAll(AppRoute route, {dynamic args}) {
+    _routeStack.clear();
+    log('Limpió routeStack y pushing $route con args $args');
+    _routeStack.add(route);
+    _args = args;
+    currentRoute = route;
+    notifyListeners();
+  }
+
+
+  void _updateRouteStack(AuthState state) {
     _routeStack.clear();
     switch (state) {
       case AuthState.unknown:
@@ -125,7 +139,6 @@ void _updateRouteStack(AuthState state) {
     notifyListeners();
   }
 
-
   @override
   Widget build(BuildContext context) {
     if (_routeStack.first == AppRoute.splash && !_hasCheckedSession) {
@@ -142,21 +155,31 @@ void _updateRouteStack(AuthState state) {
           width: constraints.maxWidth,
         );
         return Navigator(
-          key: navigatorKey,
-          pages: _routeStack
-              .map((route) => MaterialPage(child: _buildPage(route)))
-              .toList(),
-          onPopPage: (route, result) {
-            if (!route.didPop(result)) return false;
-            if (_routeStack.isNotEmpty) {
-              _routeStack.removeLast();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                notifyListeners(); 
-              });
-            }
-            return true;
-          },
-        );
+            key: navigatorKey,
+            pages: _routeStack
+                .map((route) => MaterialPage(child: _buildPage(route)))
+                .toList(),
+            onDidRemovePage: (Page<dynamic> page) {
+              (route, result) {
+                final currentRoute = _routeStack.last;
+
+                // Bloquear pop si la ruta actual está en el set
+                if (nonPoppableRoutes.contains(currentRoute)) {
+                  log('Bloqueado el pop en $currentRoute');
+                  return false;
+                }
+
+                if (!route.didPop(result)) return false;
+
+                if (_routeStack.isNotEmpty) {
+                  _routeStack.removeLast();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    notifyListeners();
+                  });
+                }
+                return true;
+              };
+            });
       },
     );
   }

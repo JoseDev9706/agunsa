@@ -9,6 +9,7 @@ import 'package:agunsa/features/auth/domain/respositories/auth_repository.dart';
 import 'package:agunsa/features/auth/domain/use_cases/check_session.dart';
 import 'package:agunsa/features/auth/domain/use_cases/login_usecase.dart';
 import 'package:agunsa/features/auth/domain/use_cases/logout_usecase.dart';
+import 'package:agunsa/features/profile/display/providers/profile_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -109,6 +110,7 @@ class LoginController extends _$LoginController {
 
       ref.read(userProvider.notifier).state = null;
       ref.read(authStateProvider.notifier).state = AuthState.signedOut;
+      ref.read(isNeedPasswordConfirmationProvider.notifier).state = null;
       return true;
     } catch (error, stackTrace) {
       log(error.toString(), stackTrace: stackTrace);

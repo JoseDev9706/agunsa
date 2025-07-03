@@ -236,7 +236,7 @@ class LoginForm extends ConsumerWidget {
                         });
                       } else {}
                       SnackBar(content: Text(result.toString()));
-                      log('Error inesperado: ${result.toString()}');
+                      
                     }
                   }
                 },

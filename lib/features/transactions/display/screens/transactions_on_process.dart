@@ -163,7 +163,7 @@ class TransactionsOnProcess extends ConsumerWidget {
                                     Row(
                                       children: [
                                         Text(
-                                          'NÚMERO DE CONTENEDOR: ',
+                                          'NÚMERO DE TRANSACCIÓN: ',
                                           style: TextStyle(
                                             color: uiUtils.grayLightColor,
                                             fontWeight: FontWeight.bold,
@@ -200,6 +200,8 @@ class TransactionsOnProcess extends ConsumerWidget {
                                     GestureDetector(
                                       onTap: () {
                                         setIsFromPendingTransaction(ref, true);
+                                        setTimeCreationTransaction(
+                                            ref, DateTime.now());
                                         getSelectedPendingTransaction(
                                             ref, transaction);
                                         ref.read(routerDelegateProvider).push(

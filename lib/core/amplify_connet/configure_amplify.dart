@@ -16,3 +16,5 @@ Future<void>configureAmplify() async {
     log('Error configuring Amplify: $e');
   }
 }
+
+

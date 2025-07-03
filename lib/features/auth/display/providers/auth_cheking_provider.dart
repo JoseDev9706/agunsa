@@ -13,7 +13,7 @@ class AuthManager {
   AuthManager(this._ref);
 
   Future<void> checkAndUpdateSession() async {
-    final result = await _ref.read(checkSessionUseCaseProvider)();
+    final result = await _ref.read(checkSessionUseCaseProvider).call();
     result.fold(
       (failure) => _handleFailure(failure as AuthFailure),
       (success) {

@@ -54,27 +54,6 @@ class ProfileScreen extends ConsumerWidget {
                   shrinkWrap: true,
                   scrollDirection: Axis.vertical,
                   children: [
-                    // CustomListTile(
-                    //   leading: SvgPicture.asset("assets/svg/no-profile.svg",
-                    //       height: uiUtils.screenHeight * 0.03,
-                    //       color: uiUtils.primaryColor),
-                    //   title: Text(
-                    //     'Datos Personales',
-                    //     style: TextStyle(
-                    //         color: uiUtils.grayLightColor,
-                    //         fontSize: 17,
-                    //         fontWeight: FontWeight.bold),
-                    //   ),
-                    //   onTap: () {},
-                    //   trailing: Icon(
-                    //     Icons.arrow_forward_ios,
-                    //     size: 20,
-                    //     color: uiUtils.grayLightColor,
-                    //   ),
-                    // ),
-                    // Divider(
-                    //   color: uiUtils.grayLightColor,
-                    // ),
                     CustomListTile(
                       leading: SvgPicture.asset("assets/svg/guard.svg",
                           height: uiUtils.screenHeight * 0.03,
@@ -123,6 +102,80 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                   ],
                 )),
+            SizedBox(height: uiUtils.screenHeight * 0.05),
+            GestureDetector(
+              onTap: () {
+                uiUtils.showModalDialog(
+                    context,
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          height: uiUtils.screenHeight * 0.01,
+                          width: uiUtils.screenWidth * 0.15,
+                          decoration: BoxDecoration(
+                            color: uiUtils.primaryColor,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          textAlign: TextAlign.center,
+                          'Eliminar cuenta',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 19),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          textAlign: TextAlign.center,
+                          'Estas seguro que deseas eliminar tu cuenta?. \nAl hacerlo perderas los datos asociados a la cuenta, tales como los registros de las transacciones realizadas y tus datos de conductor.',
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: uiUtils.grayDarkColor,
+                              fontSize: 17),
+                        ),
+                        const SizedBox(height: 20),
+                        GeneralBottom(
+                          width: uiUtils.screenWidth,
+                          color: uiUtils.primaryColor,
+                          text: 'CANCELAR',
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          textColor: uiUtils.whiteColor,
+                        ),
+                        const SizedBox(height: 20),
+                        GestureDetector(
+                          onTap: () async {
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            'ELIMINAR CUENTA',
+                            style: TextStyle(
+                                color: uiUtils.primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                    true);
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Eliminar Cuenta',
+                    style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        color: uiUtils.primaryColor,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
             const Spacer(),
           ],
         ),
@@ -131,5 +184,3 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 }
-
-

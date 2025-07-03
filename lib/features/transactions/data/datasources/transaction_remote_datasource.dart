@@ -17,6 +17,8 @@ import 'package:agunsa/features/transactions/domain/entities/transaction_type.da
 import 'package:agunsa/features/transactions/domain/entities/transactions.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../../core/utils/code_utils.dart';
+
 abstract class TransactionRemoteDatasource {
   Future<List<TransactionType>> getAllTransactions();
   Future<Foto?> uploadImageToServer(
@@ -35,17 +37,23 @@ abstract class TransactionRemoteDatasource {
 
 class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   //static const String _uploadImage = '${baseUrl}container-back';
-  static const String _uploadImage = '${baseUrl}container-back-2';
 
-  static const String _getTransactionTypes = '${baseUrl}transaction-type';
-  static const String _getprecinto = '${baseUrl}precinto';
-  static const String _getplaca = '${baseUrl}placa-camion';
-  static const String _getdni = '${baseUrl}licencia';
-  static const String _createTransaction = '${baseUrl}transaction';
-  static const String _getTransactionById = '${baseUrl}transaction';
-  static const String _getPendingTransactions = '${baseUrl}pending-transaction';
+  //static const String _uploadImage = '${baseUrl}container-back';
+  static const String _uploadImage = '${baseUrl}iaagent/model/container';
+
+  static const String _getTransactionTypes =
+      '${baseUrl}appmobile/backend/transaction-type';
+  static const String _getprecinto = '${baseUrl}iaagent/model/seal';
+  static const String _getplaca = '${baseUrl}iaagent/model/plate';
+  static const String _getdni = '${baseUrl}iaagent/model/carrier';
+  static const String _createTransaction =
+      '${baseUrl}appmobile/backend/transaction';
+  static const String _getTransactionById =
+      '${baseUrl}appmobile/backend/transaction';
+  static const String _getPendingTransactions =
+      '${baseUrl}appmobile/backend/pending-transaction';
   static const String _createPendingTransaction =
-      '${baseUrl}pending-transaction';
+      '${baseUrl}appmobile/backend/pending-transaction';
 
   Future<T> _genericRequest<T>({
     required String url,
@@ -55,9 +63,11 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   }) async {
     try {
       final uri = Uri.parse(url);
-      final request = http.Request('GET', uri);
+      final request = http.Request('POST', uri);
+      //final idToken = await obtenerToken(); // ✅ aquí lo obtienes
 
       request.headers['Content-Type'] = 'application/json';
+      log('Respuesta idToken: ${idToken}');
       if (idToken != null) request.headers['Authorization'] = 'Bearer $idToken';
 
       request.body = jsonEncode(body);
@@ -114,6 +124,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   // }
 
   Future<Map<String, dynamic>> _sendImageToS3(String base64Image) async {
+    CodeUtils codeUtils = CodeUtils();
     try {
       final startTime = DateTime.now();
       final response = await http.post(
@@ -130,24 +141,22 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       log('📤 Tiempo de subida a S3: $elapsedMs ms (${(elapsedMs / 1000).toStringAsFixed(2)} s)');
 
       if (response.statusCode == 200) {
-        //final initialTimeToResponse = DateTime.now();
+        final initialTimeToResponse = DateTime.now();
         final responseBody = jsonDecode(response.body);
         log('Respuesta de S3: $responseBody');
         final bodyData = jsonDecode(responseBody['body']);
         final imageUrl = bodyData['image_url'];
         final endTimeToResponse = DateTime.now();
-        //final elapsedMsToResponse =
-        //    endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
-       
+        final elapsedMsToResponse =
+            endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
 
         //log('📤 Tiempo de respuesta: $elapsedMsToResponse ms (${(elapsedMsToResponse / 1000).toStringAsFixed(2)} s)');
 
         return {
           'statusCode': responseBody['statusCode'],
           'imageUrl': imageUrl,
-          'timeToResponse':  endTimeToResponse.toIso8601String(),
+          'timeToResponse': "$elapsedMs ms",
           'DataTimeResponse': endTimeToResponse.toIso8601String(),
-          
         };
       } else {
         final endTimeToResponse2 = DateTime.now();
@@ -167,7 +176,12 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   @override
   Future<List<TransactionType>> getAllTransactions() async {
     try {
-      final response = await http.get(Uri.parse(_getTransactionTypes));
+      final response = await http.get(
+        Uri.parse(_getTransactionTypes),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -193,7 +207,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   }
 
   @override
-  Future<FotoModel?> uploadImageToServer(
+  Future<FotoModel> uploadImageToServer(
     ImageParams image,
     String idToken,
   ) async {
@@ -202,8 +216,9 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     final imageUrl = response['imageUrl'];
 
     log('Status code de la imagen: $statusCode');
-    if (statusCode != 200) {
-      throw Exception('Error al subir la imagen a S3. Código: $statusCode');
+    if (statusCode != 200 || imageUrl == null) {
+      throw Exception(
+          'Error al subir la imagen a S3. Código: $statusCode, imageUrl: $imageUrl');
     }
 
     final stopwatch = Stopwatch()..start();
@@ -219,17 +234,27 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
         final bodyData =
             json['body'] is String ? jsonDecode(json['body']) : json['body'];
         log('bodyData: $bodyData');
+
+        if (bodyData == null || bodyData.isEmpty) {
+          throw Exception('Respuesta vacía o inválida al parsear bodyData');
+        }
+
         final result = FotoModel.fromJson({
           ...bodyData,
           'image_url': imageUrl,
         });
         log('FotoModel result: $result');
+
         return result;
       },
     );
 
     stopwatch.stop();
     log('Tiempo de respuesta de la API: ${stopwatch.elapsedMilliseconds} ms');
+
+    if (result == null) {
+      throw Exception('El resultado de _genericRequest es null');
+    }
 
     return result;
   }
@@ -257,8 +282,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       parseResponse: (json) {
         final bodyData =
             json['body'] is String ? jsonDecode(json['body']) : json['body'];
-        final result =
-            PrecintModel.fromJson({
+        final result = PrecintModel.fromJson({
           ...bodyData,
           'image_url': imageUrl,
           'response_date_time': dataTimeResponse
@@ -334,21 +358,37 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
   @override
   Future<String?> createTransaction(TransactionModel transaction) async {
+    // ✅ Mostrar los datos que se van a enviar y sus tipos
+    final jsonBody = transaction.toJson();
+    jsonBody.forEach((key, value) {
+      //log('🧾 Campo: $key - Valor: $value - Tipo: ${value.runtimeType}');
+    });
+
+    // ✅ Enviar solicitud
     final response = await http.post(
       Uri.parse(_createTransaction),
-      body: jsonEncode(transaction.toJson()),
+      body: jsonEncode(jsonBody),
       headers: {'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
-      final bodyDecoded = jsonDecode(responseBody['body']);
-      log('Respuesta de la API transaccion: ${bodyDecoded['message']}');
-      log('Transacción creada: ${bodyDecoded}');
-      return bodyDecoded['message'];
-    }
+      final bodyField = responseBody['body'];
+      if (bodyField != null) {
+        final bodyDecoded = jsonDecode(bodyField);
+        log('✅ Transacción creada: $bodyDecoded');
+        return bodyDecoded['message'];
+      } else {
+        log('⚠️ Respuesta sin campo "body": ${response.body}');
+        return null;
+      }
+    } else {
+      //log('❌ Error al crear transacción - Código: ${response.statusCode}');
+      //log('❌ Cuerpo de respuesta: ${response.body}');
+      //log('transaction222: ${transaction.toJson()}'); // ⛔ AQUÍ puede haber nulls que provocan el error
 
-    return null;
+      return null;
+    }
   }
 
   @override
@@ -438,23 +478,33 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   }
 
   @override
-Future<Map<String, dynamic>> uploadLateralImages(String base64Image) async {
+  Future<Map<String, dynamic>> uploadLateralImages(String base64Image) async {
+    CodeUtils codeUtils = CodeUtils();
     try {
       log('Subiendo imagen lateral a S3...');
-      
+
       final response = await _sendImageToS3(base64Image);
       final statusCode = response['statusCode'];
       final imageUrl = response['imageUrl'];
-      final String timeToResponse = response['timeToResponse'];
+      //final String timeToResponse = response['timeToResponse'];
       final String dataTimeResponse = response['DataTimeResponse'];
+
+      //final fechaSinMilisegundos = fecha.replaceAll('.000', '');
+      final fecha = DateTime.now()
+          .toUtc()
+          .copyWith(millisecond: 0, microsecond: 0)
+          .toIso8601String();
+
+      final fechaSinMilisegundos = fecha.replaceAll('.000', '');
       final rs = {
-        'createdDataContainerLat': DateTime.now().toIso8601String(),
-        'createdDataContainerLatRespoonse': timeToResponse,
+        'createdDataContainerLat':
+            codeUtils.formatDateToIso8601(DateTime.now().toIso8601String()),
+        'createdDataContainerLatRespoonse': dataTimeResponse,
         'imageUrl': imageUrl,
         'response_date_time': dataTimeResponse,
       };
       if (statusCode == 200) {
-        return rs; 
+        return rs;
       } else {
         return rs
           ..addAll({
@@ -462,10 +512,10 @@ Future<Map<String, dynamic>> uploadLateralImages(String base64Image) async {
           });
       }
     } catch (error) {
-      log('Error al subir la imagen lateral: $error');
+      log('Error al subir la imagen lateral remote: $error');
       return {
         'statusCode': 500,
-        'error': 'Error al subir la imagen lateral: $error',
+        'error': 'Error al subir la imagen lateral remote 2: $error',
       };
     }
   }

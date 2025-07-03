@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:agunsa/core/enum/auth_state.dart';
+import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
 import 'package:agunsa/features/profile/data/datasources/profile_remote_datasources.dart';
 import 'package:agunsa/features/profile/domain/respositories/profile_repository.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
@@ -102,6 +104,14 @@ Future<bool> changePassword(
             newPassword: newPassword,
             isNeedPasswordConfirmation: isNeedPasswordConfirmation,
           );
+      if (isNeedPasswordConfirmation != null &&
+          isNeedPasswordConfirmation.nextStep.signInStep.name ==
+              'confirmSignInWithNewPassword') {
+        ref.read(isNeedPasswordConfirmationProvider.notifier).state = null;
+        ref.read(authStateProvider.notifier).state = AuthState.signedIn;
+      } else {
+        ref.read(isNeedPasswordConfirmationProvider.notifier).state = null;
+      }
       return true;
     } catch (error, stackTrace) {
       log(error.toString(), stackTrace: stackTrace);

@@ -52,8 +52,9 @@ class UiUtils {
   }
 
   void hideModalDialog(BuildContext context, WidgetRef ref) {
-    final router = ref.read(routerDelegateProvider);
-    router.push(AppRoute.changePassword);
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
   }
 
   void showSnackBar(BuildContext context, String message) {

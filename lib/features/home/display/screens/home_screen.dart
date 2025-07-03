@@ -5,6 +5,7 @@ import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/custom_navigation_bar.dart';
 import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
 import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
+import 'package:agunsa/features/profile/display/providers/profile_provider.dart';
 import 'package:agunsa/features/profile/display/widgets/log_out_widget.dart';
 import 'package:agunsa/features/home/display/widgets/change_password_adv.dart';
 import 'package:agunsa/features/home/display/widgets/options_card.dart';
@@ -16,11 +17,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
 class HomeScreen extends ConsumerWidget {
-  final SignInResult? isNeedPasswordConfirmation;
+  // final SignInResult? isNeedPasswordConfirmation;
   final UserEntity? user;
   const HomeScreen({
     super.key,
-    this.isNeedPasswordConfirmation,
+    // this.isNeedPasswordConfirmation,
     this.user,
   });
 
@@ -29,11 +30,18 @@ class HomeScreen extends ConsumerWidget {
     UiUtils uiUtils = UiUtils();
     final userlog = ref.watch(userProvider);
     final router = ref.read(routerDelegateProvider);
-    log('nesessary ${isNeedPasswordConfirmation?.nextStep.signInStep.name.toString() ?? ''}');
-    if (isNeedPasswordConfirmation?.nextStep.signInStep.name ==
-            'confirmSignInWithNewPassword' &&
+    final isNeedPasswordConfirmationB =
+        ref.watch(isNeedPasswordConfirmationProvider);
+    log('nesessary ${isNeedPasswordConfirmationB?.nextStep.signInStep.name.toString() ?? ''}');
+    log('current route ${router.currentRoute.toString()}');
+    log('isNeedPasswordConfirmation ${isNeedPasswordConfirmationB?.toString() ?? 'es null'}');
+    if (isNeedPasswordConfirmationB != null &&
+        isNeedPasswordConfirmationB.nextStep.signInStep.name ==
+            'confirmSignInWithNewPassword' && 
         router.currentRoute == AppRoute.home) {
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
+       
         uiUtils.showModalDialog(
           context,
           ChangePasswordAdv(
@@ -43,7 +51,7 @@ class HomeScreen extends ConsumerWidget {
 
               router.push(AppRoute.changePassword,
                     args: {
-                'nextStep': isNeedPasswordConfirmation,
+                'nextStep': isNeedPasswordConfirmationB,
                 'isfromChangePassword': true
               });
              
@@ -51,6 +59,7 @@ class HomeScreen extends ConsumerWidget {
           ),
           false,
         );
+        
       });
     }
     return SafeArea(

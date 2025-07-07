@@ -224,7 +224,7 @@ Future<XFile?> _openCamera(BuildContext context) async {
         );
         break;
       case 'FINALIZAR':
-        ref.read(routerDelegateProvider).pushReplacement(
+        ref.read(routerDelegateProvider).pushAndRemoveAll(
           AppRoute.resumeTransaction,
           args: {
             'images': args?['images'],

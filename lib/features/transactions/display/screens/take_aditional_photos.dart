@@ -49,7 +49,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                 width: uiUtils.screenWidth * 0.6,
                 child: Text(
                   textAlign: TextAlign.center,
-                  'Toma dos fotos laterales del contendor',
+                  'Toma  fotos laterales del contendor',
                   style: TextStyle(
                       color: uiUtils.primaryColor,
                       fontSize: uiUtils.screenWidth * 0.065,
@@ -61,7 +61,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                 width: uiUtils.screenWidth * 0.75,
                 child: Text(
                   textAlign: TextAlign.center,
-                  'Estas imágenes no serán procesadas por inteligencia artificial, pero quedarán guardadas como evidencia del proceso.',
+                  'Estas imágenes no serán procesadas por inteligencia artificial, pero quedarán guardadas como evidencia del proceso.(Hasta 4 fotos)',
                   style: TextStyle(
                     color: uiUtils.black,
                     fontSize: uiUtils.screenWidth * 0.045,
@@ -100,7 +100,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
               SizedBox(height: uiUtils.screenHeight * 0.05),
               GestureDetector(
                 onTap: () async {
-                  if (images.length < 2) {
+                  if (images.length < 4) {
                     final capturedImage =
                         await CodeUtils().checkCameraPermission(context);
                     if (capturedImage != null) {
@@ -134,127 +134,123 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
               ),
               SizedBox(height: uiUtils.screenHeight * 0.03),
               if (images.isNotEmpty) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ...images.asMap().entries.map(
-                        (entry) {
-                          return Stack(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                height: uiUtils.screenHeight * 0.09,
-                                width: uiUtils.screenWidth * 0.2,
-                                decoration: BoxDecoration(
-                                  color: uiUtils.labelColor,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(5),
-                                  child: Image.file(
-                                    File(entry.value!.path),
-                                    fit: BoxFit.fill,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  width: uiUtils.screenWidth,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ...images.asMap().entries.map(
+                          (entry) {
+                            return Stack(
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(right: 8),
+                                  height: uiUtils.screenHeight * 0.09,
+                                  width: uiUtils.screenWidth * 0.2,
+                                  decoration: BoxDecoration(
+                                    color: uiUtils.labelColor,
+                                    borderRadius: BorderRadius.circular(5),
                                   ),
-                                ),
-                              ),
-                              Positioned.fill(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    images.removeAt(entry.key);
-                                    setState(() {});
-                                  },
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Colors.transparent,
-                                    ),
-                                    padding: const EdgeInsets.all(2),
-                                    child: const Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                      size: 22,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(5),
+                                    child: Image.file(
+                                      File(entry.value!.path),
+                                      fit: BoxFit.fill,
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                      if (images.length >= 2)
-                        Expanded(
-                          child: GeneralBottom(
-                            width: uiUtils.screenWidth * 0.3,
-                            color: isUploadingImage
-                                ? Colors.grey
-                                : uiUtils.primaryColor,
-                            text:
-                                isUploadingImage ? 'SUBIENDO...' : 'CONFIRMAR',
-                            onTap: () async {
-                              List<Map<String, dynamic>> succesResults = [];
-                              
-                              if (!isUploadingImage) {
-                                setUploadingImage(ref, true);
-
-                                try {
-                                  for (var image in images) {
-                                    final result =
-                                        await uploadLateralImagesFunction(
-                                      ref,
-                                      image!,
-                                    );
-                                   
-                                    log('Imagen subida: $result');
-                                    if (!result['imageUrl'].contains('http')) {
-                                      throw Exception(
-                                          'Error al subir una de las imágenes');
-                                    } else {
-                                      succesResults.add(result);
-                                         
-                                      if (succesResults.length ==
-                                          images.length) {
-                                        addAdtionalUrlImages(
-                                            ref, succesResults);
-                                        log('Todas las imágenes subidas correctamente');
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                                'Imágenes subidas correctamente'),
-                                          ),
-                                        );
-                                        ref.read(routerDelegateProvider).push(
-                                          AppRoute.containerInfo,
-                                          args: {
-                                            'images': images,
-                                            'isContainer': true,
-                                          },
-                                        );
-                                      }
-                                    }
-                                  }
-
-                                } catch (e) {
-                                  log('Error subiendo imágenes: $e');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Ocurrió un error al subir las imágenes'),
+                                Positioned.fill(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      images.removeAt(entry.key);
+                                      setState(() {});
+                                    },
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.transparent,
+                                      ),
+                                      padding: const EdgeInsets.all(2),
+                                      child: const Icon(
+                                        Icons.delete,
+                                        color: Colors.white,
+                                        size: 22,
+                                      ),
                                     ),
-                                  );
-                                } finally {
-                                  setUploadingImage(ref, false);
-                                }
-                              }
-                            },
-                            textColor: uiUtils.whiteColor,
-                          ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
-                    ],
+                        
+                      ],
+                    ),
                   ),
                 ),
               ],
+              SizedBox(height: uiUtils.screenHeight * 0.05),
+              if (images.length >= 2)
+                GeneralBottom(
+                  width: uiUtils.screenWidth * 0.3,
+                  color: isUploadingImage ? Colors.grey : uiUtils.primaryColor,
+                  text: isUploadingImage ? 'SUBIENDO...' : 'CONFIRMAR',
+                  onTap: () async {
+                    List<Map<String, dynamic>> succesResults = [];
+
+                    if (!isUploadingImage) {
+                      setUploadingImage(ref, true);
+
+                      try {
+                        for (var image in images) {
+                          final result = await uploadLateralImagesFunction(
+                            ref,
+                            image!,
+                          );
+
+                          log('Imagen subida: $result');
+                          if (!result['imageUrl'].contains('http')) {
+                            throw Exception(
+                                'Error al subir una de las imágenes');
+                          } else {
+                            succesResults.add(result);
+
+                            if (succesResults.length == images.length) {
+                              addAdtionalUrlImages(ref, succesResults);
+                              log('Todas las imágenes subidas correctamente');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text('Imágenes subidas correctamente'),
+                                ),
+                              );
+                              ref.read(routerDelegateProvider).push(
+                                AppRoute.containerInfo,
+                                args: {
+                                  'images': images,
+                                  'isContainer': true,
+                                },
+                              );
+                            }
+                          }
+                        }
+                      } catch (e) {
+                        log('Error subiendo imágenes: $e');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text('Ocurrió un error al subir las imágenes'),
+                          ),
+                        );
+                      } finally {
+                        setUploadingImage(ref, false);
+                      }
+                    }
+                  },
+                  textColor: uiUtils.whiteColor,
+                ),
               SizedBox(height: uiUtils.screenHeight * 0.05),
             ],
           ),

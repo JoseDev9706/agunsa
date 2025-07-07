@@ -36,7 +36,7 @@ abstract class TransactionRemoteDatasource {
 }
 
 class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
-  //static const String _uploadImage = '${baseUrl}container-back';
+   //static const String _uploadImage = '${baseUrl}container-back';
 
   //static const String _uploadImage = '${baseUrl}container-back';
   static const String _uploadImage = '${baseUrl}iaagent/model/container';
@@ -64,10 +64,8 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     try {
       final uri = Uri.parse(url);
       final request = http.Request('POST', uri);
-      //final idToken = await obtenerToken(); // ✅ aquí lo obtienes
 
       request.headers['Content-Type'] = 'application/json';
-      log('Respuesta idToken: ${idToken}');
       if (idToken != null) request.headers['Authorization'] = 'Bearer $idToken';
 
       request.body = jsonEncode(body);
@@ -128,7 +126,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     try {
       final startTime = DateTime.now();
       final response = await http.post(
-        Uri.parse('${baseUrl}presigned-url-images'),
+        Uri.parse('${baseUrl}appmobile/backend/url-images'),
         body: jsonEncode({
           "folder": "containerback",
           'image_base64': base64Image,
@@ -141,22 +139,22 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       log('📤 Tiempo de subida a S3: $elapsedMs ms (${(elapsedMs / 1000).toStringAsFixed(2)} s)');
 
       if (response.statusCode == 200) {
-        final initialTimeToResponse = DateTime.now();
+        ////final initialTimeToResponse = DateTime.now();
         final responseBody = jsonDecode(response.body);
         log('Respuesta de S3: $responseBody');
         final bodyData = jsonDecode(responseBody['body']);
         final imageUrl = bodyData['image_url'];
-        final endTimeToResponse = DateTime.now();
-        final elapsedMsToResponse =
-            endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
+        final endTimeToResponse =
+            codeUtils.formatDateToIso8601(DateTime.now().toIso8601String());
+        //    endTimeToResponse.difference(initialTimeToResponse).inMilliseconds;
 
         //log('📤 Tiempo de respuesta: $elapsedMsToResponse ms (${(elapsedMsToResponse / 1000).toStringAsFixed(2)} s)');
 
         return {
           'statusCode': responseBody['statusCode'],
           'imageUrl': imageUrl,
-          'timeToResponse': "$elapsedMs ms",
-          'DataTimeResponse': endTimeToResponse.toIso8601String(),
+          'timeToResponse': endTime,
+          'DataTimeResponse': endTimeToResponse
         };
       } else {
         final endTimeToResponse2 = DateTime.now();
@@ -176,12 +174,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   @override
   Future<List<TransactionType>> getAllTransactions() async {
     try {
-      final response = await http.get(
-        Uri.parse(_getTransactionTypes),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      );
+      final response = await http.get(Uri.parse(_getTransactionTypes));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -258,6 +251,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
     return result;
   }
+
 
 // Implementación para PrecintModel
   @override
@@ -356,40 +350,46 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     );
   }
 
+
   @override
-  Future<String?> createTransaction(TransactionModel transaction) async {
-    // ✅ Mostrar los datos que se van a enviar y sus tipos
-    final jsonBody = transaction.toJson();
-    jsonBody.forEach((key, value) {
-      //log('🧾 Campo: $key - Valor: $value - Tipo: ${value.runtimeType}');
-    });
+Future<String?> createTransaction(TransactionModel transaction) async {
+  
 
-    // ✅ Enviar solicitud
-    final response = await http.post(
-      Uri.parse(_createTransaction),
-      body: jsonEncode(jsonBody),
-      headers: {'Content-Type': 'application/json'},
-    );
+  // ✅ Mostrar los datos que se van a enviar y sus tipos
+  final jsonBody = transaction.toJson();
+  jsonBody.forEach((key, value) {
+    //log('🧾 Campo: $key - Valor: $value - Tipo: ${value.runtimeType}');
+  });
 
-    if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      final bodyField = responseBody['body'];
-      if (bodyField != null) {
-        final bodyDecoded = jsonDecode(bodyField);
-        log('✅ Transacción creada: $bodyDecoded');
-        return bodyDecoded['message'];
-      } else {
-        log('⚠️ Respuesta sin campo "body": ${response.body}');
-        return null;
-      }
-    } else {
-      //log('❌ Error al crear transacción - Código: ${response.statusCode}');
-      //log('❌ Cuerpo de respuesta: ${response.body}');
-      //log('transaction222: ${transaction.toJson()}'); // ⛔ AQUÍ puede haber nulls que provocan el error
+  // ✅ Enviar solicitud
+  final response = await http.post(
+    Uri.parse(_createTransaction),
+    body: jsonEncode(jsonBody),
+    headers: {'Content-Type': 'application/json'},
+  );
 
-      return null;
-    }
+  if (response.statusCode == 200) {
+  final responseBody = jsonDecode(response.body);
+  final bodyField = responseBody['body'];
+  if (bodyField != null) {
+    final bodyDecoded = jsonDecode(bodyField);
+    log('✅ Transacción creada: $bodyDecoded');
+    return bodyDecoded['message'];
+  } else {
+    log('⚠️ Respuesta sin campo "body": ${response.body}');
+    return null;
   }
+} else {
+  //log('❌ Error al crear transacción - Código: ${response.statusCode}');
+  //log('❌ Cuerpo de respuesta: ${response.body}');
+  //log('transaction222: ${transaction.toJson()}'); // ⛔ AQUÍ puede haber nulls que provocan el error
+
+  return null;
+}
+
+}
+
+
 
   @override
   Future<List<PendingTransactionModel>> getPendingTransactions(
@@ -491,9 +491,9 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       //final fechaSinMilisegundos = fecha.replaceAll('.000', '');
       final fecha = DateTime.now()
-          .toUtc()
-          .copyWith(millisecond: 0, microsecond: 0)
-          .toIso8601String();
+                      .toUtc()
+                      .copyWith(millisecond: 0, microsecond: 0)
+                      .toIso8601String();
 
       final fechaSinMilisegundos = fecha.replaceAll('.000', '');
       final rs = {

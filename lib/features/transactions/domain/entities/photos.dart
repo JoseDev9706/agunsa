@@ -45,6 +45,6 @@ class Foto {
   };
   String getTipoContenedor(String codPropietario) {
     final Map<String, dynamic> info = codigoIsoInfo[codPropietario]!;
-    return '${info['dimension'] - ['tipo']}';
+    return '${info['dimension']}" - ${info['tipo'].toString()}';
   }
 }

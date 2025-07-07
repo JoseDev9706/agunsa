@@ -1,4 +1,4 @@
-const amplifyconfig = '''{
+const amplifyconfig = ''' {
     "UserAgent": "aws-amplify-cli/2.0",
     "Version": "1.0",
     "auth": {
@@ -12,16 +12,16 @@ const amplifyconfig = '''{
                 "CredentialsProvider": {
                     "CognitoIdentity": {
                         "Default": {
-                            "PoolId": "us-east-1:288fd73b-16ce-4682-9265-3a9cbda0774f",
-                            "Region": "us-east-1"
+                            "PoolId": "us-east-2:1e26e8dd-325e-4afd-8eb3-90bcaeb5c593",
+                            "Region": "us-east-2"
                         }
                     }
                 },
                 "CognitoUserPool": {
                     "Default": {
-                        "PoolId": "us-east-1_8QBYQmwNV",
-                        "AppClientId": "5dk1nb3aam00hbdajjo1sbs059",
-                        "Region": "us-east-1"
+                        "PoolId": "us-east-2_Lr0y6Ew0M",
+                        "AppClientId": "3o2g7rvuidkmnp61kv9tjj1mua",
+                        "Region": "us-east-2"
                     }
                 },
                 "Auth": {

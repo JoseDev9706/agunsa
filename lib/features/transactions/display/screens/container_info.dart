@@ -618,7 +618,7 @@ class ContainerInfo extends ConsumerWidget {
                                                     color: uiUtils.labelColor),
                                                 child: Center(
                                                   child: Text(
-                                                    'Nro de Licencia:',
+                                                    'LICENCIA #:',
                                                     style: TextStyle(
                                                         color: uiUtils
                                                             .grayLightColor,
@@ -635,7 +635,7 @@ class ContainerInfo extends ConsumerWidget {
                                                   minHeight: uiUtils.screenHeight * 0.03,
                                                 ),
                                                 width:
-                                                    uiUtils.screenWidth * 0.32,
+                                                    uiUtils.screenWidth * 0.29,
                                                 margin: const EdgeInsets.only(
                                                     left: 0),
                                                 padding:
@@ -751,6 +751,7 @@ class ContainerInfo extends ConsumerWidget {
                                 ref: ref,
                                 stepText: stepText,
                                 args: args,
+                                
                               );
                             },
                             textColor: uiUtils.whiteColor,
@@ -994,7 +995,7 @@ class ContainerInfo extends ConsumerWidget {
         LabelInfo2(
           uiUtils: uiUtils,
           label: 'CODIGO ISO',
-          subLabel: foto.codPropietario,
+          subLabel: foto.tipoContenedor,
         ),
         // Text(
         //   'Este código indica que es un contenedor High Cube de 40 pies con altura adicional.',
@@ -1004,7 +1005,7 @@ class ContainerInfo extends ConsumerWidget {
         LabelInfo2(
           uiUtils: uiUtils,
           label: 'TIPO DE CONTENEDOR:',
-          subLabel: foto.tipoContenedor,
+          subLabel: foto.getTipoContenedor(foto.tipoContenedor),
         ),
         const SizedBox(height: 10),
         LabelInfo2(

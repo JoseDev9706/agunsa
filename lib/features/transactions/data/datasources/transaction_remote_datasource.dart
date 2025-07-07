@@ -36,18 +36,24 @@ abstract class TransactionRemoteDatasource {
 }
 
 class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
-  //static const String _uploadImage = '${baseUrl}container-back';
-  static const String _uploadImage = '${baseUrl}container-back-2';
+   //static const String _uploadImage = '${baseUrl}container-back';
 
-  static const String _getTransactionTypes = '${baseUrl}transaction-type';
-  static const String _getprecinto = '${baseUrl}precinto';
-  static const String _getplaca = '${baseUrl}placa-camion';
-  static const String _getdni = '${baseUrl}licencia';
-  static const String _createTransaction = '${baseUrl}transaction';
-  static const String _getTransactionById = '${baseUrl}transaction';
-  static const String _getPendingTransactions = '${baseUrl}pending-transaction';
+  //static const String _uploadImage = '${baseUrl}container-back';
+  static const String _uploadImage = '${baseUrl}iaagent/model/container';
+
+  static const String _getTransactionTypes =
+      '${baseUrl}appmobile/backend/transaction-type';
+  static const String _getprecinto = '${baseUrl}iaagent/model/seal';
+  static const String _getplaca = '${baseUrl}iaagent/model/plate';
+  static const String _getdni = '${baseUrl}iaagent/model/carrier';
+  static const String _createTransaction =
+      '${baseUrl}appmobile/backend/transaction';
+  static const String _getTransactionById =
+      '${baseUrl}appmobile/backend/transaction';
+  static const String _getPendingTransactions =
+      '${baseUrl}appmobile/backend/pending-transaction';
   static const String _createPendingTransaction =
-      '${baseUrl}pending-transaction';
+      '${baseUrl}appmobile/backend/pending-transaction';
 
   Future<T> _genericRequest<T>({
     required String url,
@@ -57,7 +63,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   }) async {
     try {
       final uri = Uri.parse(url);
-      final request = http.Request('GET', uri);
+      final request = http.Request('POST', uri);
 
       request.headers['Content-Type'] = 'application/json';
       if (idToken != null) request.headers['Authorization'] = 'Bearer $idToken';
@@ -120,7 +126,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     try {
       final startTime = DateTime.now();
       final response = await http.post(
-        Uri.parse('${baseUrl}presigned-url-images'),
+        Uri.parse('${baseUrl}appmobile/backend/url-images'),
         body: jsonEncode({
           "folder": "containerback",
           'image_base64': base64Image,

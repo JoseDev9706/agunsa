@@ -1,19 +1,19 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-agunsa-dev-7b0fe-authRole",
-      "UnauthRoleArn": "arn:aws:iam::245442309502:role/amplify-agunsa-dev-7b0fe-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::245442309502:role/amplify-agunsa-dev-7b0fe-authRole",
-      "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-agunsa-dev-7b0fe-deployment",
-      "UnauthRoleName": "amplify-agunsa-dev-7b0fe-unauthRole",
-      "StackName": "amplify-agunsa-dev-7b0fe",
-      "StackId": "arn:aws:cloudformation:us-east-1:245442309502:stack/amplify-agunsa-dev-7b0fe/84f0e730-1fd9-11f0-842e-0e2a5d7821b3",
-      "AmplifyAppId": "d1644dafyu5y4"
+      "AuthRoleName": "amplify-agunsa2a97a4e6-dev-181313-authRole",
+      "UnauthRoleArn": "arn:aws:iam::245442309502:role/amplify-agunsa2a97a4e6-dev-181313-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::245442309502:role/amplify-agunsa2a97a4e6-dev-181313-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-agunsa2a97a4e6-dev-181313-deployment",
+      "UnauthRoleName": "amplify-agunsa2a97a4e6-dev-181313-unauthRole",
+      "StackName": "amplify-agunsa2a97a4e6-dev-181313",
+      "StackId": "arn:aws:cloudformation:us-east-2:245442309502:stack/amplify-agunsa2a97a4e6-dev-181313/4e429b80-5863-11f0-a109-02f6e9d105d7",
+      "AmplifyAppId": "d1bjexbpgp2cw8"
     },
     "categories": {
       "auth": {
-        "agunsa2a97a4e6": {}
+        "agunsa2a97a4e62e71192c": {}
       }
     }
   }

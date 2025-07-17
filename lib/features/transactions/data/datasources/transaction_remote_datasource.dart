@@ -207,6 +207,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     final response = await _sendImageToS3(image.base64);
     final statusCode = response['statusCode'];
     final imageUrl = response['imageUrl'];
+    final String dataTimeResponse = response['DataTimeResponse'];
 
     log('Status code de la imagen: $statusCode');
     if (statusCode != 200 || imageUrl == null) {
@@ -235,19 +236,16 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
         final result = FotoModel.fromJson({
           ...bodyData,
           'image_url': imageUrl,
+          'response_date_time': dataTimeResponse
         });
         log('FotoModel result: $result');
-
+        log('Tiempo del modelo contenedor: $dataTimeResponse');
         return result;
       },
     );
 
     stopwatch.stop();
     log('Tiempo de respuesta de la API: ${stopwatch.elapsedMilliseconds} ms');
-
-    if (result == null) {
-      throw Exception('El resultado de _genericRequest es null');
-    }
 
     return result;
   }
@@ -282,6 +280,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           'response_date_time': dataTimeResponse
         });
         log('bodyData precint: $result');
+        log('Tiempo del modelo precinto: $dataTimeResponse');
         return result;
       },
     );
@@ -345,6 +344,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           'response_date_time': dataTimeResponse
         });
         log('bodyData placa: $result');
+        log('Tiempo del modelo placa: $dataTimeResponse');
         return result;
       },
     );
@@ -360,6 +360,9 @@ Future<String?> createTransaction(TransactionModel transaction) async {
   jsonBody.forEach((key, value) {
     //log('🧾 Campo: $key - Valor: $value - Tipo: ${value.runtimeType}');
   });
+
+  // 3️⃣ Log del payload completo como JSON
+  log('📤 Payload completo: ${jsonEncode(jsonBody)}');
 
   // ✅ Enviar solicitud
   final response = await http.post(
@@ -380,9 +383,9 @@ Future<String?> createTransaction(TransactionModel transaction) async {
     return null;
   }
 } else {
-  //log('❌ Error al crear transacción - Código: ${response.statusCode}');
-  //log('❌ Cuerpo de respuesta: ${response.body}');
-  //log('transaction222: ${transaction.toJson()}'); // ⛔ AQUÍ puede haber nulls que provocan el error
+  //log('Error al crear transacción - Código: ${response.statusCode}');
+  //log('Cuerpo de respuesta: ${response.body}');
+  //log('transaction222: ${transaction.toJson()}'); 
 
   return null;
 }
@@ -490,12 +493,8 @@ Future<String?> createTransaction(TransactionModel transaction) async {
       final String dataTimeResponse = response['DataTimeResponse'];
 
       //final fechaSinMilisegundos = fecha.replaceAll('.000', '');
-      final fecha = DateTime.now()
-                      .toUtc()
-                      .copyWith(millisecond: 0, microsecond: 0)
-                      .toIso8601String();
+      log('fECHa respuesta container lat: $dataTimeResponse');
 
-      final fechaSinMilisegundos = fecha.replaceAll('.000', '');
       final rs = {
         'createdDataContainerLat':
             codeUtils.formatDateToIso8601(DateTime.now().toIso8601String()),

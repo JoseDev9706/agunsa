@@ -33,16 +33,37 @@ String? validateWeightString(String? input) {
   return null; // ❌ no es un valor numérico válido al inicio
 }
 
-class ResumeTransaction extends ConsumerWidget {
-  const ResumeTransaction({super.key});
+class ResumeTransaction extends ConsumerStatefulWidget {
+  const ResumeTransaction({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ResumeTransaction> createState() => _ResumeTransactionState();
+}
+
+class _ResumeTransactionState extends ConsumerState<ResumeTransaction> {
+  late TextEditingController transactionNumberController;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = ref.read(transactionNumberStateProvider);
+    transactionNumberController = TextEditingController(text: initial);
+    transactionNumberController.addListener(() {
+      ref.read(transactionNumberStateProvider.notifier).state =
+          transactionNumberController.text;
+    });
+  }
+
+  @override
+  void dispose() {
+    transactionNumberController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     UiUtils uiUtils = UiUtils();
     CodeUtils codeUtils = CodeUtils();
-    TextEditingController transactionNumberController = TextEditingController();
-    // final isfromPending = ref.watch(transactionControllerProvider);
-    // final transactionNotifier = ref.read(transactionControllerProvider.notifier);
     final send = ref.watch(sendTransactionProvider);
     final transactionType = ref.watch(transactionTypeSelectedProvider);
     final isfromPending = ref.watch(isFromPendingTransactionProvider);
@@ -52,207 +73,134 @@ class ResumeTransaction extends ConsumerWidget {
     final driverInfo = ref.watch(dniProvider);
     final placaInfo = ref.watch(placaProvider);
     final precintList = ref.watch(precintProvider);
-
-    final urlPrecint =
-        precintList?.map((precinto) => precinto.imageUrl).toList();
-    final precintsCodes =
-        precintList?.map((precinto) => precinto.codPrecinto).toList();
     final lateralsImages = ref.watch(aditionalImageUrlsProvider);
-    final lateralPhotos =
-        lateralsImages.map((image) => image['imageUrl'] as String).toList();
-    //final timeToResponseLateralPhotos = lateralsImages.map((image) {
-    //  final timeString = image['createdDataContainerLatRespoonse'] as String;
-    //  final numberOnly = int.parse(timeString.replaceAll(' ms', ''));
-    //  return numberOnly;
-    //}).toList();
-
-    final timeToResponseLateralPhotos = lateralsImages.map((image) {
-      final timeString = image['createdDataContainerLatRespoonse'] as String;
-      final dateTime =
-          DateTime.parse(timeString); // ya no es int.parse, sino DateTime.parse
-      return dateTime;
-    }).toList();
-    //final totalTime =
-    //    timeToResponseLateralPhotos.fold(0, (sum, item) => sum + item);
-
     final isUploadingTransaction = ref.watch(uploadingImageProvider);
-    if (pendingTransaction != null) {
-      transactionNumberController.text = pendingTransaction.transactionNumber;
-    }
+    final txnNumber = ref.watch(transactionNumberStateProvider);
+    final fechaCaptura = ref.watch(timeCreationTransactionProvider) ?? DateTime.now();
+
+    final timeContainer = ref.watch(timeContainerCaptureProvider);
+    final timeDriver = ref.watch(timeDriverCaptureProvider);
+    final timePlate = ref.watch(timePlateCaptureProvider);
+    final timeSeal = ref.watch(timeSealCaptureProvider);
+
 
     final isPendingFromCreated = isfromPending && pendingTransaction != null;
     final isPendingTransaction = transactionType?.isInOut == true;
     final shouldShowAsPending = isPendingTransaction && !isPendingFromCreated;
-    log("isInOut: ${transactionType?.isInOut}, isfromPending: $isfromPending, pendingTransaction: $pendingTransaction");
-    log("isPending from created: $isPendingFromCreated");
-    log("isPending: $isPendingTransaction");
+
+    log('isInOut: \${transactionType?.isInOut}, isfromPending: \$isfromPending, pendingTransaction: \$pendingTransaction');
+
+    final lateralPhotos = lateralsImages.map((e) => e['imageUrl'] as String).toList();
+    final urlPrecint = precintList?.map((p) => p.imageUrl).toList() ?? [];
+    final precintsCodes = precintList?.map((p) => p.codPrecinto).toList() ?? [];
+
     return PopScope(
       canPop: false,
       child: SafeArea(
-          child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: uiUtils.modalColor,
-        body: SizedBox(
-          height: uiUtils.screenHeight * 0.9,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(18),
-                ),
-                const SizedBox(
-                  height: 120,
-                ),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 30),
-                  decoration: BoxDecoration(
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          backgroundColor: uiUtils.modalColor,
+          body: SizedBox(
+            height: uiUtils.screenHeight * 0.9,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 120),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 30),
+                    decoration: BoxDecoration(
                       color: uiUtils.whiteColor,
-                      borderRadius: BorderRadius.circular(20)),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-                  child: send
-                      ? Column(
-                          children: [
-                            shouldShowAsPending
-                                ? SvgPicture.asset(
-                                    'assets/svg/pending.svg',
-                                    width: 46,
-                                    height: 46,
-                                  )
-                                : Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                        color: uiUtils.green,
-                                        shape: BoxShape.circle),
-                                    child: Icon(
-                                      Icons.check,
-                                      color: uiUtils.whiteColor,
-                                    )),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              textAlign: TextAlign.center,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                    child: send
+                        ? Column(
+                            children: [
                               shouldShowAsPending
-                                  ? 'TRANSACCION EN ESTADO PENDIENTE'
-                                  : 'TRANSACCION COMPLETADA CON EXITO',
-                              style: TextStyle(
+                                  ? SvgPicture.asset('assets/svg/pending.svg', width: 46, height: 46)
+                                  : Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: uiUtils.green,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.check, color: uiUtils.whiteColor),
+                                    ),
+                              const SizedBox(height: 20),
+                              Text(
+                                textAlign: TextAlign.center,
+                                shouldShowAsPending
+                                    ? 'TRANSACCIÓN EN ESTADO PENDIENTE'
+                                    : 'TRANSACCIÓN COMPLETADA CON ÉXITO',
+                                style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: shouldShowAsPending
-                                      ? uiUtils.orange
-                                      : uiUtils.grayDarkColor),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            GeneralBottom(
-                                icon: Icon(
-                                  Icons.home,
-                                  color: uiUtils.whiteColor,
+                                  color: shouldShowAsPending ? uiUtils.orange : uiUtils.grayDarkColor,
                                 ),
+                              ),
+                              const SizedBox(height: 20),
+                              GeneralBottom(
+                                icon: Icon(Icons.home, color: uiUtils.whiteColor),
                                 width: uiUtils.screenWidth * 0.5,
                                 color: uiUtils.primaryColor,
                                 text: 'HOME',
                                 onTap: () {
-                                  try {
-                                    resetTransactionProviders(ref);
-                                    setIsFromPendingTransaction(ref, false);
-                                    setIsCompleteTransaction(ref, false);
-                                    ref
-                                        .read(routerDelegateProvider)
-                                        .pushReplacement(AppRoute.home);
-                                  } catch (e, stackTrace) {
-                                    log("Error durante navegación: $e",
-                                        stackTrace: stackTrace);
-                                  }
+                                  resetTransactionProviders(ref);
+                                  setIsFromPendingTransaction(ref, false);
+                                  setIsCompleteTransaction(ref, false);
+                                  ref.read(routerDelegateProvider).pushReplacement(AppRoute.home);
                                 },
-                                textColor: uiUtils.whiteColor),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            GeneralBottom(
-                                icon: Icon(
-                                  Icons.add_circle_outline_outlined,
-                                  color: uiUtils.whiteColor,
-                                ),
+                                textColor: uiUtils.whiteColor,
+                              ),
+                              const SizedBox(height: 20),
+                              GeneralBottom(
+                                icon: Icon(Icons.add_circle_outline_outlined, color: uiUtils.whiteColor),
                                 width: uiUtils.screenWidth * 0.5,
                                 color: uiUtils.primaryColor,
-                                text: 'NUEVA TRANSACCION',
+                                text: 'NUEVA TRANSACCIÓN',
                                 onTap: () {
                                   resetTransactionProviders(ref);
                                   setIsFromPendingTransaction(ref, false);
                                   setIsCompleteTransaction(ref, false);
-                                  ref
-                                      .read(routerDelegateProvider)
-                                      .pushReplacement(AppRoute.transactions);
+                                  ref.read(routerDelegateProvider).pushReplacement(AppRoute.transactions);
                                 },
-                                textColor: uiUtils.whiteColor),
-                          ],
-                        )
-                      : Column(
-                          children: [
-                            Text(
-                              'RESUMEN DE LA TRANSACCION',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: uiUtils.grayDarkColor),
-                            ),
-                            Divider(
-                              color: uiUtils.grayLightColor,
-                              thickness: 1,
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            LabelInfo(
-                                uiUtils: uiUtils,
-                                transactionType: transactionType?.name,
-                                transactionTypeLabel: 'TIPO DE TRANSACCION'),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Text('NÚMERO DE TRANSACCION',
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: uiUtils.black)),
-                            Container(
-                              decoration: BoxDecoration(
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 5,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                                color: uiUtils.whiteColor,
-                                borderRadius: BorderRadius.circular(5),
-                                border: Border.all(
-                                  color: uiUtils.labelColor,
-                                  width: 1.5,
-                                ),
+                                textColor: uiUtils.whiteColor,
                               ),
-                              child: TextFormField(
-                                readOnly: pendingTransaction != null &&
-                                    pendingTransaction
-                                        .transactionNumber.isNotEmpty,
-                                controller: transactionNumberController,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  hintText: 'Ingrese el número de transacción',
-                                  hintStyle: TextStyle(color: Colors.black38),
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: 15,
-                                    horizontal: 12,
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              Text(
+                                'RESUMEN DE LA TRANSACCIÓN',
+                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: uiUtils.grayDarkColor),
+                              ),
+                              Divider(color: uiUtils.grayLightColor, thickness: 1),
+                              const SizedBox(height: 20),
+                              LabelInfo(uiUtils: uiUtils, transactionType: transactionType?.name, transactionTypeLabel: 'TIPO DE TRANSACCIÓN'),
+                              const SizedBox(height: 20),
+                              Text('NÚMERO DE TRANSACCIÓN', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: uiUtils.black)),
+                              const SizedBox(height: 8),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: uiUtils.whiteColor,
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: uiUtils.labelColor, width: 1.5),
+                                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5, offset: Offset(0,2))],
+                                ),
+                                child: TextFormField(
+                                  controller: transactionNumberController,
+                                  readOnly: pendingTransaction != null && pendingTransaction.transactionNumber.isNotEmpty,
+                                  textAlign: TextAlign.center,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Ingrese el número de transacción',
+                                    hintStyle: TextStyle(color: Colors.black38),
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 12),
                                   ),
                                 ),
                               ),
-                            ),
                             const SizedBox(
                               height: 20,
                             ),
@@ -266,7 +214,7 @@ class ResumeTransaction extends ConsumerWidget {
                             ),
                             LabelInfo(
                                 uiUtils: uiUtils,
-                                transactionType: containerInfo?.numSerie ?? '',
+                                transactionType: containerInfo?.numeroContenedorAndtipoContenedor ?? '',
                                 transactionTypeLabel: 'NÚMERO DE CONTENEDOR'),
                             const SizedBox(
                               height: 40,
@@ -299,7 +247,7 @@ class ResumeTransaction extends ConsumerWidget {
                                           TransactionModel transaction =
                                               TransactionModel(
                                             containerNumber:
-                                                containerInfo?.numSerie,
+                                                containerInfo?.numeroContenedorAndtipoContenedor,
                                             transactionTypeName:
                                                 transactionType?.name ?? '',
                                             containerTransportLine:
@@ -318,7 +266,8 @@ class ResumeTransaction extends ConsumerWidget {
                                                     containerInfo?.payloadKg),
                                             createdDataContainer:
                                                 codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+  timeContainer?.toIso8601String() ?? DateTime.now().toIso8601String(),
+),
                                             updatedDataContainer: containerInfo
                                                     ?.updateDataContainer ??
                                                 codeUtils.formatDateToIso8601(
@@ -336,40 +285,32 @@ class ResumeTransaction extends ConsumerWidget {
                                                 lateralsImages[0][
                                                         'createdDataContainerLat']
                                                     .toString(),
-                                            createdDataContainerLatResponse:
-                                                codeUtils.formatDateToIso8601(
-                                              containerInfo?.responseDateTime
-                                                      ?.toIso8601String() ??
-                                                  codeUtils.formatDateToIso8601(
-                                                      DateTime.now()
-                                                          .toString()),
-                                            ),
+                                            createdDataContainerLatResponse:lateralsImages.isNotEmpty
+    ? lateralsImages.last['createdDataContainerLatRespoonse']?.toString()
+    : DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime.now()),
                                             driverDni:
                                                 driverInfo?.codLicence ?? "",
                                             driverName:
                                                 driverInfo?.fullName ?? "",
                                             driverLastName:
                                                 driverInfo?.fullLastName ?? "",
-                                            createdDataDriver:
-                                                codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+                                            createdDataDriver:codeUtils.formatDateToIso8601(
+  timeDriver?.toIso8601String() ?? DateTime.now().toIso8601String(),
+),
                                             updatedDataDriver: driverInfo
                                                     ?.updateConductorDateTime ??
                                                 codeUtils.formatDateToIso8601(
                                                     DateTime.now().toString()),
-                                            createdDataDriverResponse:
-                                                codeUtils.formatDateToIso8601(
-                                              driverInfo?.responseDateTime
-                                                      ?.toIso8601String() ??
-                                                  codeUtils.formatDateToIso8601(
-                                                      DateTime.now()
-                                                          .toString()),
-                                            ),
+                                            createdDataDriverResponse:codeUtils.formatDateToIso8601(
+  driverInfo?.responseDateTime?.toIso8601String() ??
+      DateTime.now().toIso8601String(),
+),
                                             plate:
                                                 placaInfo?.codigo ?? "XY-1234",
                                             createdDataPlate:
                                                 codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+  timePlate?.toIso8601String() ?? DateTime.now().toIso8601String(),
+),
                                             updatedDataPlate: placaInfo
                                                     ?.updatePlateDateTime ??
                                                 codeUtils.formatDateToIso8601(
@@ -395,7 +336,8 @@ class ResumeTransaction extends ConsumerWidget {
                                             ),
                                             createdDataSeal:
                                                 codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+  timeSeal?.toIso8601String() ?? DateTime.now().toIso8601String(),
+),
                                             updatedDataSeal: precintList
                                                     ?.last.updateDataSeal ??
                                                 codeUtils.formatDateToIso8601(
@@ -517,7 +459,7 @@ class ResumeTransaction extends ConsumerWidget {
                                           TransactionModel transaction =
                                               TransactionModel(
                                             containerNumber:
-                                                containerInfo?.numSerie,
+                                                containerInfo?.numeroContenedorAndtipoContenedor,
                                             transactionTypeName:
                                                 transactionType?.name ?? '',
                                             containerTransportLine:
@@ -535,20 +477,26 @@ class ResumeTransaction extends ConsumerWidget {
                                                     containerInfo?.payloadKg),
                                             createdDataContainer:
                                                 codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+  timeContainer?.toIso8601String() ?? DateTime.now().toIso8601String(),
+),
                                             updatedDataContainer: containerInfo
                                                     ?.updateDataContainer ??
                                                 codeUtils.formatDateToIso8601(
                                                     DateTime.now().toString()),
                                             createDateContainerDateTimeRespone:
-                                                codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+                                               codeUtils.formatDateToIso8601(
+                                              containerInfo?.responseDateTime
+                                                      ?.toIso8601String() ??
+                                                  codeUtils.formatDateToIso8601(
+                                                      DateTime.now()
+                                                          .toString()),
+                                            ),
                                             createdDataContainerLat:
                                                 lateralsImages[0]
                                                     ['createdDataContainerLat'],
-                                            createdDataContainerLatResponse:
-                                                codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+                                            createdDataContainerLatResponse:lateralsImages.isNotEmpty
+    ? lateralsImages.last['createdDataContainerLatRespoonse']?.toString()
+    : DateFormat("yyyy-MM-ddTHH:mm:ss").format(DateTime.now()),
                                             containerUrlImageLat: lateralPhotos,
                                             driverDni:
                                                 driverInfo?.codLicence ?? "",
@@ -556,20 +504,22 @@ class ResumeTransaction extends ConsumerWidget {
                                                 driverInfo?.fullName ?? "",
                                             driverLastName:
                                                 driverInfo?.fullLastName ?? "",
-                                            createdDataDriver:
-                                                codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+                                            createdDataDriver:codeUtils.formatDateToIso8601(
+  timeDriver?.toIso8601String() ?? DateTime.now().toIso8601String(),
+),
                                             updatedDataDriver: driverInfo
                                                     ?.updateConductorDateTime ??
                                                 codeUtils.formatDateToIso8601(
                                                     DateTime.now().toString()),
-                                            createdDataDriverResponse:
-                                                codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+                                            createdDataDriverResponse:codeUtils.formatDateToIso8601(
+  driverInfo?.responseDateTime?.toIso8601String() ??
+      DateTime.now().toIso8601String(),
+),
                                             plate: placaInfo?.codigo ?? "",
                                             createdDataPlate:
                                                 codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+  timePlate?.toIso8601String() ?? DateTime.now().toIso8601String(),
+),
                                             updatedDataPlate: placaInfo
                                                     ?.updatePlateDateTime ??
                                                 codeUtils.formatDateToIso8601(
@@ -585,7 +535,8 @@ class ResumeTransaction extends ConsumerWidget {
                                             sealCode: "",
                                             createdDataSeal:
                                                 codeUtils.formatDateToIso8601(
-                                                    DateTime.now().toString()),
+  timeSeal?.toIso8601String() ?? DateTime.now().toIso8601String(),
+),
                                             updatedDataSeal: precintList
                                                     ?.last.updateDataSeal ??
                                                 codeUtils.formatDateToIso8601(

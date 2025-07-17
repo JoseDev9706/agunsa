@@ -22,7 +22,7 @@ class TakePlacaScreen extends ConsumerStatefulWidget {
 
 class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
   UiUtils uiUtils = UiUtils();
-  XFile? fileTaked;
+  CapturedImageData? fileTaked;
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.file(
-                              File(fileTaked!.path),
+                              File(fileTaked!.image.path),
                               width: uiUtils.screenWidth * 0.25,
                               // height: uiUtils.screenHeight * 0.1,
                               fit: BoxFit.cover,
@@ -139,35 +139,33 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                                   onTap: () async {
                                     if (!isUploadingImage) {
                                       setUploadingImage(ref, true);
-                                      ref
-                                          .read(placaImageProvider.notifier)
-                                          .state = (fileTaked);
-                                      final result = await getPlacaInfo(
-                                          ref, fileTaked!, '');
-                                      if (result != null) {
-                                        ref.read(routerDelegateProvider).push(
-                                          AppRoute.containerInfo,
-                                          args: {
-                                            'isContainer': true,
-                                          },
-                                        );
-                                      } else if (result == null) {
-                                        log('No se pudo obtener la información de la placa');
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'No se pudo obtener la información de la placa. Por favor, inténtalo de nuevo.',
+
+                                      if (fileTaked != null) {
+                                        ref.read(placaImageProvider.notifier).state =
+                                            CapturedImageData(image: fileTaked!.image, captureTime: DateTime.now());
+
+                                        final result = await getPlacaInfo(ref, fileTaked!.image, '');
+                                        if (result != null) {
+                                          ref.read(routerDelegateProvider).push(
+                                            AppRoute.containerInfo,
+                                            args: {'isContainer': true},
+                                          );
+                                        } else {
+                                          log('No se pudo obtener la información de la placa');
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'No se pudo obtener la información de la placa. Por favor, inténtalo de nuevo.',
+                                              ),
                                             ),
-                                          ),
-                                        );
-                                        setUploadingImage(ref, false);
-                                      } else {
-                                        log('Error al obtener la información de la placa');
+                                          );
+                                        }
                                       }
+
+                                      setUploadingImage(ref, false);
                                     }
-                                    setUploadingImage(ref, false);
                                   },
+
                                   textColor: uiUtils.whiteColor,
                                 ),
                                 GeneralBottom(
@@ -176,13 +174,23 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                                   text: 'REPETIR',
                                   onTap: () async {
                                     fileTaked = null;
-                                    final capturedImage = await CodeUtils()
-                                        .checkCameraPermission(context);
-                                    if (capturedImage != null) {
-                                      setState(() {
-                                        fileTaked = capturedImage;
-                                      });
-                                    }
+                                    final capturedImage = await CodeUtils().checkCameraPermission(context);
+                                      if (capturedImage != null) {
+                                        final capturedData = CapturedImageData(
+                                          image: capturedImage,
+                                          captureTime: DateTime.now(),
+                                        );
+
+                                        ref.read(placaImageProvider.notifier).state = capturedData;
+
+                                        setState(() {
+                                          fileTaked = CapturedImageData(
+      image: capturedImage,
+      captureTime: DateTime.now(),
+    );// solo si quieres seguir mostrándola localmente
+                                        });
+                                      }
+
                                   },
                                   textColor: uiUtils.primaryColor,
                                 ),
@@ -194,13 +202,20 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                       : GestureDetector(
                           onTap: () async {
                             if (image == null) {
-                              final capturedImage = await CodeUtils()
-                                  .checkCameraPermission(context);
-                              if (capturedImage != null) {
-                                setState(() {
-                                  fileTaked = capturedImage;
-                                });
-                              }
+                              final capturedImage = await CodeUtils().checkCameraPermission(context);
+if (capturedImage != null) {
+  final captureTime = DateTime.now(); // ✅
+  setState(() {
+    fileTaked = CapturedImageData(
+      image: capturedImage,
+      captureTime: captureTime,
+    );
+  });
+
+  // ✅
+  ref.read(timePlateCaptureProvider.notifier).state = captureTime;
+}
+
                             } else {
                               log('Ya se han tomado las fotos necesarias');
                             }

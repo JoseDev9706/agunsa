@@ -53,13 +53,14 @@ class ContainerInfo extends ConsumerWidget {
     final containerImage = ref.watch(containerImageProvider);
     final pendingTransaction = ref.watch(selectedPendingTransactionProvider);
     final stepText = codeUtils.getNextStepText(
-      aditionalImages: aditionalImges,
-      precintsImage: precintsImage,
-      placaImage: placaImage,
-      dniImage: dniImage,
-      isInOut: transactionType?.isInOut ?? false,
-      isFromPendingTransaction: ref.watch(isFromPendingTransactionProvider),
-    );
+  aditionalImages: aditionalImges,
+  precintsImage: precintsImage.map((e) => e?.image).toList(),
+  placaImage: placaImage?.image,
+  dniImage: dniImage?.image,
+  isInOut: transactionType?.isInOut ?? false,
+  isFromPendingTransaction: ref.watch(isFromPendingTransactionProvider),
+);
+
     final uploadUpdateImage = ref.watch(uploadingImageProvider);
     return SafeArea(
       child: Scaffold(
@@ -139,7 +140,7 @@ class ContainerInfo extends ConsumerWidget {
                                             CrossAxisAlignment.start,
                                         children: [
                                           _imageGallery(ref,
-                                              selectedIndexes: [image],
+                                              selectedIndexes: [image?.image],
                                               isPlaca:
                                                   false), // Muestra solo esta imagen
                                           Expanded(
@@ -259,8 +260,11 @@ class ContainerInfo extends ConsumerWidget {
 
                                                       if (index <
                                                           updatedList.length) {
-                                                        updatedList[index] =
-                                                            capturedImage;
+                                                        updatedList[index] = CapturedImageData(
+  image: capturedImage,
+  captureTime: DateTime.now(),
+);
+                                                            
                                                       }
                                                       ref
                                                           .read(
@@ -305,7 +309,7 @@ class ContainerInfo extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   _imageGallery(ref,
-                                      selectedIndexes: [placaImage],
+                                      selectedIndexes: [placaImage.image],
                                       isPlaca: true),
                                   Expanded(
                                     flex: 4,
@@ -373,10 +377,11 @@ class ContainerInfo extends ConsumerWidget {
                                           if (capturedImage != null) {
                                             if (!uploadUpdateImage) {
                                               setUploadingImage(ref, true);
-                                              ref
-                                                  .read(placaImageProvider
-                                                      .notifier)
-                                                  .state = (capturedImage);
+                                              ref.read(dniImageProvider.notifier).state = CapturedImageData(
+  image: capturedImage,
+  captureTime: DateTime.now(),
+);
+
                                               final result = await getPlacaInfo(
                                                   ref, capturedImage, '');
                                               if (result != null) {
@@ -434,7 +439,7 @@ class ContainerInfo extends ConsumerWidget {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   _imageGallery(ref,
-                                      selectedIndexes: [dniImage],
+                                      selectedIndexes: [dniImage.image],
                                       isPlaca: false,
                                       isCond: true),
                                   SizedBox(
@@ -694,10 +699,11 @@ class ContainerInfo extends ConsumerWidget {
                                           if (capturedImage != null) {
                                             if (!uploadUpdateImage) {
                                               setUploadingImage(ref, true);
-                                              ref
-                                                  .read(
-                                                      dniImageProvider.notifier)
-                                                  .state = (capturedImage);
+                                              ref.read(dniImageProvider.notifier).state = CapturedImageData(
+  image: capturedImage,
+  captureTime: DateTime.now(),
+);
+
                                               final result = await getDniInfo(
                                                   ref, capturedImage);
                                                  
@@ -931,7 +937,7 @@ class ContainerInfo extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Image.file(
-              File(images.first?.path ?? ''),
+              File(images.first?.image.path ?? ''),
               height: 115,
               width: 94,
               errorBuilder: (context, error, stackTrace) => Container(
@@ -955,7 +961,7 @@ class ContainerInfo extends ConsumerWidget {
                     margin: const EdgeInsets.only(left: 20),
                     padding: const EdgeInsets.only(top: 5),
                     child: Text(
-                      foto.numSerie,
+                      foto.numeroContenedorAndtipoContenedor,
                       style: TextStyle(
                         fontSize: 13,
                         color: uiUtils.optionsColor,
@@ -1097,8 +1103,9 @@ class ContainerInfo extends ConsumerWidget {
                       await uploadImageToServer(ref, capturedImage, '', foto);
                   log('Result: $result');
                   if (result != null) {
+                    final captureTime = DateTime.now(); 
                     ref.read(containerImageProvider.notifier).state = [
-                      capturedImage
+                      CapturedImageData(image: capturedImage, captureTime: captureTime)
                     ];
                     result.updateDataContainer = CodeUtils()
                         .formatDateToIso8601(DateTime.now().toIso8601String());

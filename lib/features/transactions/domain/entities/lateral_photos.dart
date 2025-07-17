@@ -17,7 +17,7 @@ class LateralPhotos {
     return {
       'photosUrls': photosUrls,
       'createdDataContainerLat': createdDataContainerLat,
-      'createdDataContainerLatRespoonse': createdDataContainerLatRespoonse,
+      'createdDataContainerLatRespoonse': createdDataContainerLatRespoonse, 
     };
   }
 }

@@ -39,8 +39,8 @@ class Conductor {
         'Apellido_2': lastName2,
         'cod_licencia': codLicence,
         'image_url': imageUrl,
-        'response_date_time': responseDateTime?.toIso8601String(),
-        'update_conductor_date_time': updateConductorDateTime ?? '',
+        'response_date_time': responseDateTime,
+        'update_conductor_date_time': updateConductorDateTime,
       };
 
   String get fullName {

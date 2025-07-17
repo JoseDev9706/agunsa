@@ -309,14 +309,20 @@ Future<Placa?> getPlacaInfo(WidgetRef ref, XFile placa, String idToken) async {
     },
   );
 }
+class CapturedImageData {
+  final XFile image;
+  final DateTime captureTime;
 
-final containerImageProvider = StateProvider<List<XFile?>>((ref) => []);
+  CapturedImageData({required this.image, required this.captureTime});
+}
+
+final containerImageProvider = StateProvider<List<CapturedImageData?>>((ref) => []);
 final aditionalImagesProvider = StateProvider<List<XFile?>>((ref) => []);
 final aditionalImageUrlsProvider =
     StateProvider<List<Map<String, dynamic>>>((ref) => []);
-final precintsImageProvider = StateProvider<List<XFile?>>((ref) => []);
-final placaImageProvider = StateProvider<XFile?>((ref) => null);
-final dniImageProvider = StateProvider<XFile?>((ref) => null);
+final precintsImageProvider = StateProvider<List<CapturedImageData?>>((ref) => []);
+final placaImageProvider = StateProvider<CapturedImageData?>((ref) => null);
+final dniImageProvider = StateProvider<CapturedImageData?>((ref) => null);
 final placaProvider = StateProvider<Placa?>((ref) => null);
 final dniProvider = StateProvider<Conductor?>((ref) => null);
 final precintProvider = StateProvider<List<Precinct>?>((ref) => []);
@@ -332,6 +338,13 @@ final selectedPendingTransactionProvider =
 final timeCreationTransactionProvider = StateProvider<DateTime?>((ref) => null);
 
 final isCompleteTransactionProvider = StateProvider<bool>((ref) => false);
+
+final timeContainerCaptureProvider = StateProvider<DateTime?>((ref) => null);
+final timeDriverCaptureProvider = StateProvider<DateTime?>((ref) => null);
+final timePlateCaptureProvider = StateProvider<DateTime?>((ref) => null);
+final timeSealCaptureProvider = StateProvider<DateTime?>((ref) => null);
+
+
 
 void setTimeCreationTransaction(WidgetRef ref, DateTime? timeCreation) {
   ref.read(timeCreationTransactionProvider.notifier).state = timeCreation;
@@ -366,6 +379,16 @@ void setUploadingImage(WidgetRef ref, bool value) {
   ref.read(uploadingImageProvider.notifier).state = value;
 }
 
+/// Guarda en estado el número de transacción (o usa el pendiente)
+final transactionNumberStateProvider = StateProvider<String>((ref) {
+  final pending = ref.watch(selectedPendingTransactionProvider);
+  if (pending != null && pending.transactionNumber.isNotEmpty) {
+    return pending.transactionNumber;
+  }
+  final nowEpoch = DateTime.now().millisecondsSinceEpoch;
+  return '$nowEpoch-';
+});
+
 void resetTransactionProviders(WidgetRef ref) {
   ref.read(containerImageProvider.notifier).state = [];
   ref.read(aditionalImagesProvider.notifier).state = [];
@@ -385,6 +408,15 @@ void resetTransactionProviders(WidgetRef ref) {
   ref.read(selectedFilterIdProvider.notifier).state = null;
   ref.read(selectedPendingTransactionProvider.notifier).state = null;
   ref.invalidate(transactionTypesProvider);
+  
+  ref.read(timeContainerCaptureProvider.notifier).state = null;
+
+  ref.read(timeDriverCaptureProvider.notifier).state = null;
+  ref.read(timePlateCaptureProvider.notifier).state = null;
+  ref.read(timeSealCaptureProvider.notifier).state = null;
+
+  final newEpoch = DateTime.now().millisecondsSinceEpoch;
+  ref.read(transactionNumberStateProvider.notifier).state = '$newEpoch-';
 }
 
 final expandedPendingTransactionsProvider = StateProvider<bool>((ref) => false);

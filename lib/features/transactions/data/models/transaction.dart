@@ -54,76 +54,42 @@ class TransactionModel extends Transaction {
       containerTara: json['containerTara'],
       containerPayload: json['containerPayload'],
       createdDataContainer:
-          DateTime.parse(json['createdDataContainer']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', ''),
+          DateTime.parse(json['createdDataContainer']).toIso8601String(),
       updatedDataContainer:
-          DateTime.parse(json['updatedDataContainer']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', ''),
+          DateTime.parse(json['updatedDataContainer']).toIso8601String(),
       createDateContainerDateTimeRespone:
           json['createDateContainerDateTimeRespone'] != null
-              ? DateTime.parse(json['createDateContainerDateTimeRespone']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', '')
+              ? DateTime.parse(json['createDateContainerDateTimeRespone']).toIso8601String()
               : null,
       createdDataContainerLat:
           DateTime.parse(json['createdDataContainerLat']).toIso8601String(),
       createdDataContainerLatResponse:
           json['createdDataContainerLatResponse'] != null
-              ? DateTime.parse(json['createdDataContainerLatResponse']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', '')
-              : null,
+              ? DateTime.parse(json['createdDataContainerLatResponse']) .toIso8601String() : null,
       containerUrlImageLat: (json['containerUrlImageLat']),
       driverDni: json['driverDni'],
       driverName: json['driverName'],
       driverLastName: json['driverLastName'],
       createdDataDriver:
-          DateTime.parse(json['createdDataDriver']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', ''),
+          DateTime.parse(json['createdDataDriver']).toIso8601String(),
       updatedDataDriver:
-          DateTime.parse(json['updatedDataDriver']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', ''),
+          DateTime.parse(json['updatedDataDriver']).toIso8601String(),
       createdDataDriverResponse: json['createdDataDriverResponse'],
       plate: json['plate'],
       createdDataPlate:
-          DateTime.parse(json['createdDataPlate']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', ''),
+          DateTime.parse(json['createdDataPlate']).toIso8601String(),
       updatedDataPlate:
-          DateTime.parse(json['updatedDataPlate']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', ''),
+          DateTime.parse(json['updatedDataPlate']).toIso8601String(),
       createdDataPlateResponse: json['createdDataPlateResponse'],
       sealCode: json['sealCode'],
       sealcodesList: json['sealcodesList'],
       
       createdDataSeal:
-          DateTime.parse(json['createdDataSeal']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', ''),
+          DateTime.parse(json['createdDataSeal']).toIso8601String(),
       updatedDataSeal:
-          DateTime.parse(json['updatedDataSeal']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', ''),
+          DateTime.parse(json['updatedDataSeal']).toIso8601String(),
       createdDataSealResponse:
-          DateTime.parse(json['createdDataSealResponse']).toUtc()
-    .copyWith(millisecond: 0, microsecond: 0)
-    .toIso8601String()
-    .replaceAll('.000', ''),
+          DateTime.parse(json['createdDataSealResponse']).toIso8601String(),
       transactionNumber: json['transactionNumber'],
       initialTransactionId: json['initialTransactionId'],
       transactionTypeId: json['transactionTypeId'],

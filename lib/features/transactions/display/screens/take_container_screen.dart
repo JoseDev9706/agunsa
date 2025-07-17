@@ -94,7 +94,7 @@ class TakeContainerScreen extends ConsumerWidget {
                           color: uiUtils.labelColor,
                           borderRadius: BorderRadius.circular(10)),
                       child: Image.file(
-                        File(images.first!.path),
+                        File(images.first!.image.path),
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -113,7 +113,7 @@ class TakeContainerScreen extends ConsumerWidget {
                             if (!isUploadingImage) {
                               setUploadingImage(ref, true);
                               final result = await uploadImageToServer(
-                                  ref, images.first!, '', null);
+                                  ref, images.first!.image, '', null);
                               if (result != null) {
                                 final re = FotoModel(
                                     codPropietario: result.codPropietario,
@@ -185,13 +185,20 @@ class TakeContainerScreen extends ConsumerWidget {
                     const Spacer(),
                     GestureDetector(
                       onTap: () async {
-                        final capturedImage =
-                            await CodeUtils().checkCameraPermission(context);
+                        final capturedImage = await CodeUtils().checkCameraPermission(context);
                         if (capturedImage != null) {
+                          final captureTime = DateTime.now(); 
+
                           ref.read(containerImageProvider.notifier).state = [
-                            capturedImage
+                            CapturedImageData(image: capturedImage, captureTime: captureTime)
                           ];
+
+                          ref.read(timeContainerCaptureProvider.notifier).state = captureTime;
+
+                          // Y opcionalmente, también guardar en un provider global
+                          //ref.read(timeCreationTransactionProvider.notifier).state = captureTime;
                         }
+
                       },
                       child: CircleAvatar(
                         radius: 35,

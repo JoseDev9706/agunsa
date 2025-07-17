@@ -22,7 +22,7 @@ class TakeDniScreen extends ConsumerStatefulWidget {
 
 class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
   UiUtils uiUtils = UiUtils();
-  XFile? fileTaked;
+  CapturedImageData? fileTaked;
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +101,7 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.file(
-                              File(fileTaked!.path),
+                              File(fileTaked!.image.path),
                               width: uiUtils.screenWidth * 0.25,
                               // height: uiUtils.screenHeight * 0.1,
                               fit: BoxFit.cover,
@@ -153,37 +153,42 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                                       ? 'SUBIENDO...'
                                       : 'CONFIRMAR',
                                   onTap: () async {
-                                    if (!isUploadingImage) {
-                                      setUploadingImage(ref, true);
-                                      ref
-                                          .read(dniImageProvider.notifier)
-                                          .state = (fileTaked);
-                                      final result =
-                                          await getDniInfo(ref, fileTaked!);
-                                      if (result != null) {
-                                        ref.read(routerDelegateProvider).push(
-                                          AppRoute.containerInfo,
-                                          args: {
-                                            'isContainer': true,
-                                          },
-                                        );
-                                      } else {
-                                        fileTaked = null;
-                                        ref
-                                            .read(dniImageProvider.notifier)
-                                            .state = null;
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                                'Ocurrió un error al obtener la información de la Licencia'),
-                                          ),
-                                        );
-                                        log('Error al obtener la información de la Licencia');
+                                      if (!isUploadingImage) {
+                                        setUploadingImage(ref, true);
+                                        if (fileTaked != null) {
+
+                                        ref.read(dniImageProvider.notifier).state = CapturedImageData(
+  image: fileTaked!.image,
+  captureTime: fileTaked!.captureTime, // ✅ Aquí
+);
+ref.read(timeDriverCaptureProvider.notifier).state = fileTaked!.captureTime; // ✅ Igual que en placa
+
+
+
+                                        final result = await getDniInfo(ref, fileTaked!.image);
+
+                                        if (result != null) {
+                                          ref.read(routerDelegateProvider).push(
+                                            AppRoute.containerInfo,
+                                            args: {'isContainer': true},
+                                          );
+                                        } else {
+                                          fileTaked = null;
+                                          ref.read(dniImageProvider.notifier).state = null;
+
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Ocurrió un error al obtener la información de la Licencia'),
+                                            ),
+                                          );
+                                          log('Error al obtener la información de la Licencia');
+                                        }
+                                        }
+
+                                        setUploadingImage(ref, false);
                                       }
-                                    }
-                                    setUploadingImage(ref, false);
-                                  },
+                                    },
+
                                   textColor: uiUtils.whiteColor,
                                 ),
                                 GeneralBottom(
@@ -191,15 +196,22 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                                   color: Colors.transparent,
                                   text: 'REPETIR',
                                   onTap: () async {
-                                    fileTaked = null;
-                                    final capturedImage = await CodeUtils()
-                                        .checkCameraPermission(context);
-                                    if (capturedImage != null) {
-                                      setState(() {
-                                        fileTaked = capturedImage;
-                                      });
-                                    }
-                                  },
+  fileTaked = null;
+  final capturedImage = await CodeUtils().checkCameraPermission(context);
+  if (capturedImage != null) {
+    final capturedData = CapturedImageData(
+      image: capturedImage,
+      captureTime: DateTime.now(),
+    );
+
+    ref.read(dniImageProvider.notifier).state = capturedData;
+
+    setState(() {
+      fileTaked = capturedData; // solo si quieres mostrarlo localmente
+    });
+  }
+},
+
                                   textColor: uiUtils.primaryColor,
                                 ),
                               ],
@@ -210,13 +222,20 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                       : GestureDetector(
                           onTap: () async {
                             if (image == null) {
-                              final capturedImage = await CodeUtils()
-                                  .checkCameraPermission(context);
-                              if (capturedImage != null) {
-                                setState(() {
-                                  fileTaked = capturedImage;
-                                });
-                              }
+                              final capturedImage = await CodeUtils().checkCameraPermission(context);
+if (capturedImage != null) {
+  final captureTime = DateTime.now(); // ✅ Nueva línea
+  setState(() {
+    fileTaked = CapturedImageData(
+      image: capturedImage,
+      captureTime: captureTime,
+    );
+  });
+
+  // ✅ Establece tiempo global para la transacción si aún no está establecido
+  ref.read(timeCreationTransactionProvider.notifier).state ??= captureTime;
+}
+
                             } else {
                               log('Ya se han tomado las fotos necesarias');
                             }

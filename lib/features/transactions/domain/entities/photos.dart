@@ -47,4 +47,9 @@ class Foto {
     final Map<String, dynamic> info = codigoIsoInfo[codPropietario]!;
     return '${info['dimension']}" - ${info['tipo'].toString()}';
   }
+
+  String get numeroContenedorAndtipoContenedor {
+    return '$codPropietario - $numSerie';
+  }
 }
+

@@ -26,7 +26,7 @@ class TakePrecintScreen extends ConsumerStatefulWidget {
 
 class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
   UiUtils uiUtils = UiUtils();
-  XFile? fileTaked;
+  CapturedImageData? fileTaked;
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +105,7 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: Image.file(
-                                File(fileTaked!.path),
+                                File(fileTaked!.image.path),
                                 width: uiUtils.screenWidth * 0.25,
                                 // height: uiUtils.screenHeight * 0.1,
                                 fit: BoxFit.cover,
@@ -119,15 +119,25 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                     GestureDetector(
                       onTap: () async {
                         if (images.length < 4) {
-                          final capturedImage =
-                              await CodeUtils().checkCameraPermission(context);
-                          if (capturedImage != null) {
-                            setState(() {
-                              fileTaked = capturedImage;
-                              ref.read(precintsImageProvider.notifier).state =
-                                  images..add(fileTaked);
-                            });
-                          }
+                          final capturedImage = await CodeUtils().checkCameraPermission(context);
+if (capturedImage != null) {
+  final captureTime = DateTime.now(); // ✅
+  setState(() {
+    fileTaked = CapturedImageData(
+      image: capturedImage,
+      captureTime: captureTime,
+    );
+
+    ref.read(precintsImageProvider.notifier).state = [
+      ...images,
+      CapturedImageData(image: capturedImage, captureTime: captureTime)
+    ];
+  });
+
+  // ✅
+  ref.read(timeSealCaptureProvider.notifier).state = captureTime;
+}
+
                         } else {
                           log('Ya se han tomado las fotos necesarias');
                         }
@@ -165,7 +175,7 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child: Image.file(
-                                          File(entry.value!.path),
+                                          File(entry.value!.image.path),
                                           width: uiUtils.screenWidth * 0.25,
                                           // height: uiUtils.screenHeight * 0.1,
                                           fit: BoxFit.cover,
@@ -220,7 +230,7 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                                   try {
                                     for (var image in images) {
                                       final result =
-                                          await uploadPrecint(ref, image!, '');
+                                          await uploadPrecint(ref, image!.image, '');
                                       if (result != null) {
                                         precints.add(result);
                                       } else {

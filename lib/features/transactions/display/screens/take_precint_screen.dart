@@ -109,6 +109,8 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                                 width: uiUtils.screenWidth * 0.25,
                                 // height: uiUtils.screenHeight * 0.1,
                                 fit: BoxFit.cover,
+                                cacheWidth: (uiUtils.screenWidth * 0.75).toInt(),
+  cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
                               ),
                             ),
                           )
@@ -118,8 +120,11 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                     const SizedBox(height: 26),
                     GestureDetector(
                       onTap: () async {
-                        if (images.length < 4) {
-                          final capturedImage = await CodeUtils().checkCameraPermission(context);
+                        try {
+                          if (images.length < 4) {
+                          PaintingBinding.instance.imageCache.clear();
+  log('==> Voy a pedir permiso y abrir la cámara');
+  final capturedImage = await CodeUtils().checkCameraPermission(context);
 if (capturedImage != null) {
   final captureTime = DateTime.now(); // ✅
   setState(() {
@@ -132,7 +137,8 @@ if (capturedImage != null) {
       ...images,
       CapturedImageData(image: capturedImage, captureTime: captureTime)
     ];
-  });
+  }
+  );
 
   // ✅
   ref.read(timeSealCaptureProvider.notifier).state = captureTime;
@@ -141,6 +147,14 @@ if (capturedImage != null) {
                         } else {
                           log('Ya se han tomado las fotos necesarias');
                         }
+                          
+                        } catch (e, st) {
+    log('ERROR capturando imagen: $e\n$st');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al tomar foto: $e')),
+    );
+  }
+                        
                       },
                       child: CircleAvatar(
                         radius: 35,
@@ -179,6 +193,8 @@ if (capturedImage != null) {
                                           width: uiUtils.screenWidth * 0.25,
                                           // height: uiUtils.screenHeight * 0.1,
                                           fit: BoxFit.cover,
+                                          cacheWidth: (uiUtils.screenWidth * 0.75).toInt(),
+  cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
                                         ),
                                       ),
                                     ),
@@ -189,8 +205,9 @@ if (capturedImage != null) {
                                       left: 0,
                                       child: GestureDetector(
                                         onTap: () {
-                                          images.removeAt(entry.key);
-                                          setState(() {});
+                                          final newList = [...images]..removeAt(entry.key);
+ref.read(precintsImageProvider.notifier).state = newList;
+setState(() {});
                                         },
                                         child: Container(
                                           decoration: const BoxDecoration(

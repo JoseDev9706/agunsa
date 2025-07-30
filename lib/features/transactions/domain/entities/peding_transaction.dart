@@ -1,12 +1,16 @@
+// features/transactions/domain/entities/peding_transaction.dart
 class PendingTransaction {
   final String transactionNumber;
   final String transactionTypeName;
-  final int transactionTypeId;
-  final int initialTransactionId;
-  final int epochCreatedDatetime;
-  final int createdByUserId;
-  final bool currentStatus;
-  final int createdDataTimeTransaction;
+  final int    transactionTypeId;
+  final int    initialTransactionId;
+  final int    epochCreatedDatetime;
+  final int    createdByUserId;
+  final bool   currentStatus;
+  final int    createdDataTimeTransaction;
+
+  // ← NUEVO campo
+  final String? plate;
 
   PendingTransaction({
     required this.transactionNumber,
@@ -17,5 +21,6 @@ class PendingTransaction {
     required this.createdByUserId,
     required this.currentStatus,
     required this.createdDataTimeTransaction,
+    this.plate,              // ← obligación en el constructor
   });
 }

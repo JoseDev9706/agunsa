@@ -121,9 +121,14 @@ Future<String?> createTransactionFuntion(
 }
 
 Future<String?> createPendingTransactionFuntion(
-    WidgetRef ref, PendingTransactionModel transaction) async {
+    WidgetRef ref, 
+    PendingTransactionModel transaction
+    ) async {
   final createTransactionUsecase = ref.read(createPendingTransactionProvider);
   final result = await createTransactionUsecase.call(transaction);
+
+  
+
   return result.fold((failure) {
     sendTransaction(ref, false);
     return failure.message;
@@ -150,6 +155,7 @@ Future<List<PendingTransaction>> getPendingTransactionsFunction(
 void sendTransaction(WidgetRef ref, bool value) {
   ref.read(sendTransactionProvider.notifier).state = value;
 }
+
 
 Future<String?> processAndEncodeImage(String imagePath,
     {int maxWidth = 400, int maxHeight = 400, int quality = 70}) async {
@@ -315,6 +321,7 @@ class CapturedImageData {
 
   CapturedImageData({required this.image, required this.captureTime});
 }
+
 
 final containerImageProvider = StateProvider<List<CapturedImageData?>>((ref) => []);
 final aditionalImagesProvider = StateProvider<List<XFile?>>((ref) => []);

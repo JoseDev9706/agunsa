@@ -104,6 +104,8 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                               width: uiUtils.screenWidth * 0.25,
                               // height: uiUtils.screenHeight * 0.1,
                               fit: BoxFit.cover,
+                              cacheWidth: (uiUtils.screenWidth * 0.75).toInt(),
+  cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
                             ),
                           ),
                         )
@@ -173,8 +175,11 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                                   color: Colors.transparent,
                                   text: 'REPETIR',
                                   onTap: () async {
-                                    fileTaked = null;
-                                    final capturedImage = await CodeUtils().checkCameraPermission(context);
+                                    try{
+                                      fileTaked = null;
+                                    PaintingBinding.instance.imageCache.clear();
+  log('==> Voy a pedir permiso y abrir la cámara');
+  final capturedImage = await CodeUtils().checkCameraPermission(context);
                                       if (capturedImage != null) {
                                         final capturedData = CapturedImageData(
                                           image: capturedImage,
@@ -190,6 +195,13 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
     );// solo si quieres seguir mostrándola localmente
                                         });
                                       }
+                                      } catch (e, st) {
+    log('ERROR capturando imagen: $e\n$st');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al tomar foto: $e')),
+    );
+  }
+                                    
 
                                   },
                                   textColor: uiUtils.primaryColor,
@@ -201,8 +213,11 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                         )
                       : GestureDetector(
                           onTap: () async {
-                            if (image == null) {
-                              final capturedImage = await CodeUtils().checkCameraPermission(context);
+                            try{
+                                if (image == null) {
+                              PaintingBinding.instance.imageCache.clear();
+  log('==> Voy a pedir permiso y abrir la cámara');
+  final capturedImage = await CodeUtils().checkCameraPermission(context);
 if (capturedImage != null) {
   final captureTime = DateTime.now(); // ✅
   setState(() {
@@ -219,6 +234,13 @@ if (capturedImage != null) {
                             } else {
                               log('Ya se han tomado las fotos necesarias');
                             }
+                             } catch (e, st) {
+    log('ERROR capturando imagen: $e\n$st');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al tomar foto: $e')),
+    );
+  } 
+                          
                           },
                           child: CircleAvatar(
                             radius: 35,

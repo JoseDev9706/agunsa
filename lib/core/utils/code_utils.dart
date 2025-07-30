@@ -2,21 +2,18 @@
 
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
-
-
 class CodeUtils {
   CodeUtils._privateConstructor();
   static final CodeUtils _instance = CodeUtils._privateConstructor();
-
   factory CodeUtils() => _instance;
 
   String? validateEmail(String? value) {
@@ -33,134 +30,169 @@ class CodeUtils {
     return null;
   }
 
-  
-Future<XFile?> checkCameraPermission(BuildContext context) async {
-  try {
-    final androidInfo = await DeviceInfoPlugin().androidInfo;
-    final sdkInt = androidInfo.version.sdkInt;
+  /// --- Pide permisos y abre cámara, con logs extra para debug ---
+  Future<XFile?> checkCameraPermission(BuildContext context) async {
+    try {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final sdkInt = androidInfo.version.sdkInt;
+      log('=== [Camera] SDK version: $sdkInt');
 
-    bool cameraGranted = false;
-    bool mediaGranted = false;
+      bool cameraGranted = false;
+      bool mediaGranted = false;
 
-    // ===== Permisos para Android =====
-    if (Platform.isAndroid) {
-      final cameraStatus = await Permission.camera.status;
+      // ===== Permisos para Android =====
+      if (Platform.isAndroid) {
+        log('=== [Camera] Chequeando permiso de cámara');
+        final cameraStatus = await Permission.camera.status;
+        log('=== [Camera] Estado permiso cámara: $cameraStatus');
 
-      if (!cameraStatus.isGranted) {
-        final result = await Permission.camera.request();
-        cameraGranted = result.isGranted;
-      } else {
-        cameraGranted = true;
+        if (!cameraStatus.isGranted) {
+          final result = await Permission.camera.request();
+          log('=== [Camera] Permiso de cámara solicitado, resultado: $result');
+          cameraGranted = result.isGranted;
+        } else {
+          cameraGranted = true;
+        }
+
+        if (sdkInt < 33) {
+          // Android 12 o menor (API 32 o menor) -> Pedir READ_EXTERNAL_STORAGE
+          log('=== [Camera] Chequeando permiso de storage');
+          final storageStatus = await Permission.storage.status;
+          log('=== [Camera] Estado permiso storage: $storageStatus');
+          if (!storageStatus.isGranted) {
+            final result = await Permission.storage.request();
+            log('=== [Camera] Permiso de storage solicitado, resultado: $result');
+            mediaGranted = result.isGranted;
+          } else {
+            mediaGranted = true;
+          }
+        } else {
+          // Android 13+ (API 33 o mayor) -> Pedir READ_MEDIA_IMAGES
+          log('=== [Camera] Chequeando permiso de media/photos');
+          final mediaStatus = await Permission.photos.status;
+          log('=== [Camera] Estado permiso photos: $mediaStatus');
+          if (!mediaStatus.isGranted && !mediaStatus.isLimited) {
+            final result = await Permission.photos.request();
+            log('=== [Camera] Permiso de photos solicitado, resultado: $result');
+            mediaGranted = result.isGranted || result.isLimited;
+          } else {
+            mediaGranted = true;
+          }
+        }
+
+        // Si ambos permisos están concedidos
+        log('=== [Camera] cameraGranted: $cameraGranted, mediaGranted: $mediaGranted');
+        if (cameraGranted && mediaGranted) {
+          log('=== [Camera] Permisos OK. Abriendo cámara...');
+          final result = await _openCamera(context);
+          log('=== [Camera] Cámara cerrada, resultado: $result');
+          return result;
+        } else {
+          _showPermissionDeniedSnack(context);
+          log('=== [Camera] Permiso denegado. Abriendo ajustes si está denegado permanentemente.');
+          if (await Permission.camera.isPermanentlyDenied ||
+              (sdkInt < 33 && await Permission.storage.isPermanentlyDenied) ||
+              (sdkInt >= 33 && await Permission.photos.isPermanentlyDenied)) {
+            await openAppSettings();
+          }
+          return null;
+        }
       }
 
-      if (sdkInt < 33) {
-        // Android 12 o menor (API 32 o menor) -> Pedir READ_EXTERNAL_STORAGE
-        final storageStatus = await Permission.storage.status;
-        if (!storageStatus.isGranted) {
-          final result = await Permission.storage.request();
-          mediaGranted = result.isGranted;
+      // ===== Permisos para iOS =====
+      else if (Platform.isIOS) {
+        final cameraStatus = await Permission.camera.status;
+        final photosStatus = await Permission.photos.status;
+
+        if (!cameraStatus.isGranted) {
+          final result = await Permission.camera.request();
+          cameraGranted = result.isGranted;
         } else {
-          mediaGranted = true;
+          cameraGranted = true;
         }
-      } else {
-        // Android 13+ (API 33 o mayor) -> Pedir READ_MEDIA_IMAGES
-        final mediaStatus = await Permission.photos.status;
-        if (!mediaStatus.isGranted && !mediaStatus.isLimited) {
+
+        if (!photosStatus.isGranted && !photosStatus.isLimited) {
           final result = await Permission.photos.request();
           mediaGranted = result.isGranted || result.isLimited;
         } else {
           mediaGranted = true;
         }
-      }
 
-      // Si ambos permisos están concedidos
-      if (cameraGranted && mediaGranted) {
-        return await _openCamera(context);
-      } else {
-        _showPermissionDeniedSnack(context);
-        if (await Permission.camera.isPermanentlyDenied ||
-            (sdkInt < 33 && await Permission.storage.isPermanentlyDenied) ||
-            (sdkInt >= 33 && await Permission.photos.isPermanentlyDenied)) {
-          await openAppSettings();
+        log('=== [Camera] [iOS] cameraGranted: $cameraGranted, mediaGranted: $mediaGranted');
+        if (cameraGranted && mediaGranted) {
+          log('PERMISOS OK. Abriendo cámara...');
+          final result = await _openCamera(context);
+          log('Cámara cerrada, resultado: $result');
+          return result;
+        } else {
+          _showPermissionDeniedSnack(context);
+          if (await Permission.camera.isPermanentlyDenied ||
+              await Permission.photos.isPermanentlyDenied) {
+            await openAppSettings();
+          }
+          return null;
         }
-        return null;
-      }
-    }
-
-    // ===== Permisos para iOS =====
-    else if (Platform.isIOS) {
-      final cameraStatus = await Permission.camera.status;
-      final photosStatus = await Permission.photos.status;
-
-      if (!cameraStatus.isGranted) {
-        final result = await Permission.camera.request();
-        cameraGranted = result.isGranted;
-      } else {
-        cameraGranted = true;
       }
 
-      if (!photosStatus.isGranted && !photosStatus.isLimited) {
-        final result = await Permission.photos.request();
-        mediaGranted = result.isGranted || result.isLimited;
-      } else {
-        mediaGranted = true;
-      }
-
-      if (cameraGranted && mediaGranted) {
-        return await _openCamera(context);
-      } else {
-        _showPermissionDeniedSnack(context);
-        if (await Permission.camera.isPermanentlyDenied ||
-            await Permission.photos.isPermanentlyDenied) {
-          await openAppSettings();
-        }
-        return null;
-      }
-    }
-
-    // Si no es Android ni iOS
-    return null;
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error al verificar permisos: $e')),
-    );
-    return null;
-  }
-}
-
-void _showPermissionDeniedSnack(BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Se requieren permisos de cámara y almacenamiento.'),
-    ),
-  );
-}
-
-Future<XFile?> _openCamera(BuildContext context) async {
-  try {
-    final image = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-      imageQuality: 85,
-    );
-
-    if (image != null) {
-      return image;
-    } else {
+      // Si no es Android ni iOS
+      return null;
+    } catch (e, st) {
+      log('[ERROR] checkCameraPermission: $e\n$st');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se seleccionó ninguna imagen')),
+        SnackBar(content: Text('Error al verificar permisos: $e')),
       );
       return null;
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error al abrir la cámara: $e')),
-    );
-    return null;
   }
-}
 
+  void _showPermissionDeniedSnack(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Se requieren permisos de cámara y almacenamiento.'),
+      ),
+    );
+  }
 
+  Future<XFile?> _openCamera(BuildContext context) async {
+    try {
+      PaintingBinding.instance.imageCache.clear();
+      log('=== [Camera] Llamando ImagePicker().pickImage...');
+      final image = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 75,
+        maxWidth: 800,
+        maxHeight: 600,
+      );
+      log('=== [Camera] Resultado de pickImage: $image');
 
+      if (image != null) {
+        return image;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se seleccionó ninguna imagen')),
+        );
+        return null;
+      }
+    }
+    on PlatformException catch (e, st) {
+      // Errores lanzados por el canal de plataforma (Android/iOS)
+      log('[PlatformException] _openCamera: $e', stackTrace: st);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error de plataforma al abrir cámara: ${e.message}')),
+      );
+      return null;
+    }
+    catch (e, st) {
+      // Cualquier otro error
+      log('[ERROR genérico] _openCamera: $e', stackTrace: st);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al abrir la cámara: $e')),
+      );
+      return null;
+    }
+  }
+
+  // --- Métodos utilitarios (sin cambios) ---
   String getNextStepText({
     required List<XFile?> aditionalImages,
     required List<XFile?> precintsImage,
@@ -245,10 +277,9 @@ Future<XFile?> _openCamera(BuildContext context) async {
   }
 
   String formatDateToIso8601(String date) {
-  DateTime parsedDate = DateTime.parse(date);
-  parsedDate = parsedDate.copyWith(millisecond: 0, microsecond: 0);
-  // Devuelve solo hasta los segundos, sin los .000
-  return parsedDate.toIso8601String().replaceAll('.000', '');
-}
-
+    DateTime parsedDate = DateTime.parse(date);
+    parsedDate = parsedDate.copyWith(millisecond: 0, microsecond: 0);
+    // Devuelve solo hasta los segundos, sin los .000
+    return parsedDate.toIso8601String().replaceAll('.000', '');
+  }
 }

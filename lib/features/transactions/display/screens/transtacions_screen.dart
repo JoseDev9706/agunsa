@@ -183,7 +183,7 @@ class TransactionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('SVG Path card: $svgPath');
+    //log('SVG Path card: $svgPath');
     final uri = Uri.tryParse(svgPath);
     final isValidUrl = uri != null && uri.isAbsolute;
     return GestureDetector(

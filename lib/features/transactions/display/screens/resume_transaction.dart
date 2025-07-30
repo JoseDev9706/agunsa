@@ -75,13 +75,14 @@ class _ResumeTransactionState extends ConsumerState<ResumeTransaction> {
     final precintList = ref.watch(precintProvider);
     final lateralsImages = ref.watch(aditionalImageUrlsProvider);
     final isUploadingTransaction = ref.watch(uploadingImageProvider);
-    final txnNumber = ref.watch(transactionNumberStateProvider);
-    final fechaCaptura = ref.watch(timeCreationTransactionProvider) ?? DateTime.now();
+    //final txnNumber = ref.watch(transactionNumberStateProvider);
+    //final fechaCaptura = ref.watch(timeCreationTransactionProvider) ?? DateTime.now();
 
     final timeContainer = ref.watch(timeContainerCaptureProvider);
     final timeDriver = ref.watch(timeDriverCaptureProvider);
     final timePlate = ref.watch(timePlateCaptureProvider);
     final timeSeal = ref.watch(timeSealCaptureProvider);
+
 
 
     final isPendingFromCreated = isfromPending && pendingTransaction != null;
@@ -400,6 +401,7 @@ class _ResumeTransactionState extends ConsumerState<ResumeTransaction> {
                                               createdDataTimeTransaction:
                                                   pendingTransaction
                                                       .createdDataTimeTransaction,
+                                              plate:                        placaInfo?.codigo ?? '',    
                                             );
                                             final resultPendingTransaction =
                                                 await createPendingTransactionFuntion(
@@ -446,6 +448,7 @@ class _ResumeTransactionState extends ConsumerState<ResumeTransaction> {
                                             createdDataTimeTransaction:
                                                 DateTime.now()
                                                     .millisecondsSinceEpoch,
+                                            plate:                        placaInfo?.codigo ?? '', 
                                           );
 
                                           await createPendingTransactionFuntion(

@@ -96,6 +96,8 @@ class TakeContainerScreen extends ConsumerWidget {
                       child: Image.file(
                         File(images.first!.image.path),
                         fit: BoxFit.fill,
+                        cacheWidth: (uiUtils.screenWidth * 0.75).toInt(),
+  cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
                       ),
                     ),
                     const Spacer(),
@@ -185,7 +187,11 @@ class TakeContainerScreen extends ConsumerWidget {
                     const Spacer(),
                     GestureDetector(
                       onTap: () async {
+                        try {
+                          PaintingBinding.instance.imageCache.clear();
+                        log('==> Voy a pedir permiso y abrir la cámara');   
                         final capturedImage = await CodeUtils().checkCameraPermission(context);
+                        log('==> Regresé de la cámara, resultado: $capturedImage');
                         if (capturedImage != null) {
                           final captureTime = DateTime.now(); 
 
@@ -198,6 +204,13 @@ class TakeContainerScreen extends ConsumerWidget {
                           // Y opcionalmente, también guardar en un provider global
                           //ref.read(timeCreationTransactionProvider.notifier).state = captureTime;
                         }
+                        } catch (e, st) {
+    log('ERROR capturando imagen: $e\n$st');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al tomar foto: $e')),
+    );
+  }
+                        
 
                       },
                       child: CircleAvatar(

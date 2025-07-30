@@ -100,13 +100,15 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
               SizedBox(height: uiUtils.screenHeight * 0.05),
               GestureDetector(
                 onTap: () async {
-                  if (images.length < 4) {
-                    final capturedImage =
-                        await CodeUtils().checkCameraPermission(context);
+                  try {
+                    if (images.length < 4) {
+                    PaintingBinding.instance.imageCache.clear();
+  log('==> Voy a pedir permiso y abrir la cámara');
+  final capturedImage = await CodeUtils().checkCameraPermission(context);
                     if (capturedImage != null) {
                       setState(() {
                         ref.read(aditionalImagesProvider.notifier).state =
-                            images..add(capturedImage);
+    [...images, capturedImage];
                       });
                     }
                   } else {
@@ -117,6 +119,13 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                     );
                     log('Ya se han tomado las fotos necesarias');
                   }
+                  } catch (e, st) {
+    log('ERROR capturando imagen: $e\n$st');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al tomar foto: $e')),
+    );
+  }
+                  
                 },
                 child: CircleAvatar(
                   radius: 35,
@@ -159,14 +168,17 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                                     child: Image.file(
                                       File(entry.value!.path),
                                       fit: BoxFit.fill,
+                                      cacheWidth: (uiUtils.screenWidth * 0.75).toInt(),
+  cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
                                     ),
                                   ),
                                 ),
                                 Positioned.fill(
                                   child: GestureDetector(
                                     onTap: () {
-                                      images.removeAt(entry.key);
-                                      setState(() {});
+                                      final newList = [...images]..removeAt(entry.key);
+ref.read(aditionalImagesProvider.notifier).state = newList;
+setState(() {});
                                     },
                                     child: Container(
                                       decoration: const BoxDecoration(

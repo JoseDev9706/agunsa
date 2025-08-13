@@ -26,6 +26,7 @@ class TransactionsOnProcess extends ConsumerWidget {
 
     // Null-safe read and lowercase of search query
     final searchQuery = ref.watch(searchQueryProvider);
+    
 
 
     return SafeArea(

@@ -6,21 +6,23 @@ import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
-import 'package:agunsa/core/utils/code_utils.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+// QUITA image_picker
+import 'package:camera/camera.dart';
+
+import '../../../../core/utils/camera.dart'; // IMPORTA TU CÁMARA CUSTOM
 
 class TakePlacaScreen extends ConsumerStatefulWidget {
   const TakePlacaScreen({super.key});
 
   @override
-  ConsumerState<TakePlacaScreen> createState() => _TakePrecintScreenState();
+  ConsumerState<TakePlacaScreen> createState() => _TakePlacaScreenState();
 }
 
-class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
+class _TakePlacaScreenState extends ConsumerState<TakePlacaScreen> {
   UiUtils uiUtils = UiUtils();
   CapturedImageData? fileTaked;
 
@@ -102,10 +104,9 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                             child: Image.file(
                               File(fileTaked!.image.path),
                               width: uiUtils.screenWidth * 0.25,
-                              // height: uiUtils.screenHeight * 0.1,
                               fit: BoxFit.cover,
                               cacheWidth: (uiUtils.screenWidth * 0.75).toInt(),
-  cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
+                              cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
                             ),
                           ),
                         )
@@ -144,9 +145,14 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
 
                                       if (fileTaked != null) {
                                         ref.read(placaImageProvider.notifier).state =
-                                            CapturedImageData(image: fileTaked!.image, captureTime: DateTime.now());
+                                            CapturedImageData(
+                                              image: fileTaked!.image,
+                                              captureTime: DateTime.now(),
+                                            );
 
-                                        final result = await getPlacaInfo(ref, fileTaked!.image, '');
+                                        final result = await getPlacaInfo(
+                                          ref, fileTaked!.image, '',
+                                        );
                                         if (result != null) {
                                           ref.read(routerDelegateProvider).push(
                                             AppRoute.containerInfo,
@@ -163,11 +169,9 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                                           );
                                         }
                                       }
-
                                       setUploadingImage(ref, false);
                                     }
                                   },
-
                                   textColor: uiUtils.whiteColor,
                                 ),
                                 GeneralBottom(
@@ -175,11 +179,15 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                                   color: Colors.transparent,
                                   text: 'REPETIR',
                                   onTap: () async {
-                                    try{
+                                    try {
                                       fileTaked = null;
-                                    PaintingBinding.instance.imageCache.clear();
-  log('==> Voy a pedir permiso y abrir la cámara');
-  final capturedImage = await CodeUtils().checkCameraPermission(context);
+                                      PaintingBinding.instance.imageCache.clear();
+                                      log('==> Abrir cámara custom');
+                                      final XFile? capturedImage = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) => const CustomCameraScreen()),
+                                      );
                                       if (capturedImage != null) {
                                         final capturedData = CapturedImageData(
                                           image: capturedImage,
@@ -189,20 +197,15 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                                         ref.read(placaImageProvider.notifier).state = capturedData;
 
                                         setState(() {
-                                          fileTaked = CapturedImageData(
-      image: capturedImage,
-      captureTime: DateTime.now(),
-    );// solo si quieres seguir mostrándola localmente
+                                          fileTaked = capturedData;
                                         });
                                       }
-                                      } catch (e, st) {
-    log('ERROR capturando imagen: $e\n$st');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error al tomar foto: $e')),
-    );
-  }
-                                    
-
+                                    } catch (e, st) {
+                                      log('ERROR capturando imagen: $e\n$st');
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Error al tomar foto: $e')),
+                                      );
+                                    }
                                   },
                                   textColor: uiUtils.primaryColor,
                                 ),
@@ -213,34 +216,35 @@ class _TakePrecintScreenState extends ConsumerState<TakePlacaScreen> {
                         )
                       : GestureDetector(
                           onTap: () async {
-                            try{
-                                if (image == null) {
-                              PaintingBinding.instance.imageCache.clear();
-  log('==> Voy a pedir permiso y abrir la cámara');
-  final capturedImage = await CodeUtils().checkCameraPermission(context);
-if (capturedImage != null) {
-  final captureTime = DateTime.now(); // ✅
-  setState(() {
-    fileTaked = CapturedImageData(
-      image: capturedImage,
-      captureTime: captureTime,
-    );
-  });
-
-  // ✅
-  ref.read(timePlateCaptureProvider.notifier).state = captureTime;
-}
-
-                            } else {
-                              log('Ya se han tomado las fotos necesarias');
+                            try {
+                              if (image == null) {
+                                PaintingBinding.instance.imageCache.clear();
+                                log('==> Abrir cámara custom');
+                                final XFile? capturedImage = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const CustomCameraScreen(),
+                                  ),
+                                );
+                                if (capturedImage != null) {
+                                  final captureTime = DateTime.now();
+                                  setState(() {
+                                    fileTaked = CapturedImageData(
+                                      image: capturedImage,
+                                      captureTime: captureTime,
+                                    );
+                                  });
+                                  ref.read(timePlateCaptureProvider.notifier).state = captureTime;
+                                }
+                              } else {
+                                log('Ya se han tomado las fotos necesarias');
+                              }
+                            } catch (e, st) {
+                              log('ERROR capturando imagen: $e\n$st');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error al tomar foto: $e')),
+                              );
                             }
-                             } catch (e, st) {
-    log('ERROR capturando imagen: $e\n$st');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error al tomar foto: $e')),
-    );
-  } 
-                          
                           },
                           child: CircleAvatar(
                             radius: 35,

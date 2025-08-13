@@ -4,25 +4,21 @@ import 'dart:io';
 import 'package:agunsa/core/router/app_router.dart';
 import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
-import 'package:agunsa/features/auth/domain/entities/user_entity.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
-import 'package:agunsa/core/utils/code_utils.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:camera/camera.dart';
+
+import '../../../../core/utils/camera.dart'; // IMPORTANTE
 
 class TakeAditionalPhotos extends ConsumerStatefulWidget {
-  // final UserEntity user;
-  const TakeAditionalPhotos({
-    super.key,
-    // required this.user,
-  });
+  const TakeAditionalPhotos({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _TakeAditionalPhotosState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _TakeAditionalPhotosState();
 }
 
 class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
@@ -38,12 +34,13 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
           child: Column(
             children: [
               TransactionAppBar(
-                  uiUtils: uiUtils,
-                  title: '',
-                  onTap: () {
-                    ref.read(aditionalImagesProvider.notifier).state = [];
-                    ref.read(routerDelegateProvider).popRoute();
-                  }),
+                uiUtils: uiUtils,
+                title: '',
+                onTap: () {
+                  ref.read(aditionalImagesProvider.notifier).state = [];
+                  ref.read(routerDelegateProvider).popRoute();
+                }
+              ),
               const SizedBox(height: 10),
               SizedBox(
                 width: uiUtils.screenWidth * 0.6,
@@ -51,9 +48,10 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                   textAlign: TextAlign.center,
                   'Toma  fotos laterales del contendor',
                   style: TextStyle(
-                      color: uiUtils.primaryColor,
-                      fontSize: uiUtils.screenWidth * 0.065,
-                      fontWeight: FontWeight.bold),
+                    color: uiUtils.primaryColor,
+                    fontSize: uiUtils.screenWidth * 0.065,
+                    fontWeight: FontWeight.bold
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -100,22 +98,31 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
               SizedBox(height: uiUtils.screenHeight * 0.05),
               GestureDetector(
                 onTap: () async {
-                  if (images.length < 4) {
-                    final capturedImage =
-                        await CodeUtils().checkCameraPermission(context);
-                    if (capturedImage != null) {
-                      setState(() {
-                        ref.read(aditionalImagesProvider.notifier).state =
-                            images..add(capturedImage);
-                      });
+                  try {
+                    if (images.length < 4) {
+                      PaintingBinding.instance.imageCache.clear();
+                      log('==> Abrir cámara custom');
+                      final XFile? capturedImage = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CustomCameraScreen()),
+                      );
+                      if (capturedImage != null) {
+                        setState(() {
+                          ref.read(aditionalImagesProvider.notifier).state =
+                              [...images, capturedImage];
+                        });
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Ya se han tomado las fotos necesarias')),
+                      );
+                      log('Ya se han tomado las fotos necesarias');
                     }
-                  } else {
+                  } catch (e, st) {
+                    log('ERROR capturando imagen: $e\n$st');
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content:
-                              Text('Ya se han tomado las fotos necesarias')),
+                      SnackBar(content: Text('Error al tomar foto: $e')),
                     );
-                    log('Ya se han tomado las fotos necesarias');
                   }
                 },
                 child: CircleAvatar(
@@ -159,13 +166,16 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                                     child: Image.file(
                                       File(entry.value!.path),
                                       fit: BoxFit.fill,
+                                      cacheWidth: (uiUtils.screenWidth * 0.75).toInt(),
+                                      cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
                                     ),
                                   ),
                                 ),
                                 Positioned.fill(
                                   child: GestureDetector(
                                     onTap: () {
-                                      images.removeAt(entry.key);
+                                      final newList = [...images]..removeAt(entry.key);
+                                      ref.read(aditionalImagesProvider.notifier).state = newList;
                                       setState(() {});
                                     },
                                     child: Container(
@@ -185,7 +195,6 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                             );
                           },
                         ),
-                        
                       ],
                     ),
                   ),
@@ -199,21 +208,17 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                   text: isUploadingImage ? 'SUBIENDO...' : 'CONFIRMAR',
                   onTap: () async {
                     List<Map<String, dynamic>> succesResults = [];
-
                     if (!isUploadingImage) {
                       setUploadingImage(ref, true);
-
                       try {
                         for (var image in images) {
                           final result = await uploadLateralImagesFunction(
                             ref,
                             image!,
                           );
-
                           log('Imagen subida: $result');
                           if (!result['imageUrl'].contains('http')) {
-                            throw Exception(
-                                'Error al subir una de las imágenes');
+                            throw Exception('Error al subir una de las imágenes');
                           } else {
                             succesResults.add(result);
 
@@ -222,8 +227,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                               log('Todas las imágenes subidas correctamente');
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content:
-                                      Text('Imágenes subidas correctamente'),
+                                  content: Text('Imágenes subidas correctamente'),
                                 ),
                               );
                               ref.read(routerDelegateProvider).push(
@@ -240,8 +244,7 @@ class _TakeAditionalPhotosState extends ConsumerState<TakeAditionalPhotos> {
                         log('Error subiendo imágenes: $e');
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content:
-                                Text('Ocurrió un error al subir las imágenes'),
+                            content: Text('Ocurrió un error al subir las imágenes'),
                           ),
                         );
                       } finally {

@@ -9,13 +9,15 @@ import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/container_photo.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
-import 'package:agunsa/core/utils/code_utils.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:agunsa/features/transactions/domain/entities/precint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:image_picker/image_picker.dart';
+// QUITA image_picker
+import 'package:camera/camera.dart';
+
+import '../../../../core/utils/camera.dart'; // importa tu cámara
 
 class TakePrecintScreen extends ConsumerStatefulWidget {
   const TakePrecintScreen({super.key});
@@ -86,7 +88,7 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                         textAlign: TextAlign.center,
                         fileTaked != null
                             ? 'Confirma que la foto este bien tomada'
-                            : 'Asegúrate de que los números y letras del precinto se vean claramente antes de tomar la foto. Podras tomar hasta 4 fotos.',
+                            : 'Asegúrate de que los números y letras del precinto se vean claramente antes de tomar la foto. Podrás tomar hasta 4 fotos.',
                         style: TextStyle(
                           color: uiUtils.black,
                           fontSize: uiUtils.screenWidth * 0.045,
@@ -107,39 +109,52 @@ class _TakePrecintScreenState extends ConsumerState<TakePrecintScreen> {
                               child: Image.file(
                                 File(fileTaked!.image.path),
                                 width: uiUtils.screenWidth * 0.25,
-                                // height: uiUtils.screenHeight * 0.1,
                                 fit: BoxFit.cover,
+                                cacheWidth: (uiUtils.screenWidth * 0.75).toInt(),
+                                cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
                               ),
                             ),
                           )
-                        : ContainerPhotoWidget(
-                            uiUtils: uiUtils,
-                          ),
+                        : ContainerPhotoWidget(uiUtils: uiUtils),
                     const SizedBox(height: 26),
                     GestureDetector(
                       onTap: () async {
-                        if (images.length < 4) {
-                          final capturedImage = await CodeUtils().checkCameraPermission(context);
-if (capturedImage != null) {
-  final captureTime = DateTime.now(); // ✅
-  setState(() {
-    fileTaked = CapturedImageData(
-      image: capturedImage,
-      captureTime: captureTime,
-    );
+                        try {
+                          if (images.length < 4) {
+                            PaintingBinding.instance.imageCache.clear();
+                            log('==> Abrir cámara custom');
+                            final XFile? capturedImage = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const CustomCameraScreen()),
+                            );
+                            if (capturedImage != null) {
+                              final captureTime = DateTime.now();
+                              setState(() {
+                                fileTaked = CapturedImageData(
+                                  image: capturedImage,
+                                  captureTime: captureTime,
+                                );
 
-    ref.read(precintsImageProvider.notifier).state = [
-      ...images,
-      CapturedImageData(image: capturedImage, captureTime: captureTime)
-    ];
-  });
+                                ref.read(precintsImageProvider.notifier).state = [
+                                  ...images,
+                                  CapturedImageData(
+                                      image: capturedImage,
+                                      captureTime: captureTime)
+                                ];
+                              });
 
-  // ✅
-  ref.read(timeSealCaptureProvider.notifier).state = captureTime;
-}
-
-                        } else {
-                          log('Ya se han tomado las fotos necesarias');
+                              ref.read(timeSealCaptureProvider.notifier).state =
+                                  captureTime;
+                            }
+                          } else {
+                            log('Ya se han tomado las fotos necesarias');
+                          }
+                        } catch (e, st) {
+                          log('ERROR capturando imagen: $e\n$st');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error al tomar foto: $e')),
+                          );
                         }
                       },
                       child: CircleAvatar(
@@ -177,8 +192,13 @@ if (capturedImage != null) {
                                         child: Image.file(
                                           File(entry.value!.image.path),
                                           width: uiUtils.screenWidth * 0.25,
-                                          // height: uiUtils.screenHeight * 0.1,
                                           fit: BoxFit.cover,
+                                          cacheWidth:
+                                              (uiUtils.screenWidth * 0.75)
+                                                  .toInt(),
+                                          cacheHeight:
+                                              (uiUtils.screenHeight * 0.4)
+                                                  .toInt(),
                                         ),
                                       ),
                                     ),
@@ -189,7 +209,8 @@ if (capturedImage != null) {
                                       left: 0,
                                       child: GestureDetector(
                                         onTap: () {
-                                          images.removeAt(entry.key);
+                                          final newList = [...images]..removeAt(entry.key);
+                                          ref.read(precintsImageProvider.notifier).state = newList;
                                           setState(() {});
                                         },
                                         child: Container(
@@ -229,8 +250,8 @@ if (capturedImage != null) {
                                   setUploadingImage(ref, true);
                                   try {
                                     for (var image in images) {
-                                      final result =
-                                          await uploadPrecint(ref, image!.image, '');
+                                      final result = await uploadPrecint(
+                                          ref, image!.image, '');
                                       if (result != null) {
                                         precints.add(result);
                                       } else {

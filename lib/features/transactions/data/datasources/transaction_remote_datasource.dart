@@ -21,7 +21,7 @@ import '../../../../core/utils/code_utils.dart';
 
 abstract class TransactionRemoteDatasource {
   Future<List<TransactionType>> getAllTransactions();
-  Future<Foto?> uploadImageToServer(
+  Future<Foto?> uploadImageToServer(  
     ImageParams image,
     String idToken,
   );
@@ -448,6 +448,11 @@ Future<String?> createTransaction(TransactionModel transaction) async {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(transaction.toJson()),
     );
+
+    final Map<String, dynamic> data = transaction.toJson();
+    final String jsonBody = jsonEncode(data);
+
+    log('Datos enviados (JSON): $jsonBody');
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);

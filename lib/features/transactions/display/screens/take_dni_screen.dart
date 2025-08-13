@@ -6,21 +6,23 @@ import 'package:agunsa/core/router/routes_provider.dart';
 import 'package:agunsa/core/widgets/general_bottom.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
-import 'package:agunsa/core/utils/code_utils.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+// Quita image_picker
+import 'package:camera/camera.dart';
+
+import '../../../../core/utils/camera.dart'; // importa tu cámara
 
 class TakeDniScreen extends ConsumerStatefulWidget {
   const TakeDniScreen({super.key});
 
   @override
-  ConsumerState<TakeDniScreen> createState() => _TakePrecintScreenState();
+  ConsumerState<TakeDniScreen> createState() => _TakeDniScreenState();
 }
 
-class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
+class _TakeDniScreenState extends ConsumerState<TakeDniScreen> {
   UiUtils uiUtils = UiUtils();
   CapturedImageData? fileTaked;
 
@@ -103,8 +105,9 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                             child: Image.file(
                               File(fileTaked!.image.path),
                               width: uiUtils.screenWidth * 0.25,
-                              // height: uiUtils.screenHeight * 0.1,
                               fit: BoxFit.cover,
+                              cacheWidth: (uiUtils.screenWidth * 0.75).toInt(),
+                              cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
                             ),
                           ),
                         )
@@ -153,17 +156,16 @@ class _TakePrecintScreenState extends ConsumerState<TakeDniScreen> {
                                       ? 'SUBIENDO...'
                                       : 'CONFIRMAR',
                                   onTap: () async {
-                                      if (!isUploadingImage) {
-                                        setUploadingImage(ref, true);
-                                        if (fileTaked != null) {
-
-                                        ref.read(dniImageProvider.notifier).state = CapturedImageData(
-  image: fileTaked!.image,
-  captureTime: fileTaked!.captureTime, // ✅ Aquí
-);
-ref.read(timeDriverCaptureProvider.notifier).state = fileTaked!.captureTime; // ✅ Igual que en placa
-
-
+                                    if (!isUploadingImage) {
+                                      setUploadingImage(ref, true);
+                                      if (fileTaked != null) {
+                                        ref.read(dniImageProvider.notifier).state =
+                                            CapturedImageData(
+                                              image: fileTaked!.image,
+                                              captureTime: fileTaked!.captureTime,
+                                            );
+                                        ref.read(timeDriverCaptureProvider.notifier).state =
+                                            fileTaked!.captureTime;
 
                                         final result = await getDniInfo(ref, fileTaked!.image);
 
@@ -175,7 +177,6 @@ ref.read(timeDriverCaptureProvider.notifier).state = fileTaked!.captureTime; // 
                                         } else {
                                           fileTaked = null;
                                           ref.read(dniImageProvider.notifier).state = null;
-
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             const SnackBar(
                                               content: Text('Ocurrió un error al obtener la información de la Licencia'),
@@ -183,12 +184,10 @@ ref.read(timeDriverCaptureProvider.notifier).state = fileTaked!.captureTime; // 
                                           );
                                           log('Error al obtener la información de la Licencia');
                                         }
-                                        }
-
-                                        setUploadingImage(ref, false);
                                       }
-                                    },
-
+                                      setUploadingImage(ref, false);
+                                    }
+                                  },
                                   textColor: uiUtils.whiteColor,
                                 ),
                                 GeneralBottom(
@@ -196,22 +195,28 @@ ref.read(timeDriverCaptureProvider.notifier).state = fileTaked!.captureTime; // 
                                   color: Colors.transparent,
                                   text: 'REPETIR',
                                   onTap: () async {
-  fileTaked = null;
-  final capturedImage = await CodeUtils().checkCameraPermission(context);
-  if (capturedImage != null) {
-    final capturedData = CapturedImageData(
-      image: capturedImage,
-      captureTime: DateTime.now(),
-    );
+                                    fileTaked = null;
+                                    PaintingBinding.instance.imageCache.clear();
+                                    log('==> Abrir cámara custom');
+                                    final XFile? capturedImage = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const CustomCameraScreen(),
+                                      ),
+                                    );
+                                    if (capturedImage != null) {
+                                      final capturedData = CapturedImageData(
+                                        image: capturedImage,
+                                        captureTime: DateTime.now(),
+                                      );
 
-    ref.read(dniImageProvider.notifier).state = capturedData;
+                                      ref.read(dniImageProvider.notifier).state = capturedData;
 
-    setState(() {
-      fileTaked = capturedData; // solo si quieres mostrarlo localmente
-    });
-  }
-},
-
+                                      setState(() {
+                                        fileTaked = capturedData;
+                                      });
+                                    }
+                                  },
                                   textColor: uiUtils.primaryColor,
                                 ),
                               ],
@@ -221,23 +226,34 @@ ref.read(timeDriverCaptureProvider.notifier).state = fileTaked!.captureTime; // 
                         )
                       : GestureDetector(
                           onTap: () async {
-                            if (image == null) {
-                              final capturedImage = await CodeUtils().checkCameraPermission(context);
-if (capturedImage != null) {
-  final captureTime = DateTime.now(); // ✅ Nueva línea
-  setState(() {
-    fileTaked = CapturedImageData(
-      image: capturedImage,
-      captureTime: captureTime,
-    );
-  });
-
-  // ✅ Establece tiempo global para la transacción si aún no está establecido
-  ref.read(timeCreationTransactionProvider.notifier).state ??= captureTime;
-}
-
-                            } else {
-                              log('Ya se han tomado las fotos necesarias');
+                            try {
+                              if (image == null) {
+                                PaintingBinding.instance.imageCache.clear();
+                                log('==> Abrir cámara custom');
+                                final XFile? capturedImage = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const CustomCameraScreen(),
+                                  ),
+                                );
+                                if (capturedImage != null) {
+                                  final captureTime = DateTime.now();
+                                  setState(() {
+                                    fileTaked = CapturedImageData(
+                                      image: capturedImage,
+                                      captureTime: captureTime,
+                                    );
+                                  });
+                                  ref.read(timeCreationTransactionProvider.notifier).state ??= captureTime;
+                                }
+                              } else {
+                                log('Ya se han tomado las fotos necesarias');
+                              }
+                            } catch (e, st) {
+                              log('ERROR capturando imagen: $e\n$st');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error al tomar foto: $e')),
+                              );
                             }
                           },
                           child: CircleAvatar(
@@ -246,7 +262,6 @@ if (capturedImage != null) {
                             child: SvgPicture.asset(
                               'assets/svg/camera.svg',
                               width: 25,
-                              height: 25,
                               color: uiUtils.primaryColor,
                             ),
                           ),

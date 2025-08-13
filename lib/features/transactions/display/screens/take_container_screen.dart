@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:developer';
 import 'dart:io';
 
@@ -11,11 +9,13 @@ import 'package:agunsa/features/transactions/display/providers/transactions_prov
 import 'package:agunsa/features/transactions/display/widgets/container_photo.dart';
 import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/features/transactions/domain/entities/transaction_type.dart';
-import 'package:agunsa/core/utils/code_utils.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:camera/camera.dart';
+
+import '../../../../core/utils/camera.dart'; // Asegúrate de importar tu custom camera
 
 class TakeContainerScreen extends ConsumerWidget {
   final TransactionType? transactionType;
@@ -96,6 +96,8 @@ class TakeContainerScreen extends ConsumerWidget {
                       child: Image.file(
                         File(images.first!.image.path),
                         fit: BoxFit.fill,
+                        cacheWidth: (uiUtils.screenWidth * 0.75).toInt(),
+                        cacheHeight: (uiUtils.screenHeight * 0.4).toInt(),
                       ),
                     ),
                     const Spacer(),
@@ -185,20 +187,32 @@ class TakeContainerScreen extends ConsumerWidget {
                     const Spacer(),
                     GestureDetector(
                       onTap: () async {
-                        final capturedImage = await CodeUtils().checkCameraPermission(context);
-                        if (capturedImage != null) {
-                          final captureTime = DateTime.now(); 
+                        try {
+                          PaintingBinding.instance.imageCache.clear();
+                          log('==> Abrir cámara custom');
+                          final XFile? capturedImage = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const CustomCameraScreen()),
+                          );
+                          log('==> Regresé de la cámara, resultado: $capturedImage');
+                          if (capturedImage != null) {
+                            final captureTime = DateTime.now();
 
-                          ref.read(containerImageProvider.notifier).state = [
-                            CapturedImageData(image: capturedImage, captureTime: captureTime)
-                          ];
+                            ref.read(containerImageProvider.notifier).state = [
+                              CapturedImageData(
+                                  image: capturedImage,
+                                  captureTime: captureTime)
+                            ];
 
-                          ref.read(timeContainerCaptureProvider.notifier).state = captureTime;
-
-                          // Y opcionalmente, también guardar en un provider global
-                          //ref.read(timeCreationTransactionProvider.notifier).state = captureTime;
+                            ref.read(timeContainerCaptureProvider.notifier).state = captureTime;
+                          }
+                        } catch (e, st) {
+                          log('ERROR capturando imagen: $e\n$st');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error al tomar foto: $e')),
+                          );
                         }
-
                       },
                       child: CircleAvatar(
                         radius: 35,

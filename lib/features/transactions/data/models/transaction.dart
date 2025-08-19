@@ -1,7 +1,9 @@
 import 'package:agunsa/features/transactions/domain/entities/transactions.dart';
 
 class TransactionModel extends Transaction {
+  final String? createdByUserName;
   TransactionModel({
+    
     super.containerNumber,
     required super.transactionTypeName,
     super.containerTransportLine,
@@ -41,6 +43,7 @@ class TransactionModel extends Transaction {
     super.driverUrlImage,
     super.plateUrlImage,
     super.precintImagesUrl,
+    this.createdByUserName,
       
   });
 
@@ -101,6 +104,7 @@ class TransactionModel extends Transaction {
       driverUrlImage: json['driverUrlImage'],
       plateUrlImage: json['plateUrlImage'],
       precintImagesUrl: json['precintImagesUrl'],
+      createdByUserName: json['createdByUserName'],
     );
   }
 
@@ -145,6 +149,7 @@ class TransactionModel extends Transaction {
       'containerUrlImageLat': containerUrlImageLat,
       'sealcodesList': sealcodesList,
       'createdDataSealResponse': createdDataSealResponse,
+      'createdByUserName': createdByUserName,
       
     };
   }

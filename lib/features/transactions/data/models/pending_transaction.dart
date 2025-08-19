@@ -2,6 +2,7 @@
 import 'package:agunsa/features/transactions/domain/entities/peding_transaction.dart';
 
 class PendingTransactionModel extends PendingTransaction {
+  final String? createdByUserName;
   PendingTransactionModel({
     required super.transactionNumber,
     required super.transactionTypeId,
@@ -11,7 +12,8 @@ class PendingTransactionModel extends PendingTransaction {
     required super.createdByUserId,
     required super.createdDataTimeTransaction,
     required super.currentStatus,
-    super.plate,             // ← aquí también
+    super.plate,    
+    this.createdByUserName,         // ← aquí también
   });
 
   factory PendingTransactionModel.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class PendingTransactionModel extends PendingTransaction {
       currentStatus:              json['currentStatus']                as bool,
       createdDataTimeTransaction: json['createdDataTimeTransaction']   as int,
       plate: json['plate'],
+      createdByUserName: json['createdByUserName'],
     );
   }
 
@@ -38,7 +41,8 @@ class PendingTransactionModel extends PendingTransaction {
       'createdByUserId':              createdByUserId,
       'currentStatus':                currentStatus,
       'createdDataTimeTransaction':   createdDataTimeTransaction,
-      'plate':                        plate,                              // ← lo envías
+      'plate':                        plate,    
+      'createdByUserName': createdByUserName,                          // ← lo envías
     };
   }
 }

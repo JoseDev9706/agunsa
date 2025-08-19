@@ -46,7 +46,7 @@ class Foto {
   };
   String getTipoContenedor(String codPropietario) {
   final Map<String, dynamic> info = codigoIsoInfo[codPropietario]!;
-  return '$codPropietario${info['caracteres']}';
+  return info['caracteres'];
 }
   String get numeroContenedorAndtipoContenedor {
     return '$codPropietario$numSerie';

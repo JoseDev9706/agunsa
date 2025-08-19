@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:agunsa/core/class/auth_result.dart';
@@ -89,60 +90,135 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<AuthResult> checkSession() async {
-    try {
-      final session = await Amplify.Auth.fetchAuthSession(
-        options: const FetchAuthSessionOptions(
-          pluginOptions: CognitoFetchAuthSessionPluginOptions(),
-        ),
-      );
+Future<AuthResult> checkSession() async {
+  try {
+    final session = await Amplify.Auth.fetchAuthSession(
+      options: const FetchAuthSessionOptions(
+        pluginOptions: CognitoFetchAuthSessionPluginOptions(),
+      ),
+    );
 
-      if (session.isSignedIn) {
-        final cognitoSession = session as CognitoAuthSession;
-        final user = await Amplify.Auth.getCurrentUser();
-        final accessToken =
-            cognitoSession.userPoolTokensResult.value.accessToken.raw;
-
-        log('Inicio sesion verificado: ${user.username}');
-
-        if (Jwt.isExpired(accessToken)) {
-          log('Sesión expirada para el usuario');
-          return AuthFailure({"message": "Sesión expirada."});
-        }
-
-        // Extracción segura del email/username
-        String email = '';
-        if (user.signInDetails is CognitoSignInDetailsApiBased) {
-          email = (user.signInDetails as CognitoSignInDetailsApiBased).username;
-        } else {
-          try {
-            email = user.username;
-          } catch (e) {
-            log('Error al obtener email: $e');
-            email = user.username;
-          }
-        }
-
-        log('Email obtenido: $email');
-
-        UserModel userModel = UserModel(
-          email: email,
-          token: accessToken,
-          id: user.userId,
-        );
-
-        log('UserModel: ${userModel.userToJson()}');
-        return AuthSuccess(userModel);
-      } else {
-        return AuthFailure({"message": "Sesión no iniciada."});
-      }
-    } on AuthException catch (e) {
-      return AuthFailure({
-        "message": e.message,
-        "underlyingException": e.underlyingException?.toString(),
-      });
-    } catch (e) {
-      return AuthFailure({"message": e.toString()});
+    if (!session.isSignedIn) {
+      return AuthFailure({"message": "Sesión no iniciada."});
     }
+
+    final cognitoSession = session as CognitoAuthSession;
+    final user = await Amplify.Auth.getCurrentUser();
+    final accessToken =
+        cognitoSession.userPoolTokensResult.value.accessToken.raw;
+
+    log('Inicio sesion verificado: ${user.username}');
+
+    if (Jwt.isExpired(accessToken)) {
+      log('Sesión expirada para el usuario');
+      return AuthFailure({"message": "Sesión expirada."});
+    }
+
+    // 1) Email/username seguro
+    String email = '';
+    if (user.signInDetails is CognitoSignInDetailsApiBased) {
+      email = (user.signInDetails as CognitoSignInDetailsApiBased).username;
+    } else {
+      try {
+        email = user.username;
+      } catch (e) {
+        log('Error al obtener email: $e');
+        email = user.username;
+      }
+    }
+    log('Email obtenido: $email');
+
+    // Helpers locales
+    String? _getAttr(List<AuthUserAttribute> attrs, String key) {
+      for (final a in attrs) {
+        if (a.userAttributeKey.key == key) return a.value;
+      }
+      return null;
+    }
+
+    Map<String, dynamic> _decodeJwtPayload(String token) {
+      try {
+        final parts = token.split('.');
+        if (parts.length != 3) return {};
+        String payload = parts[1];
+        switch (payload.length % 4) {
+          case 2: payload += '=='; break;
+          case 3: payload += '='; break;
+        }
+        final normalized = payload.replaceAll('-', '+').replaceAll('_', '/');
+        final bytes = base64.decode(normalized);
+        return jsonDecode(utf8.decode(bytes)) as Map<String, dynamic>;
+      } catch (_) {
+        return {};
+      }
+    }
+
+    // 2) Intentar primero con atributos de Cognito
+    List<AuthUserAttribute> attrs = [];
+    try {
+      attrs = await Amplify.Auth.fetchUserAttributes();
+    } catch (e) {
+      log('No se pudieron obtener atributos: $e');
+    }
+
+    String? givenName =
+        _getAttr(attrs, 'given_name') ?? _getAttr(attrs, 'custom:first_name');
+    String? familyName =
+        _getAttr(attrs, 'family_name') ?? _getAttr(attrs, 'custom:last_name');
+    String? fullNameRaw = _getAttr(attrs, 'name');
+    String? preferred = _getAttr(attrs, 'preferred_username');
+
+    // 3) Fallback: claims del ID token si no hubo atributos
+    if (givenName == null && familyName == null && fullNameRaw == null) {
+      final idToken = cognitoSession.userPoolTokensResult.value.idToken.raw;
+      final claims = _decodeJwtPayload(idToken);
+      givenName ??= claims['given_name'] as String?;
+      familyName ??= claims['family_name'] as String?;
+      fullNameRaw ??= claims['name'] as String?;
+      preferred ??= claims['preferred_username'] as String?;
+    }
+
+    // 4) Construir nombre completo y displayName
+    final fullName = (fullNameRaw != null && fullNameRaw.trim().isNotEmpty)
+        ? fullNameRaw.trim()
+        : [
+            if (givenName != null && givenName.trim().isNotEmpty)
+              givenName.trim(),
+            if (familyName != null && familyName.trim().isNotEmpty)
+              familyName.trim(),
+          ].join(' ').trim();
+
+    final fallback =
+        (email.isNotEmpty && email.contains('@')) ? email.split('@').first : user.username;
+
+    final displayName = fullName.isNotEmpty ? fullName : (preferred ?? fallback);
+
+    // 5) Logs solicitados
+    log('given_name: ${givenName ?? '-'}');
+    log('family_name: ${familyName ?? '-'}');
+    log('name (completo): ${fullName.isNotEmpty ? fullName : '-'}');
+    log('preferred_username: ${preferred ?? '-'}');
+    log('displayName usado: $displayName');
+
+    // 6) Tu modelo y retorno original
+    final userModel = UserModel(
+      email: email,
+      token: accessToken,
+      id: user.userId,
+      displayName: displayName,
+      familyName: familyName,
+    );
+
+    log('UserModel: ${userModel.userToJson()}');
+    return AuthSuccess(userModel);
+  } on AuthException catch (e) {
+    return AuthFailure({
+      "message": e.message,
+      "underlyingException": e.underlyingException?.toString(),
+    });
+  } catch (e) {
+    return AuthFailure({"message": e.toString()});
   }
+}
+
 }

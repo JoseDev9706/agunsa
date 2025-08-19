@@ -8,12 +8,13 @@ import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
 import 'package:agunsa/features/transactions/data/models/pending_transaction.dart';
 import 'package:agunsa/features/transactions/data/models/transaction.dart';
 import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart';
-import 'package:agunsa/features/transactions/display/widgets/transaction_app_bar.dart';
 import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+
+import '../../../auth/data/models/user_model.dart';
 
 String? validateWeightString(String? input) {
   if (input == null || input.trim().isEmpty) return null;
@@ -32,6 +33,8 @@ String? validateWeightString(String? input) {
 
   return null; // ❌ no es un valor numérico válido al inicio
 }
+
+
 
 class ResumeTransaction extends ConsumerStatefulWidget {
   const ResumeTransaction({Key? key}) : super(key: key);
@@ -83,8 +86,19 @@ class _ResumeTransactionState extends ConsumerState<ResumeTransaction> {
     final timePlate = ref.watch(timePlateCaptureProvider);
     final timeSeal = ref.watch(timeSealCaptureProvider);
 
+    final UserModel? u = ref.watch(userProvider) as UserModel?;
 
-
+    final createdByName =
+        ((u?.displayName?.trim().isNotEmpty ?? false)
+            ? u!.displayName!.trim()
+            : (u?.email.contains('@') == true
+                ? u!.email.split('@').first
+                : 'Usuario'))
+        +
+        ((u?.familyName?.trim().isNotEmpty ?? false)
+            ? ' ${u!.familyName!.trim()}'
+            : '');
+            
     final isPendingFromCreated = isfromPending && pendingTransaction != null;
     final isPendingTransaction = transactionType?.isInOut == true;
     final shouldShowAsPending = isPendingTransaction && !isPendingFromCreated;
@@ -247,6 +261,7 @@ class _ResumeTransactionState extends ConsumerState<ResumeTransaction> {
                                         if (pendingTransaction != null) {
                                           TransactionModel transaction =
                                               TransactionModel(
+                                            createdByUserName: createdByName,
                                             containerNumber:
                                                 containerInfo?.numeroContenedorAndtipoContenedor,
                                             transactionTypeName:
@@ -380,6 +395,8 @@ class _ResumeTransactionState extends ConsumerState<ResumeTransaction> {
                                             PendingTransactionModel
                                                 newPendingTransaction =
                                                 PendingTransactionModel(
+                                              
+                                              createdByUserName: createdByName,
                                               transactionNumber:
                                                   pendingTransaction
                                                       .transactionNumber,
@@ -431,6 +448,7 @@ class _ResumeTransactionState extends ConsumerState<ResumeTransaction> {
                                           PendingTransactionModel
                                               pendingTransaction =
                                               PendingTransactionModel(
+                                            createdByUserName: createdByName,
                                             transactionNumber:
                                                 transactionNumberController
                                                     .text,
@@ -461,6 +479,7 @@ class _ResumeTransactionState extends ConsumerState<ResumeTransaction> {
                                           log('user : ${user?.id.hashCode}');
                                           TransactionModel transaction =
                                               TransactionModel(
+                                            createdByUserName: createdByName,
                                             containerNumber:
                                                 containerInfo?.numeroContenedorAndtipoContenedor,
                                             transactionTypeName:

@@ -7,6 +7,7 @@ import 'package:agunsa/features/auth/display/providers/auth_providers.dart';
 import 'package:agunsa/features/auth/display/screens/login_screen.dart';
 import 'package:agunsa/features/auth/display/screens/register_screen.dart';
 import 'package:agunsa/features/auth/domain/use_cases/check_session.dart';
+import 'package:agunsa/features/biometric/display/biometric_step_screen.dart';
 import 'package:agunsa/features/general_info/display/screens/splash_screen.dart';
 import 'package:agunsa/features/profile/display/screens/change_password.dart';
 import 'package:agunsa/features/profile/display/screens/profile_screen.dart';
@@ -25,6 +26,10 @@ import 'package:agunsa/core/utils/ui_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// NUEVO: para lanzar biometría
+import 'package:agunsa/features/biometric/keynua_biometric.dart';
+import 'package:agunsa/features/transactions/display/providers/transactions_provider.dart'; // para dniProvider
+
 enum AppRoute {
   splash,
   login,
@@ -41,7 +46,8 @@ enum AppRoute {
   takeDni,
   talePlaca,
   resumeTransaction,
-  proccess
+  proccess,
+  biometric, // <-- NUEVO
 }
 
 class AppRouterDelegate extends RouterDelegate<AppRoute>
@@ -115,7 +121,6 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
     notifyListeners();
   }
 
-
   void _updateRouteStack(AuthState state) {
     _routeStack.clear();
     switch (state) {
@@ -155,31 +160,11 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
           width: constraints.maxWidth,
         );
         return Navigator(
-            key: navigatorKey,
-            pages: _routeStack
-                .map((route) => MaterialPage(child: _buildPage(route)))
-                .toList(),
-            onDidRemovePage: (Page<dynamic> page) {
-              (route, result) {
-                final currentRoute = _routeStack.last;
-
-                // Bloquear pop si la ruta actual está en el set
-                if (nonPoppableRoutes.contains(currentRoute)) {
-                  log('Bloqueado el pop en $currentRoute');
-                  return false;
-                }
-
-                if (!route.didPop(result)) return false;
-
-                if (_routeStack.isNotEmpty) {
-                  _routeStack.removeLast();
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    notifyListeners();
-                  });
-                }
-                return true;
-              };
-            });
+          key: navigatorKey,
+          pages: _routeStack
+              .map((route) => MaterialPage(child: _buildPage(route)))
+              .toList(),
+        );
       },
     );
   }
@@ -193,9 +178,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
       case AppRoute.register:
         return const RegisterScreen();
       case AppRoute.home:
-        return HomeScreen(
-            // isNeedPasswordConfirmation: _args?['nextStep'],
-            user: _args?['user']);
+        return HomeScreen(user: _args?['user']);
       case AppRoute.profile:
         return const ProfileScreen();
       case AppRoute.security:
@@ -204,17 +187,11 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         return ChangePassword(_args?['nextStep'],
             isfromChangePassword: _args?['isfromChangePassword']);
       case AppRoute.transactions:
-        return TransactionsScreen(
-          user: _args?['user'],
-        );
+        return TransactionsScreen(user: _args?['user']);
       case AppRoute.takeContainer:
-        return TakeContainerScreen(
-          transactionType: _args?['transactionType'],
-        );
+        return TakeContainerScreen(transactionType: _args?['transactionType']);
       case AppRoute.takeAditionalPhotos:
-        return TakeAditionalPhotos(
-            // user: _args?['user'],
-            );
+        return const TakeAditionalPhotos();
       case AppRoute.containerInfo:
         return ContainerInfo(args: _args);
       case AppRoute.takePrecint:
@@ -227,6 +204,10 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
         return const ResumeTransaction();
       case AppRoute.proccess:
         return const TransactionsOnProcess();
+
+      // ===== NUEVO: BIOMETRÍA =====
+      case AppRoute.biometric:                                   // <-- NUEVO
+      return BiometricStepScreen(args: _args);
     }
   }
 
@@ -235,6 +216,36 @@ class AppRouterDelegate extends RouterDelegate<AppRoute>
     _routeStack.clear();
     _routeStack.add(configuration);
     notifyListeners();
+  }
+}
+
+/// Mini página "lanzadora" que dispara el flujo y vuelve sola
+class _BiometricLauncher extends ConsumerWidget {
+  const _BiometricLauncher({required this.ref});
+  final Ref ref;
+
+  @override
+  Widget build(BuildContext context, WidgetRef wref) {
+    // Lee DNI del provider que ya usas
+    final driverInfo = wref.watch(dniProvider);
+    // Arranca una vez
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await startKeynuaLivenessFlow(
+        ref: wref,
+        context: context,
+        documentNumber: driverInfo?.codLicence ?? '',
+        //type: KeynuaType.selfie,
+        envFile: ".env", // o ".env.stg" / ".env.prod"
+      );
+      // Al cerrar el WebView volverás aquí; puedes redirigir si quieres:
+      // if (wref.read(biometricDoneProvider)) {
+      //   wref.read(routerDelegateProvider).pushAndRemoveAll(AppRoute.resumeTransaction);
+      // }
+    });
+
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
   }
 }
 

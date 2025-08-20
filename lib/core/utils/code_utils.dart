@@ -193,33 +193,37 @@ class CodeUtils {
   }
 
   // --- Métodos utilitarios (sin cambios) ---
-  String getNextStepText({
-    required List<XFile?> aditionalImages,
-    required List<XFile?> precintsImage,
-    required XFile? placaImage,
-    required XFile? dniImage,
-    required bool isInOut,
-    required bool isFromPendingTransaction,
-  }) {
-    if (isInOut && isFromPendingTransaction) {
-      if (precintsImage.isEmpty) return 'CAPTURA PRECINTOS';
-      if (placaImage == null) return 'CAPTURA PLACA';
-      if (dniImage == null) return 'CAPTURA LICENCIA';
+ String getNextStepText({
+  required List<XFile?> aditionalImages,
+  required List<XFile?> precintsImage,
+  required XFile? placaImage,
+  required XFile? dniImage,
+  required bool isInOut,
+  required bool isFromPendingTransaction,
+  bool biometricDone = false, // <-- NUEVO con default
+}) {
+  if (isInOut && isFromPendingTransaction) {
+    if (precintsImage.isEmpty) return 'CAPTURA PRECINTOS';
+    if (placaImage == null) return 'CAPTURA PLACA';
+    if (dniImage == null) return 'CAPTURA LICENCIA';
+    if (!biometricDone) return 'CAPTURA BIOMETRÍA'; // <-- inserta aquí
+    return 'FINALIZAR';
+  } else {
+    if (aditionalImages.isNotEmpty && precintsImage.isEmpty) {
+      return 'CAPTURA PRECINTOS';
+    } else if (precintsImage.isNotEmpty && placaImage == null) {
+      return 'CAPTURA PLACA';
+    } else if (placaImage != null && dniImage == null) {
+      return 'CAPTURA LICENCIA';
+    } else if (dniImage != null && !biometricDone) {
+      return 'CAPTURA BIOMETRÍA'; // <-- inserta aquí
+    } else if (dniImage != null && biometricDone) {
       return 'FINALIZAR';
     } else {
-      if (aditionalImages.isNotEmpty && precintsImage.isEmpty) {
-        return 'CAPTURA PRECINTOS';
-      } else if (precintsImage.isNotEmpty && placaImage == null) {
-        return 'CAPTURA PLACA';
-      } else if (placaImage != null && dniImage == null) {
-        return 'CAPTURA LICENCIA';
-      } else if (dniImage != null) {
-        return 'FINALIZAR';
-      } else {
-        return 'INICIAR';
-      }
+      return 'INICIAR';
     }
   }
+}
 
   void handleNextStep({
     required WidgetRef ref,
@@ -249,6 +253,15 @@ class CodeUtils {
       case 'CAPTURA LICENCIA':
         ref.read(routerDelegateProvider).push(
           AppRoute.takeDni,
+          args: {
+            'images': args?['images'],
+            'isContainer': true,
+          },
+        );
+        break;
+      case 'CAPTURA BIOMETRÍA':
+        ref.read(routerDelegateProvider).push(
+          AppRoute.biometric,
           args: {
             'images': args?['images'],
             'isContainer': true,
